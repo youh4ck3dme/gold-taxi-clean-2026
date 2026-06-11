@@ -34,7 +34,7 @@ class ProfileRepository {
   /// Fetch order history for the current user from WooCommerce
   Future<List<Map<String, dynamic>>> getOrderHistory(int userId) async {
     final connectivityResult = await _connectivity.checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) return [];
+    if (connectivityResult.contains(ConnectivityResult.none)) return [];
 
     try {
       final response = await _apiService.get(
@@ -51,7 +51,7 @@ class ProfileRepository {
   /// Fetch booking history for the current user from JetEngine
   Future<List<BookingModel>> getBookingHistory(int userId) async {
     final connectivityResult = await _connectivity.checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) return [];
+    if (connectivityResult.contains(ConnectivityResult.none)) return [];
 
     try {
       final response = await _apiService.get(

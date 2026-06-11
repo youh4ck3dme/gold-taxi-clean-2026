@@ -26,7 +26,7 @@ class BookingsRepository {
   /// Fetch all available (free) time slots for a service on a given date
   Future<List<String>> getAvailableSlots(int serviceId, String date) async {
     final connectivityResult = await _connectivity.checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       return []; // Bookings require internet
     }
 

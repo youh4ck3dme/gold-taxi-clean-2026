@@ -34,7 +34,7 @@ class SearchRepository {
   /// Search across all categories
   Future<SearchResult> searchAll(String query) async {
     final connectivityResult = await _connectivity.checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none || query.trim().isEmpty) {
+    if (connectivityResult.contains(ConnectivityResult.none) || query.trim().isEmpty) {
       return const SearchResult();
     }
 

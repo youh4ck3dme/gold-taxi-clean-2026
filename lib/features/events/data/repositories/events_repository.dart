@@ -13,7 +13,7 @@ class EventsRepository {
   /// Fetch events from remote API or fallback to local cache
   Future<List<EventModel>> getEvents({int page = 1, int perPage = 10, String? search}) async {
     final connectivityResult = await _connectivity.checkConnectivity();
-    final isOnline = connectivityResult != ConnectivityResult.none;
+    final isOnline = !connectivityResult.contains(ConnectivityResult.none);
 
     if (isOnline) {
       try {

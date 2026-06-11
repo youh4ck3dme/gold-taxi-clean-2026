@@ -17,7 +17,7 @@ class ReviewsRepository {
   /// Fetch reviews from remote API or fallback to local cache
   Future<List<ReviewModel>> getReviews(int postId) async {
     final connectivityResult = await _connectivity.checkConnectivity();
-    final isOnline = connectivityResult != ConnectivityResult.none;
+    final isOnline = !connectivityResult.contains(ConnectivityResult.none);
 
     if (isOnline) {
       try {

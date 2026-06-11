@@ -13,7 +13,7 @@ class BlogRepository {
   /// Get posts. Attempts network fetch, falls back to cache on failure/offline.
   Future<List<PostModel>> getPosts({int page = 1, int perPage = 10, String? search}) async {
     final connectivityResult = await _connectivity.checkConnectivity();
-    final isOnline = connectivityResult != ConnectivityResult.none;
+    final isOnline = !connectivityResult.contains(ConnectivityResult.none);
 
     if (isOnline) {
       try {
