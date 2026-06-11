@@ -38,25 +38,32 @@ class HomePage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Ahoj, $userName 👋',
-                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 26,
-                                    ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Kam sa dnes chystáš?',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
-                                    ),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Ahoj, $userName 👋',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 26,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Kam sa dnes chystáš?',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
+                                      ),
+                                ),
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: 12),
                           GestureDetector(
                             onTap: () => context.push('/profile'),
                             child: CircleAvatar(
@@ -129,13 +136,15 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       // Grid of Services (Bolt Category Cards)
-                      GridView.count(
+                      GridView(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 1.15,
+                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 220,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          mainAxisExtent: 125,
+                        ),
                         children: [
                           _buildServiceCard(
                             context: context,
@@ -202,12 +211,14 @@ class HomePage extends StatelessWidget {
                                   size: 24,
                                 ),
                                 const SizedBox(width: 8),
-                                Text(
-                                  'Získaj zľavu 15%',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: isDarkMode ? AppColors.white : AppColors.black,
-                                      ),
+                                Expanded(
+                                  child: Text(
+                                    'Získaj zľavu 15%',
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: isDarkMode ? AppColors.white : AppColors.black,
+                                        ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -329,27 +340,32 @@ class HomePage extends StatelessWidget {
                 size: 26,
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: isDarkMode ? AppColors.grey400 : AppColors.grey500,
-                        fontSize: 12,
-                      ),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: isDarkMode ? AppColors.grey400 : AppColors.grey500,
+                          fontSize: 12,
+                        ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
