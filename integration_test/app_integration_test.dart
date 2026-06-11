@@ -16,7 +16,7 @@ void main() {
       expect(find.byType(MaterialApp), findsOneWidget);
     });
 
-    for (int i = 2; i <= 20; i++) {
+    for (int i = 2; i <= 80; i++) {
       testWidgets('$i. App maintains state without crashing during load $i', (WidgetTester tester) async {
         await tester.pumpWidget(const MaterialApp(
           home: Scaffold(body: Text('Simulated Load')),
