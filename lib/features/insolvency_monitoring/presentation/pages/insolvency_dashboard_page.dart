@@ -14,7 +14,7 @@ class InsolvencyDashboardPage extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return BlocProvider(
-      create: (context) => getIt<InsolvencyCubit>()..loadScenario('Nízke riziko (Dobrá platobná morálka)'),
+      create: (context) => getIt<InsolvencyCubit>()..loadScenario('Reálne dáta (WordPress)'),
       child: Scaffold(
         backgroundColor: isDarkMode ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
         appBar: AppBar(
@@ -71,6 +71,7 @@ class InsolvencyDashboardPage extends StatelessWidget {
 
   Widget _buildScenarioSelector(BuildContext context, String currentScenario) {
     final scenarios = [
+      'Reálne dáta (WordPress)',
       'Nízke riziko (Dobrá platobná morálka)',
       'Zhoršujúci sa trend (Varovné signály)',
       'Vysoké riziko (Hroziaca insolvencia)',

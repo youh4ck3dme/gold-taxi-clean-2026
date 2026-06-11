@@ -124,7 +124,7 @@ Future<void> setupServiceLocator() async {
 
   // Register Cubits / Blocs
   getIt.registerLazySingleton<AuthCubit>(() => AuthCubit(getIt<AuthRepository>()));
-  getIt.registerFactory<InsolvencyCubit>(() => InsolvencyCubit(getIt<InsolvencyPredictorService>()));
+  getIt.registerFactory<InsolvencyCubit>(() => InsolvencyCubit(getIt<InsolvencyPredictorService>(), getIt<ApiService>()));
   getIt.registerFactory<BlogBloc>(() => BlogBloc(getIt<BlogRepository>()));
   getIt.registerFactory<ProductsBloc>(() => ProductsBloc(getIt<ProductsRepository>()));
   getIt.registerFactory<ServicesBloc>(() => ServicesBloc(getIt<ServicesRepository>()));

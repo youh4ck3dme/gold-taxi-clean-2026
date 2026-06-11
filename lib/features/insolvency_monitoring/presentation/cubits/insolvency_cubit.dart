@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import '../../../../core/services/api_service.dart';
 import '../../../../core/services/insolvency_predictor_service.dart';
 import '../../../../models/invoice_model.dart';
 
@@ -42,14 +43,20 @@ class InsolvencyError extends InsolvencyState {
 // Cubit
 class InsolvencyCubit extends Cubit<InsolvencyState> {
   final InsolvencyPredictorService _predictorService;
+  final ApiService _apiService;
 
-  InsolvencyCubit(this._predictorService) : super(InsolvencyInitial());
+  InsolvencyCubit(this._predictorService, this._apiService) : super(InsolvencyInitial());
 
-  /// Načíta platobné dáta pre vybraný scenár
-  void loadScenario(String scenarioName) {
+  /// Načíta platobné dáta pre vybraný scenár (alebo reálne dáta z WordPress)
+  Future<void> loadScenario(String scenarioName) async {
     emit(InsolvencyLoading());
     try {
-      final invoices = _getMockInvoicesForScenario(scenarioName);
+      List<InvoiceModel> invoices;
+      if (scenarioName == 'Reálne dáta (WordPress)') {
+        invoices = await _apiService.getInvoices();
+      } else {
+        invoices = _getMockInvoicesForScenario(scenarioName);
+      }
       final prediction = _predictorService.analyzeInsolvencyRisk(invoices);
       emit(InsolvencyLoaded(
         invoices: invoices,

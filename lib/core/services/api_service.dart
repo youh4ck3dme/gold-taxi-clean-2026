@@ -6,6 +6,7 @@ import '../interceptors/auth_interceptor.dart';
 import 'package:gold_taxi/models/booking_model.dart';
 import 'package:gold_taxi/models/faq_model.dart';
 import 'package:gold_taxi/models/notification_model.dart';
+import 'package:gold_taxi/models/invoice_model.dart';
 
 /// Custom API Exception
 class ApiException implements Exception {
@@ -299,6 +300,11 @@ class ApiService {
   Future<List<FaqModel>> getFAQs({int page = 1, int perPage = 10}) async {
     final raw = await fetchCptData('faq', page: page, perPage: perPage);
     return raw.map((json) => FaqModel.fromJson(json)).toList();
+  }
+
+  Future<List<InvoiceModel>> getInvoices({int page = 1, int perPage = 100}) async {
+    final raw = await fetchCptData('invoices', page: page, perPage: perPage);
+    return raw.map((json) => InvoiceModel.fromJson(json)).toList();
   }
 
   /// Close Dio instance
