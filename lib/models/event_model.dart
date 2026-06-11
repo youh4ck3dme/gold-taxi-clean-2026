@@ -1,23 +1,41 @@
-import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'base_wordpress_model.dart';
 
-/// Event Model (JetEngine Events)
-class EventModel extends Equatable {
-  final int id;
-  final String title;
-  final String description;
+part 'event_model.g.dart';
+
+@JsonSerializable()
+class EventModel extends BaseWordPressModel {
+  @JsonKey(name: 'start_date', fromJson: _parseDate)
   final DateTime startDate;
+
+  @JsonKey(name: 'end_date', fromJson: _parseDate)
   final DateTime endDate;
+
+  @JsonKey(name: 'location')
   final String? location;
+
+  @JsonKey(name: 'latitude', fromJson: _parseDouble)
   final double? latitude;
+
+  @JsonKey(name: 'longitude', fromJson: _parseDouble)
   final double? longitude;
+
+  @JsonKey(name: 'category')
   final String category;
+
+  @JsonKey(name: 'images', fromJson: _parseImages)
   final List<String> images;
+
+  @JsonKey(name: 'price', fromJson: _parseDouble)
   final double? price;
 
   const EventModel({
-    required this.id,
-    required this.title,
-    required this.description,
+    required super.id,
+    required super.date,
+    required super.title,
+    required super.content,
+    super.excerpt = '',
+    super.embedded,
     required this.startDate,
     required this.endDate,
     this.location,
@@ -28,38 +46,28 @@ class EventModel extends Equatable {
     this.price,
   });
 
-  factory EventModel.fromJson(Map<String, dynamic> json) {
-    return EventModel(
-      id: json['id'] as int? ?? 0,
-      title: json['title'] as String? ?? '',
-      description: json['description'] as String? ?? '',
-      startDate: DateTime.tryParse(json['start_date'] as String? ?? '') ?? DateTime.now(),
-      endDate: DateTime.tryParse(json['end_date'] as String? ?? '') ?? DateTime.now(),
-      location: json['location'] as String?,
-      latitude: double.tryParse(json['latitude'].toString()),
-      longitude: double.tryParse(json['longitude'].toString()),
-      category: json['category'] as String? ?? '',
-      images: _getImages(json['images']),
-      price: double.tryParse(json['price'].toString()),
-    );
+  factory EventModel.fromJson(Map<String, dynamic> json) => _$EventModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$EventModelToJson(this);
+
+  // Getter for backwards compatibility with UI
+  String get description => content;
+
+  static DateTime _parseDate(dynamic json) {
+    if (json is String) {
+      return DateTime.tryParse(json) ?? DateTime.now();
+    }
+    return DateTime.now();
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'description': description,
-    'start_date': startDate.toIso8601String(),
-    'end_date': endDate.toIso8601String(),
-    'location': location,
-    'latitude': latitude,
-    'longitude': longitude,
-    'category': category,
-    'price': price?.toString(),
-  };
+  static double? _parseDouble(dynamic json) {
+    if (json == null) return null;
+    return double.tryParse(json.toString());
+  }
 
-  static List<String> _getImages(dynamic images) {
-    if (images is List) {
-      return images
+  static List<String> _parseImages(dynamic json) {
+    if (json is List) {
+      return json
           .map((img) => img is String ? img : img['url'] as String? ?? '')
           .toList()
           .where((url) => url.isNotEmpty)
@@ -69,5 +77,5 @@ class EventModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, title, startDate, endDate, category];
+  List<Object?> get props => [...super.props, startDate, endDate, location, category, images, price];
 }

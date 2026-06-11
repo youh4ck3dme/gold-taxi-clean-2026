@@ -1,0 +1,47 @@
+name: Flutter CI/CD Pipeline & Diagnostics
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Required for SonarQube
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.19.x'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Code Generation
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Static Analysis
+        run: flutter analyze
+
+      - name: Run Unit & Widget Tests
+        run: flutter test --machine > test-results.json
+
+
+      - name: Run Integration Tests (Headless)
+        run: flutter test integration_test/app_integration_test.dart
+
+      # SonarQube Scanner Integration (Optional, needs secrets configured)
+      # - name: SonarQube Scan
+      #   uses: SonarSource/sonarcloud-github-action@master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

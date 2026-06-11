@@ -1,35 +1,37 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// API Constants for WordPress JetEngine integration
 class ApiConstants {
-  static const String baseUrl = 'https://your-wordpress-site.com';
+  static String get baseUrl => dotenv.env['WP_BASE_URL'] ?? 'https://your-wordpress-site.com';
 
   // WordPress API endpoints
-  static const String wordpressApi = '$baseUrl/wp-json/wp/v2';
-  static const String jetEngineApi = '$baseUrl/wp-json/jetelementor/v1';
-  static const String wooCommerceApi = '$baseUrl/wp-json/wc/v3';
+  static String get wordpressApi => '$baseUrl/wp-json/wp/v2';
+  static String get jetEngineApi => '$baseUrl/wp-json/jet-engine/v1';
+  static String get wooCommerceApi => '$baseUrl/wp-json/wc/v3';
 
   // Endpoints
-  static const String postsEndpoint = '$wordpressApi/posts';
-  static const String productsEndpoint = '$wooCommerceApi/products';
-  static const String servicesEndpoint = '$jetEngineApi/services';
-  static const String eventsEndpoint = '$jetEngineApi/events';
-  static const String usersEndpoint = '$wordpressApi/users';
-  static const String categoriesEndpoint = '$wordpressApi/categories';
-  static const String tagsEndpoint = '$wordpressApi/tags';
-  static const String reviewsEndpoint = '$jetEngineApi/reviews';
-  static const String bookingsEndpoint = '$jetEngineApi/bookings';
-  static const String ordersEndpoint = '$wooCommerceApi/orders';
-  static const String notificationsEndpoint = '$jetEngineApi/notifications';
-  static const String faqEndpoint = '$jetEngineApi/faqs';
+  static String get postsEndpoint => '$wordpressApi/posts';
+  static String get productsEndpoint => '$wooCommerceApi/products';
+  static String get servicesEndpoint => '$wordpressApi/posts'; // Fallback to standard WP posts
+  static String get eventsEndpoint => '$wordpressApi/posts'; // Fallback to standard WP posts
+  static String get usersEndpoint => '$wordpressApi/users';
+  static String get categoriesEndpoint => '$wordpressApi/categories';
+  static String get tagsEndpoint => '$wordpressApi/tags';
+  static String get reviewsEndpoint => '$wordpressApi/posts'; // Graceful fallback
+  static String get bookingsEndpoint => '$wordpressApi/posts'; // Graceful fallback
+  static String get ordersEndpoint => '$wooCommerceApi/orders';
+  static String get notificationsEndpoint => '$wordpressApi/posts'; // Graceful fallback
+  static String get faqEndpoint => '$wordpressApi/posts'; // Graceful fallback
 
   // Auth endpoints
-  static const String loginEndpoint = '$baseUrl/wp-json/jwt-auth/v1/token';
-  static const String validateTokenEndpoint = '$baseUrl/wp-json/jwt-auth/v1/token/validate';
-  static const String refreshTokenEndpoint = '$baseUrl/wp-json/jwt-auth/v1/token/refresh';
+  static String get loginEndpoint => '$baseUrl/wp-json/jwt-auth/v1/token';
+  static String get validateTokenEndpoint => '$baseUrl/wp-json/jwt-auth/v1/token/validate';
+  static String get refreshTokenEndpoint => '$baseUrl/wp-json/jwt-auth/v1/token/refresh';
 
   // Firebase
-  static const String firebaseProjectId = 'your-firebase-project-id';
-  static const String firebaseApiKey = 'your-firebase-api-key';
-  static const String firebaseAppId = 'your-firebase-app-id';
+  static String get firebaseProjectId => dotenv.env['FIREBASE_PROJECT_ID'] ?? 'your-firebase-project-id';
+  static String get firebaseApiKey => dotenv.env['FIREBASE_API_KEY'] ?? 'your-firebase-api-key';
+  static String get firebaseAppId => dotenv.env['FIREBASE_APP_ID'] ?? 'your-firebase-app-id';
 }
 
 /// Query parameters

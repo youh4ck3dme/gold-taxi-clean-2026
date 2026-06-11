@@ -1,0 +1,25 @@
+#!/usr/bin/expect -f
+set timeout 60
+set host "shell.r6.websupport.sk"
+set port "25840"
+set user "uid6030767"
+set pass "ee48cab88f"
+set cmd [lindex $argv 0]
+
+spawn ssh -o StrictHostKeyChecking=no $user@$host -p $port
+expect {
+    "*password:*" {
+        send "$pass\r"
+    }
+}
+expect {
+    "*$*" {
+        send "cd ~/larsenevans.com/web && $cmd\r"
+    }
+}
+expect {
+    "*$*" {
+        send "exit\r"
+    }
+}
+expect eof

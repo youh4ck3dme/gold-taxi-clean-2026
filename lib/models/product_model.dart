@@ -46,6 +46,8 @@ class ProductModel extends Equatable {
     'sale_price': salePrice.toString(),
     'sku': sku,
     'stock_quantity': stock,
+    'images': images.map((url) => {'src': url}).toList(),
+    'categories': categories.map((cat) => {'name': cat}).toList(),
   };
 
   static List<String> _getImages(dynamic images) {

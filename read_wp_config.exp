@@ -1,0 +1,34 @@
+#!/usr/bin/expect -f
+
+set timeout 30
+set host "shell.r6.websupport.sk"
+set port "28156"
+set user "uid6030767"
+set pass "d30440856e"
+
+spawn ssh -o StrictHostKeyChecking=no $user@$host -p $port
+
+expect {
+    "*password:*" {
+        send "$pass\r"
+    }
+}
+
+expect {
+    "*$*" {
+        send "cd ~/larsenevans.com/web\r"
+    }
+}
+
+expect {
+    "*$*" {
+        send "grep -C 5 \"DB_HOST\" wp-config.php\r"
+    }
+}
+
+expect {
+    "*$*" {
+        send "exit\r"
+    }
+}
+expect eof

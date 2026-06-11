@@ -25,10 +25,30 @@ class ServiceModel extends Equatable {
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
+    String parsedName = '';
+    if (json['name'] is String) {
+      parsedName = json['name'] as String;
+    } else if (json['title'] is Map) {
+      parsedName = json['title']['rendered'] as String? ?? '';
+    } else if (json['title'] is String) {
+      parsedName = json['title'] as String;
+    } else {
+      parsedName = '';
+    }
+
+    String parsedDescription = '';
+    if (json['description'] is String) {
+      parsedDescription = json['description'] as String;
+    } else if (json['content'] is Map) {
+      parsedDescription = json['content']['rendered'] as String? ?? '';
+    } else {
+      parsedDescription = '';
+    }
+
     return ServiceModel(
       id: json['id'] as int? ?? 0,
-      name: json['name'] as String? ?? '',
-      description: json['description'] as String? ?? '',
+      name: parsedName,
+      description: parsedDescription,
       price: double.tryParse(json['price'].toString()) ?? 0.0,
       category: json['category'] as String? ?? '',
       images: _getImages(json['images']),
@@ -47,6 +67,7 @@ class ServiceModel extends Equatable {
     'provider': provider,
     'rating': rating.toString(),
     'review_count': reviewCount,
+    'images': images,
   };
 
   static List<String> _getImages(dynamic images) {
