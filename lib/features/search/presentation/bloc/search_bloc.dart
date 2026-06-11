@@ -35,8 +35,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
 
     final completer = Completer<void>();
-    _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-      add(LoadSearchHistory()); // Triggers history loading internally if needed, or we just execute search
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
       completer.complete();
     });
 

@@ -5,6 +5,23 @@ set -e
 
 echo "=== Starting Flutter Web Build on Vercel ==="
 
+# 0. Generate .env file from Vercel environment variables
+echo "Generating .env file from environment variables..."
+echo "WP_BASE_URL: ${WP_BASE_URL:-[NOT SET]}"
+echo "WOO_CONSUMER_KEY: ${WOO_CONSUMER_KEY:-[NOT SET]}"
+
+cat << EOF > .env
+WP_BASE_URL=${WP_BASE_URL}
+FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+FIREBASE_API_KEY=${FIREBASE_API_KEY}
+FIREBASE_APP_ID=${FIREBASE_APP_ID}
+SUPABASE_URL=${SUPABASE_URL}
+SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+WOO_CONSUMER_KEY=${WOO_CONSUMER_KEY}
+WOO_CONSUMER_SECRET=${WOO_CONSUMER_SECRET}
+EOF
+echo ".env file generated successfully!"
+
 # 1. Clone Flutter SDK (stable channel, shallow clone to save space & time)
 if [ ! -d "flutter" ]; then
   echo "Cloning Flutter SDK (stable channel)..."

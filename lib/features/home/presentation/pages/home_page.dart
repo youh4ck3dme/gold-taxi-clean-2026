@@ -307,7 +307,7 @@ class HomePage extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           color: isDarkMode ? AppColors.darkSurface : AppColors.white,
           borderRadius: BorderRadius.circular(16),
@@ -329,7 +329,7 @@ class HomePage extends StatelessWidget {
           children: [
             // Icon container with circular background
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
@@ -337,13 +337,14 @@ class HomePage extends StatelessWidget {
               child: Icon(
                 icon,
                 color: color,
-                size: 26,
+                size: 22,
               ),
             ),
-            Expanded(
+            Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     title,
@@ -351,7 +352,7 @@ class HomePage extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 15,
                         ),
                   ),
                   const SizedBox(height: 2),
@@ -361,7 +362,7 @@ class HomePage extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: isDarkMode ? AppColors.grey400 : AppColors.grey500,
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                   ),
                 ],

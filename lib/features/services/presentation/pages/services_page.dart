@@ -196,9 +196,15 @@ class _ServiceCard extends StatelessWidget {
                           color: Colors.green,
                         ),
                       ),
-                      Text(
-                        'Poskytuje: ${service.provider}',
-                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Poskytuje: ${service.provider}',
+                          style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                          textAlign: TextAlign.end,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   )

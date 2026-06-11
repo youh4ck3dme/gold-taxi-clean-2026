@@ -117,10 +117,15 @@ class ReviewsList extends StatelessWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    review.authorName,
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  Expanded(
+                                    child: Text(
+                                      review.authorName,
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Text(
                                     dateStr,
                                     style: TextStyle(color: Colors.grey[500], fontSize: 12),
