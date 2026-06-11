@@ -26,7 +26,7 @@ class AuthInterceptor extends QueuedInterceptor {
       }
     } else {
       final token = await _storage.getToken();
-      if (token != null) {
+      if (token != null && token.isNotEmpty && token != 'null') {
         options.headers['Authorization'] = 'Bearer $token';
       }
     }

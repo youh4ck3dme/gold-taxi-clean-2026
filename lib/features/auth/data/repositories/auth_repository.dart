@@ -58,7 +58,7 @@ class AuthRepository {
   /// Check if user has stored token
   Future<bool> isAuthenticated() async {
     final token = await _storage.getToken();
-    return token != null;
+    return token != null && token.isNotEmpty && token != 'null';
   }
 
   /// Get current user profile
