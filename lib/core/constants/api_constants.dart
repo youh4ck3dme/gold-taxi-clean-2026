@@ -32,6 +32,10 @@ class ApiConstants {
   static String get firebaseProjectId => dotenv.env['FIREBASE_PROJECT_ID'] ?? 'your-firebase-project-id';
   static String get firebaseApiKey => dotenv.env['FIREBASE_API_KEY'] ?? 'your-firebase-api-key';
   static String get firebaseAppId => dotenv.env['FIREBASE_APP_ID'] ?? 'your-firebase-app-id';
+
+  // WooCommerce
+  static String get wooCommerceConsumerKey => dotenv.env['WOO_CONSUMER_KEY'] ?? '';
+  static String get wooCommerceConsumerSecret => dotenv.env['WOO_CONSUMER_SECRET'] ?? '';
 }
 
 /// Query parameters

@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import '../services/local_storage_service.dart';
 
+import '../constants/api_constants.dart';
+
 class AuthInterceptor extends QueuedInterceptor {
   final LocalStorageService _storage;
 
@@ -11,9 +13,18 @@ class AuthInterceptor extends QueuedInterceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _storage.getToken();
-    if (token != null) {
-      options.headers['Authorization'] = 'Bearer $token';
+    if (options.path.contains('/wp-json/wc/v3')) {
+      final key = ApiConstants.wooCommerceConsumerKey;
+      final secret = ApiConstants.wooCommerceConsumerSecret;
+      if (key.isNotEmpty && secret.isNotEmpty) {
+        options.queryParameters['consumer_key'] = key;
+        options.queryParameters['consumer_secret'] = secret;
+      }
+    } else {
+      final token = await _storage.getToken();
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
     }
     handler.next(options);
   }
