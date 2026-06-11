@@ -13,7 +13,7 @@ class AuthInterceptor extends QueuedInterceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    if (options.path.contains('/wp-json/wc/v3')) {
+    if (options.path.contains('wp-json/wc/v3')) {
       final key = ApiConstants.wooCommerceConsumerKey;
       final secret = ApiConstants.wooCommerceConsumerSecret;
       if (key.isNotEmpty && secret.isNotEmpty) {
