@@ -58,7 +58,7 @@ Future<void> setupServiceLocator() async {
   // Register services as singletons
   getIt.registerLazySingleton<LocalStorageService>(() => SecureStorageService());
   getIt.registerLazySingleton<AuthInterceptor>(() => AuthInterceptor(getIt<LocalStorageService>()));
-  getIt.registerSingleton<ApiService>(ApiService(getIt<AuthInterceptor>()));
+  getIt.registerSingleton<ApiService>(ApiService(getIt<AuthInterceptor>(), enableMockMode: true));
   getIt.registerLazySingleton<Connectivity>(() => Connectivity());
   getIt.registerLazySingleton<CartCubit>(() => CartCubit());
   getIt.registerLazySingleton<InsolvencyPredictorService>(() => InsolvencyPredictorService());

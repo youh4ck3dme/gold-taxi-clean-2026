@@ -9,6 +9,7 @@ import 'firebase_options.dart';
 import 'core/constants/app_constants.dart';
 import 'core/di/service_locator.dart';
 import 'core/theme/app_theme.dart';
+import 'core/services/api_service.dart';
 import 'routes/app_router.dart';
 
 Future<void> main() async {
@@ -23,6 +24,11 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('⚠️ Warning: Failed to load .env file: $e');
   }
+
+  // 2. Enable Mock Mode for DEMO/PRODUCTION (real server unreachable)
+  // Remove this in production when real backend is ready
+  ApiService.enableMockMode();
+  debugPrint('🎭 MOCK MODE ENABLED - Demo mode with mock data');
 
   // 2. Setup Service Locator (Dependency Injection)
   await setupServiceLocator();

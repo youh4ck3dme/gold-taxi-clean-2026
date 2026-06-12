@@ -41,6 +41,9 @@ flutter --version
 # 4. Configure build settings
 flutter config --enable-web
 
+# MOCK mode is already enabled in main.dart and service_locator.dart
+echo "✓ MOCK mode enabled (demo data will be used)"
+
 # 5. Get pub dependencies
 echo "Getting pub packages..."
 flutter pub get
