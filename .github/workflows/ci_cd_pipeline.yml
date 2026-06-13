@@ -2,42 +2,40 @@ name: Flutter CI/CD Pipeline & Diagnostics
 
 on:
   push:
-      branches:
-            - main
-            -   pull_request:
-            -     branches:
-            -       - main
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build_and_test:
-      runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest
     steps:
-          - name: Checkout Code
-          -         uses: actions/checkout@v3
-          -         with:
-          -           fetch-depth: 0
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Create Dummy Env File
-      -         run: touch .env
+        run: touch .env
 
       - name: Setup Flutter
-      -         uses: subosito/flutter-action@v2
-      -         with:
-      -           channel: 'stable'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
 
       - name: Install Dependencies
-      -         run: flutter pub get
+        run: flutter pub get
 
       - name: Code Generation
-      -         run: flutter pub run build_runner build --delete-conflicting-outputs
+        run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Static Analysis
-      -         run: flutter analyze
+        run: flutter analyze
 
       - name: Run Unit & Widget Tests
-      -         run: flutter test --machine > test-results.json
+        run: flutter test --machine > test-results.json
 
       - name: Run Integration Tests (Headless)
-      -         run: flutter test integration_test/app_integration_test.dart
-      - 
+        run: flutter test integration_test/app_integration_test.dart
