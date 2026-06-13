@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 /// Model for real-time driver position tracking
@@ -33,13 +32,12 @@ class DriverPositionModel extends Equatable {
     required this.lastUpdated,
   });
 
-  /// Create from Firestore document
-  factory DriverPositionModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  /// Create from a plain Map (Supabase row or JSON)
+  factory DriverPositionModel.fromMap(String id, Map<String, dynamic> data) {
     return DriverPositionModel(
-      driverId: doc.id,
+      driverId: id,
       name: data['name'] as String? ?? 'Unknown Driver',
-      avatar: data['avatar'] as String? ?? 'https://i.pravatar.cc/150?u=\${doc.id}',
+      avatar: data['avatar'] as String? ?? 'https://i.pravatar.cc/150?u=$id',
       lat: (data['lat'] as num? ?? 0.0).toDouble(),
       lng: (data['lng'] as num? ?? 0.0).toDouble(),
       bearing: (data['bearing'] as num? ?? 0.0).toDouble(),
@@ -50,13 +48,13 @@ class DriverPositionModel extends Equatable {
       rating: (data['rating'] as num? ?? 0.0).toDouble(),
       phone: data['phone'] as String? ?? '',
       lastUpdated: data['lastUpdated'] != null
-          ? (data['lastUpdated'] as Timestamp).toDate()
+          ? DateTime.tryParse(data['lastUpdated'].toString()) ?? DateTime.now()
           : DateTime.now(),
     );
   }
 
-  /// Convert to Firestore map
-  Map<String, dynamic> toFirestore() {
+  /// Convert to plain Map (Supabase upsert or JSON)
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
       'avatar': avatar,
@@ -69,7 +67,7 @@ class DriverPositionModel extends Equatable {
       'serviceType': serviceType,
       'rating': rating,
       'phone': phone,
-      'lastUpdated': Timestamp.now(),
+      'lastUpdated': lastUpdated.toIso8601String(),
     };
   }
 

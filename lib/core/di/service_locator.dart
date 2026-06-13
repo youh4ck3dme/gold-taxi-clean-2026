@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 import '../services/api_service.dart';
 import '../services/local_storage_service.dart';
@@ -68,9 +68,8 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton<NotificationService>(() => NotificationService());
   getIt.registerLazySingleton<DeepLinkService>(() => DeepLinkService());
 
-  // Firebase Firestore
-  getIt.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
-  getIt.registerLazySingleton<DriverPositionRepository>(() => DriverPositionRepository(getIt<FirebaseFirestore>()));
+  // Driver Position Repository (in-memory mock; swap for Supabase Realtime when ready)
+  getIt.registerLazySingleton<DriverPositionRepository>(() => DriverPositionRepository());
   getIt.registerFactory<MapCubit>(() => MapCubit(getIt<DriverPositionRepository>()));
 
   // Register repositories
