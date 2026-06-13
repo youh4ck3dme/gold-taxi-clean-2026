@@ -19,10 +19,12 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   GoogleMapController? _mapController;
   static const LatLng _bratislavaCenter = LatLng(48.1485, 17.1077);
+  BitmapDescriptor? _carIcon;
 
   @override
   void initState() {
     super.initState();
+    _loadCustomMarker();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authState = context.read<AuthBloc>().state;
       if (authState is Authenticated) {
@@ -34,6 +36,22 @@ class _MapScreenState extends State<MapScreen> {
         }
       }
     });
+  }
+
+  Future<void> _loadCustomMarker() async {
+    try {
+      final icon = await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(35, 35)),
+        'assets/images/car_marker.png',
+      );
+      if (mounted) {
+        setState(() {
+          _carIcon = icon;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to load custom marker: $e');
+    }
   }
 
   @override
@@ -90,7 +108,7 @@ class _MapScreenState extends State<MapScreen> {
               Marker(
                 markerId: MarkerId(driver.id),
                 position: LatLng(driver.latitude, driver.longitude),
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow), // Yellow color for Gold Taxi
+                icon: _carIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
                 infoWindow: InfoWindow(
                   title: driver.fullName.isNotEmpty ? driver.fullName : 'Vodič Gold Taxi',
                   snippet: 'Aktívny',

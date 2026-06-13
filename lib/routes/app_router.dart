@@ -26,6 +26,7 @@ import '../features/profile/presentation/pages/edit_profile_page.dart';
 import '../features/search/presentation/pages/search_page.dart';
 import '../features/faq/presentation/pages/faq_page.dart';
 import '../features/insolvency_monitoring/presentation/pages/insolvency_dashboard_page.dart';
+import '../features/map/presentation/pages/map_page.dart';
 import '../features/shared/presentation/widgets/main_shell.dart';
 import '../models/post_model.dart';
 import '../models/product_model.dart';
@@ -86,6 +87,7 @@ final appRouter = GoRouter(
         GoRoute(path: '/products', builder: (context, state) => const ProductsPage()),
         GoRoute(path: '/events', builder: (context, state) => const EventsPage()),
         GoRoute(path: '/blog', builder: (context, state) => const BlogPage()),
+        GoRoute(path: '/map', builder: (context, state) => const MapPage()),
       ],
     ),
     // Auth routes

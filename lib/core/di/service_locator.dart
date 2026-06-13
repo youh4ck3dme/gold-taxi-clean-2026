@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../services/api_service.dart';
 import '../services/local_storage_service.dart';
@@ -10,6 +11,8 @@ import '../interceptors/auth_interceptor.dart';
 
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubits/auth_cubit.dart';
+import '../../features/map/data/repositories/driver_position_repository.dart';
+import '../../features/map/presentation/cubits/map_cubit.dart';
 import '../../features/blog/data/datasources/local/blog_local_datasource.dart';
 import '../../features/blog/data/datasources/remote/blog_remote_datasource.dart';
 import '../../features/blog/data/repositories/blog_repository.dart';
@@ -64,6 +67,11 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton<InsolvencyPredictorService>(() => InsolvencyPredictorService());
   getIt.registerLazySingleton<NotificationService>(() => NotificationService());
   getIt.registerLazySingleton<DeepLinkService>(() => DeepLinkService());
+
+  // Firebase Firestore
+  getIt.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
+  getIt.registerLazySingleton<DriverPositionRepository>(() => DriverPositionRepository(getIt<FirebaseFirestore>()));
+  getIt.registerFactory<MapCubit>(() => MapCubit(getIt<DriverPositionRepository>()));
 
   // Register repositories
   getIt.registerLazySingleton<AuthRepository>(() => AuthRepository(getIt<ApiService>(), getIt<LocalStorageService>()));
