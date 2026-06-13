@@ -16,6 +16,10 @@ void main() {
     authCubit = AuthCubit(mockAuthRepository);
   });
 
+  tearDown(() async {
+    await authCubit.close();
+  });
+
   group('AuthCubit Unit Tests', () {
     const testUser = UserModel(
       id: 1,
@@ -28,92 +32,141 @@ void main() {
       expect(authCubit.state, isA<AuthInitial>());
     });
 
-    test('2. checkAuthStatus emits [AuthLoading, Authenticated] when token exists and user is loaded', () async {
-      when(() => mockAuthRepository.isAuthenticated()).thenAnswer((_) async => true);
-      when(() => mockAuthRepository.getCurrentUser()).thenAnswer((_) async => testUser);
+    test(
+      '2. checkAuthStatus emits [AuthLoading, Authenticated] when token exists and user is loaded',
+      () async {
+        when(
+          () => mockAuthRepository.isAuthenticated(),
+        ).thenAnswer((_) async => true);
+        when(
+          () => mockAuthRepository.getCurrentUser(),
+        ).thenAnswer((_) async => testUser);
 
-      expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<Authenticated>(),
-        ]),
-      );
+        expectLater(
+          authCubit.stream,
+          emitsInOrder([isA<AuthLoading>(), isA<Authenticated>()]),
+        );
 
-      await authCubit.checkAuthStatus();
-    });
+        await authCubit.checkAuthStatus();
+      },
+    );
 
-    test('3. checkAuthStatus emits [AuthLoading, Unauthenticated] when token is missing', () async {
-      when(() => mockAuthRepository.isAuthenticated()).thenAnswer((_) async => false);
+    test(
+      '3. checkAuthStatus emits [AuthLoading, Unauthenticated] when token is missing',
+      () async {
+        when(
+          () => mockAuthRepository.isAuthenticated(),
+        ).thenAnswer((_) async => false);
 
-      expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<Unauthenticated>(),
-        ]),
-      );
+        expectLater(
+          authCubit.stream,
+          emitsInOrder([isA<AuthLoading>(), isA<Unauthenticated>()]),
+        );
 
-      await authCubit.checkAuthStatus();
-    });
+        await authCubit.checkAuthStatus();
+      },
+    );
 
-    test('4. checkAuthStatus emits [AuthLoading, Unauthenticated] when token exists but user fails', () async {
-      when(() => mockAuthRepository.isAuthenticated()).thenAnswer((_) async => true);
-      when(() => mockAuthRepository.getCurrentUser()).thenAnswer((_) async => null);
+    test(
+      '4. checkAuthStatus emits [AuthLoading, Unauthenticated] when token exists but user fails',
+      () async {
+        when(
+          () => mockAuthRepository.isAuthenticated(),
+        ).thenAnswer((_) async => true);
+        when(
+          () => mockAuthRepository.getCurrentUser(),
+        ).thenAnswer((_) async => null);
 
-      expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<Unauthenticated>(),
-        ]),
-      );
+        expectLater(
+          authCubit.stream,
+          emitsInOrder([isA<AuthLoading>(), isA<Unauthenticated>()]),
+        );
 
-      await authCubit.checkAuthStatus();
-    });
+        await authCubit.checkAuthStatus();
+      },
+    );
 
     test('5. login emits [AuthLoading, Authenticated] on success', () async {
-      when(() => mockAuthRepository.login('user', 'pass')).thenAnswer((_) async => true);
-      when(() => mockAuthRepository.getCurrentUser()).thenAnswer((_) async => testUser);
+      when(
+        () => mockAuthRepository.login('user', 'pass'),
+      ).thenAnswer((_) async => true);
+      when(
+        () => mockAuthRepository.getCurrentUser(),
+      ).thenAnswer((_) async => testUser);
 
       expectLater(
         authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<Authenticated>(),
-        ]),
+        emitsInOrder([isA<AuthLoading>(), isA<Authenticated>()]),
       );
 
       await authCubit.login('user', 'pass');
     });
 
-    test('6. login emits [AuthLoading, AuthError, Unauthenticated] on failure', () async {
-      when(() => mockAuthRepository.login('user', 'wrong')).thenAnswer((_) async => false);
+    test(
+      '6. login emits [AuthLoading, AuthError, Unauthenticated] on failure',
+      () async {
+        when(
+          () => mockAuthRepository.login('user', 'wrong'),
+        ).thenAnswer((_) async => false);
 
-      expectLater(
-        authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<AuthError>(),
-          isA<Unauthenticated>(),
-        ]),
-      );
+        expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<AuthError>(),
+            isA<Unauthenticated>(),
+          ]),
+        );
 
-      await authCubit.login('user', 'wrong');
-    });
+        await authCubit.login('user', 'wrong');
+      },
+    );
 
     test('7. logout emits [AuthLoading, Unauthenticated]', () async {
       when(() => mockAuthRepository.logout()).thenAnswer((_) async {});
 
       expectLater(
         authCubit.stream,
-        emitsInOrder([
-          isA<AuthLoading>(),
-          isA<Unauthenticated>(),
-        ]),
+        emitsInOrder([isA<AuthLoading>(), isA<Unauthenticated>()]),
       );
 
       await authCubit.logout();
     });
+
+    test(
+      '8. signInWithGoogle emits [AuthLoading, Authenticated] on success',
+      () async {
+        when(
+          () => mockAuthRepository.signInWithGoogle(),
+        ).thenAnswer((_) async => testUser);
+
+        expectLater(
+          authCubit.stream,
+          emitsInOrder([isA<AuthLoading>(), isA<Authenticated>()]),
+        );
+
+        await authCubit.signInWithGoogle();
+      },
+    );
+
+    test(
+      '9. signInWithGoogle emits [AuthLoading, AuthError, Unauthenticated] on failure',
+      () async {
+        when(
+          () => mockAuthRepository.signInWithGoogle(),
+        ).thenAnswer((_) async => null);
+
+        expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<AuthError>(),
+            isA<Unauthenticated>(),
+          ]),
+        );
+
+        await authCubit.signInWithGoogle();
+      },
+    );
   });
 }

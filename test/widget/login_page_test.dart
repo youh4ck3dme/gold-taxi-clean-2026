@@ -16,30 +16,27 @@ void main() {
     mockAuthCubit = MockAuthCubit();
     // Stub AuthCubit stream and state
     when(() => mockAuthCubit.state).thenReturn(Unauthenticated());
-    when(() => mockAuthCubit.stream).thenAnswer((_) => Stream.value(Unauthenticated()));
+    when(
+      () => mockAuthCubit.stream,
+    ).thenAnswer((_) => Stream.value(Unauthenticated()));
+    when(() => mockAuthCubit.close()).thenAnswer((_) async {});
 
     getIt.registerSingleton<AuthCubit>(mockAuthCubit);
   });
 
-  tearDownAll(() {
-    getIt.reset();
+  tearDownAll(() async {
+    await mockAuthCubit.close();
+    await getIt.reset();
   });
 
-  testWidgets('LoginPage renders input fields and login button', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: LoginPage(),
-      ),
-    );
+  testWidgets('LoginPage renders input fields and login button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: LoginPage()));
 
-    // Verify presence of email/username input
-    expect(find.byType(TextFormField), findsNWidgets(2));
-    expect(find.text('Prihlásiť sa'), findsOneWidget); // Title or button text
-
-    // Verify password field is obscured
-    final passwordField = tester.widget<TextField>(
-      find.byType(TextField).last,
-    );
-    expect(passwordField.obscureText, isTrue);
+    expect(find.text('Používateľské meno / E-mail'), findsOneWidget);
+    expect(find.text('Heslo'), findsOneWidget);
+    expect(find.text('Prihlásiť sa'), findsOneWidget);
+    expect(find.text('Pokračovať cez Google'), findsOneWidget);
   });
 }

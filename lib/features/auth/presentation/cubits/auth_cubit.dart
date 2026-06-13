@@ -42,6 +42,18 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Google Sign-In action
+  Future<void> signInWithGoogle() async {
+    emit(AuthLoading());
+    final user = await _authRepository.signInWithGoogle();
+    if (user != null) {
+      emit(Authenticated(user));
+    } else {
+      emit(const AuthError('Google prihlásenie zlyhalo.'));
+      emit(Unauthenticated());
+    }
+  }
+
   /// 🔧 DEVELOPER BYPASS — skip auth, go straight to home
   void developerBypass() {
     const devUser = UserModel(

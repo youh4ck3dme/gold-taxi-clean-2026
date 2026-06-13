@@ -34,7 +34,10 @@ class _LoginPageState extends State<LoginPage> {
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-          title: const Text('Prihlásenie', style: TextStyle(color: Colors.white)),
+          title: const Text(
+            'Prihlásenie',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
@@ -62,10 +65,14 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.all(24),
                       margin: const EdgeInsets.symmetric(horizontal: 24),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18), // transparent white liquid glass
+                        color: Colors.white.withValues(
+                          alpha: 0.18,
+                        ), // transparent white liquid glass
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.25), // shiny glass border
+                          color: Colors.white.withValues(
+                            alpha: 0.25,
+                          ), // shiny glass border
                           width: 1.5,
                         ),
                         boxShadow: [
@@ -80,7 +87,10 @@ class _LoginPageState extends State<LoginPage> {
                         listener: (context, state) {
                           if (state is AuthError) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+                              SnackBar(
+                                content: Text(state.message),
+                                backgroundColor: Colors.red,
+                              ),
                             );
                           }
                         },
@@ -96,7 +106,8 @@ class _LoginPageState extends State<LoginPage> {
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white, // White text for better contrast on glass
+                                    color: Colors
+                                        .white, // White text for better contrast on glass
                                     shadows: [
                                       Shadow(
                                         color: Colors.black45,
@@ -111,8 +122,14 @@ class _LoginPageState extends State<LoginPage> {
                                 AppTextField(
                                   controller: _usernameController,
                                   labelText: 'Používateľské meno / E-mail',
-                                  prefixIcon: const Icon(Icons.person_outline, color: AppColors.grey700),
-                                  style: const TextStyle(color: AppColors.grey800, fontSize: 16),
+                                  prefixIcon: const Icon(
+                                    Icons.person_outline,
+                                    color: AppColors.grey700,
+                                  ),
+                                  style: const TextStyle(
+                                    color: AppColors.grey800,
+                                    fontSize: 16,
+                                  ),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return 'Zadajte meno';
@@ -125,8 +142,14 @@ class _LoginPageState extends State<LoginPage> {
                                   controller: _passwordController,
                                   labelText: 'Heslo',
                                   obscureText: true,
-                                  prefixIcon: const Icon(Icons.lock_outline, color: AppColors.grey700),
-                                  style: const TextStyle(color: AppColors.grey800, fontSize: 16),
+                                  prefixIcon: const Icon(
+                                    Icons.lock_outline,
+                                    color: AppColors.grey700,
+                                  ),
+                                  style: const TextStyle(
+                                    color: AppColors.grey800,
+                                    fontSize: 16,
+                                  ),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return 'Zadajte heslo';
@@ -141,15 +164,56 @@ class _LoginPageState extends State<LoginPage> {
                                   onPressed: () {
                                     if (_formKey.currentState!.validate()) {
                                       context.read<AuthCubit>().login(
-                                            _usernameController.text,
-                                            _passwordController.text,
-                                          );
+                                        _usernameController.text,
+                                        _passwordController.text,
+                                      );
                                     }
                                   },
                                 ),
                                 const SizedBox(height: 16),
+                                SizedBox(
+                                  height: 50,
+                                  child: OutlinedButton.icon(
+                                    icon: const Text(
+                                      'G',
+                                      style: TextStyle(
+                                        color: AppColors.grey800,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    label: const Text(
+                                      'Pokračovať cez Google',
+                                      style: TextStyle(
+                                        color: AppColors.grey800,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      side: const BorderSide(
+                                        color: AppColors.grey200,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    onPressed: state is AuthLoading
+                                        ? null
+                                        : () {
+                                            context
+                                                .read<AuthCubit>()
+                                                .signInWithGoogle();
+                                          },
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
                                 ElevatedButton.icon(
-                                  icon: const Icon(Icons.developer_mode, color: Colors.white),
+                                  icon: const Icon(
+                                    Icons.developer_mode,
+                                    color: Colors.white,
+                                  ),
                                   label: const Text(
                                     '🔧 DEVELOPER BYPASS → DOMOV',
                                     style: TextStyle(
@@ -160,10 +224,15 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.deepOrange,
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
-                                      side: const BorderSide(color: Colors.orange, width: 2),
+                                      side: const BorderSide(
+                                        color: Colors.orange,
+                                        width: 2,
+                                      ),
                                     ),
                                   ),
                                   onPressed: () {

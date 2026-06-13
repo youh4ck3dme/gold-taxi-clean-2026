@@ -29,12 +29,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'your-firebase-web-api-key',
-    appId: 'your-firebase-web-app-id',
-    messagingSenderId: 'your-firebase-messaging-sender-id',
-    projectId: 'your-firebase-project-id',
-    authDomain: 'your-firebase-project-id.firebaseapp.com',
-    storageBucket: 'your-firebase-project-id.appspot.com',
-    measurementId: 'your-firebase-measurement-id',
+    apiKey: 'AIzaSyAUeIiPs-T_3Umzpn56uDQ7RPRKMeoLdOQ',
+    appId: '1:1007297424308:web:6d37e86881c23e6ceca0e1',
+    messagingSenderId: '1007297424308',
+    projectId: 'goldtaxi-202ff',
+    authDomain: 'goldtaxi-202ff.firebaseapp.com',
+    storageBucket: 'goldtaxi-202ff.firebasestorage.app',
+    measurementId: 'G-VY69NL5V75',
   );
 }
