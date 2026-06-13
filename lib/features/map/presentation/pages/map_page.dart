@@ -137,8 +137,7 @@ class _MapPageState extends State<MapPage> {
                   latitude: driver.lat,
                   longitude: driver.lng,
                   title: driver.name,
-                  snippet:
-                      '${driver.serviceType} • ${driver.rating}★ • ${driver.carModel}',
+                  snippet: '${driver.carModel} • ${driver.carPlate}',
                   isAvailable: driver.isAvailable,
                   rotation: driver.bearing,
                   onTap: () => _mapCubit.selectDriver(driver.driverId),

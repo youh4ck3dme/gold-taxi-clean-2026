@@ -53,6 +53,29 @@ class PlatformMapWidget extends StatelessWidget {
     }
   }
 
+  /// Get taxi icon for Google Maps based on availability status
+  gmaps.BitmapDescriptor _getTaxiIcon(bool isAvailable) {
+    return gmaps.BitmapDescriptor.defaultMarkerWithHue(
+      isAvailable ? gmaps.BitmapDescriptor.hueOrange : gmaps.BitmapDescriptor.hueViolet,
+    );
+  }
+
+  /// Build taxi marker icon for flutter_map
+  Widget _buildTaxiMarkerIcon(bool isAvailable) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isAvailable ? Colors.orange : Colors.grey,
+        shape: BoxShape.circle,
+      ),
+      padding: const EdgeInsets.all(4),
+      child: const Icon(
+        Icons.local_taxi,
+        color: Colors.white,
+        size: 24,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_useGoogleMaps && isGoogleMapsInitialized()) {
@@ -71,11 +94,7 @@ class PlatformMapWidget extends StatelessWidget {
           title: m.title,
           snippet: m.snippet,
         ),
-        icon: m.isAvailable
-            ? gmaps.BitmapDescriptor.defaultMarkerWithHue(
-                gmaps.BitmapDescriptor.hueGreen)
-            : gmaps.BitmapDescriptor.defaultMarkerWithHue(
-                gmaps.BitmapDescriptor.hueRed),
+        icon: _getTaxiIcon(m.isAvailable),
         rotation: m.rotation,
         onTap: m.onTap,
       );
@@ -108,11 +127,7 @@ class PlatformMapWidget extends StatelessWidget {
           onTap: m.onTap,
           child: Tooltip(
             message: '${m.title}\n${m.snippet ?? ''}',
-            child: Icon(
-              Icons.location_on,
-              color: m.isAvailable ? Colors.green : Colors.red,
-              size: 40,
-            ),
+            child: _buildTaxiMarkerIcon(m.isAvailable),
           ),
         ),
       );

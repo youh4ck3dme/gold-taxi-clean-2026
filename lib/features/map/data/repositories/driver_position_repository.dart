@@ -11,18 +11,19 @@ class DriverPositionRepository {
 
   // In-memory store so stream updates work without a backend connection.
   final List<DriverPositionModel> _mockDrivers = [
+    // Demo driver profile as specified in requirements
     DriverPositionModel(
-      driverId: 'driver_1',
+      driverId: 'demo_driver_jan_novak',
       name: 'Ján Novák',
-      avatar: 'https://i.pravatar.cc/150?u=1',
+      avatar: 'https://i.pravatar.cc/150?u=jan_novak',
       lat: 48.1486,
       lng: 17.1077,
       bearing: 45.0,
       isAvailable: true,
       carModel: 'Škoda Octavia',
-      carPlate: 'BA-123-AB',
+      carPlate: 'BA-123GT',
       serviceType: 'Standard',
-      rating: 4.8,
+      rating: 4.9,
       phone: '+421 905 123 456',
       lastUpdated: DateTime.now(),
     ),
