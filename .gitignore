@@ -51,3 +51,6 @@ askpass.sh
 
 .vercel
 .env*
+
+# Local flutter clone for vercel build
+/flutter/
