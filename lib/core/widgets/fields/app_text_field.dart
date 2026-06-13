@@ -14,6 +14,7 @@ class AppTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final int? maxLines;
   final ValueChanged<String>? onChanged;
+  final TextStyle? style;
 
   const AppTextField({
     super.key,
@@ -29,6 +30,7 @@ class AppTextField extends StatelessWidget {
     this.textInputAction,
     this.maxLines = 1,
     this.onChanged,
+    this.style,
   });
 
   @override
@@ -42,7 +44,7 @@ class AppTextField extends StatelessWidget {
       textInputAction: textInputAction,
       maxLines: maxLines,
       onChanged: onChanged,
-      style: const TextStyle(fontSize: 16),
+      style: style ?? const TextStyle(fontSize: 16),
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,

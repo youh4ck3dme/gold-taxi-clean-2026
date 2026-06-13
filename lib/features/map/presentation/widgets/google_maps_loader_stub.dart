@@ -1,0 +1,3 @@
+bool isGoogleMapsInitialized() {
+  return false;
+}

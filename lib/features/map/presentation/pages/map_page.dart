@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../cubits/map_cubit.dart';
+import '../widgets/platform_map_widget.dart';
 import 'package:gold_taxi/features/auth/presentation/cubits/auth_cubit.dart';
 import '../../../../models/driver_position_model.dart';
+import '../../../../models/service_model.dart';
 
 /// Main Map Page with Realtime Driver Tracking
 class MapPage extends StatefulWidget {
@@ -33,6 +37,14 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _checkLocationPermission() async {
+    if (kIsWeb || defaultTargetPlatform == TargetPlatform.macOS) {
+      setState(() {
+        _hasLocationPermission = true;
+      });
+      _getCurrentPosition();
+      return;
+    }
+
     final status = await Permission.locationWhenInUse.request();
     setState(() {
       _hasLocationPermission = status.isGranted;
@@ -116,21 +128,37 @@ class _MapPageState extends State<MapPage> {
               }
 
               final currentPosition = state is MapLoaded ? state.currentPosition : null;
-              final markers = state is MapLoaded ? state.markers : <Marker>[];
+              final drivers = state is MapLoaded ? state.drivers : <DriverPositionModel>[];
 
-              return GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: currentPosition ?? _defaultPosition,
-                  zoom: 14.0,
-                ),
-                markers: markers.toSet(),
+              // Convert drivers to platform-agnostic marker data
+              final platformMarkers = drivers.map((driver) {
+                return MapMarkerData(
+                  id: driver.driverId,
+                  latitude: driver.lat,
+                  longitude: driver.lng,
+                  title: driver.name,
+                  snippet:
+                      '${driver.serviceType} • ${driver.rating}★ • ${driver.carModel}',
+                  isAvailable: driver.isAvailable,
+                  rotation: driver.bearing,
+                  onTap: () => _mapCubit.selectDriver(driver.driverId),
+                );
+              }).toSet();
+
+              final pos = currentPosition ?? _defaultPosition;
+
+              return PlatformMapWidget(
+                latitude: pos.latitude,
+                longitude: pos.longitude,
+                zoom: 14.0,
+                markers: platformMarkers,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 compassEnabled: true,
                 zoomControlsEnabled: false,
                 padding: const EdgeInsets.only(bottom: 150),
                 onMapCreated: (controller) {
-                  if (state is! MapLoaded) {
+                  if (state is! MapLoaded && controller is GoogleMapController) {
                     _mapCubit.initMap(controller);
                   }
                 },
@@ -306,25 +334,42 @@ class _DriverInfoCard extends StatelessWidget {
     );
   }
 
-  void _makePhoneCall(String phone, BuildContext context) {
+  Future<void> _makePhoneCall(String phone, BuildContext context) async {
     if (phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Telefónne číslo nie je k dispozícii')),
       );
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Volám $phone...')),
-    );
-    // TODO: Implement actual phone call
-    // url_launcher: launch('tel:$phone');
+    // Normalize: strip spaces so 'tel:' URI is valid
+    final normalized = phone.replaceAll(' ', '');
+    final uri = Uri(scheme: 'tel', path: normalized);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Nepodarilo sa vytočiť číslo $phone')),
+        );
+      }
+    }
   }
 
   void _bookDriver(DriverPositionModel driver, BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Objednávam vodiča: ${driver.name}')),
+    // Build a ServiceModel from the selected driver and push to /booking
+    final service = ServiceModel(
+      id: driver.driverId.hashCode.abs(),
+      name: '${driver.serviceType} – ${driver.name}',
+      description:
+          '${driver.carModel} (${driver.carPlate}) · Hodnotenie: ${driver.rating}★\n'
+          'Tel: ${driver.phone.isNotEmpty ? driver.phone : "N/A"}',
+      price: 0.0, // actual price calculated by backend
+      category: driver.serviceType,
+      provider: driver.name,
+      images: [driver.avatar],
+      rating: driver.rating,
     );
-    // TODO: Navigate to booking screen with selected driver
+    context.push('/booking', extra: service);
   }
 }
 

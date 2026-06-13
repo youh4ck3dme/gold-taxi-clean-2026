@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Gold Taxi potrebuje prístup k vašej polohe pre zobrazenie najbližších vodičov na mape.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Gold Taxi potrebuje prístup k vašej polohe pre sledovanie trasy jazdy.</string>
 </dict>
 </plist>
