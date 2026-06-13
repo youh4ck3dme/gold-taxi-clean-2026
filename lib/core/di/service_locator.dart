@@ -12,7 +12,7 @@ import '../interceptors/auth_interceptor.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubits/auth_cubit.dart';
 import '../../features/map/data/repositories/driver_position_repository.dart';
-import '../../features/map/presentation/cubits/map_cubit.dart';
+import 'package:gold_taxi/features/map/presentation/cubits/map_cubit.dart';
 import '../../features/blog/data/datasources/local/blog_local_datasource.dart';
 import '../../features/blog/data/datasources/remote/blog_remote_datasource.dart';
 import '../../features/blog/data/repositories/blog_repository.dart';

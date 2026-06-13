@@ -34,11 +34,12 @@ else
   cd flutter && git pull && cd ..
 fi
 
-# 2. Add Flutter to PATH for this execution session
-export PATH="$PATH:$(pwd)/flutter/bin"
+# 2. Add Flutter to PATH for this execution session (Prepend to ensure local copy is used)
+export PATH="$(pwd)/flutter/bin:$PATH"
 
-# 3. Verify installation and print version
-echo "Flutter version details:"
+# 3. Verify installation, disable analytics, and print version
+echo "Disabling analytics and verifying Flutter version..."
+flutter config --no-analytics
 flutter --version
 
 # 4. Configure build settings
