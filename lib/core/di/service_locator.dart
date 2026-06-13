@@ -12,6 +12,7 @@ import '../interceptors/auth_interceptor.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubits/auth_cubit.dart';
 import '../../features/map/data/repositories/driver_position_repository.dart';
+import '../../features/map/data/services/driver_profile_service.dart';
 import 'package:gold_taxi/features/map/presentation/cubits/map_cubit.dart';
 import '../../features/blog/data/datasources/local/blog_local_datasource.dart';
 import '../../features/blog/data/datasources/remote/blog_remote_datasource.dart';
@@ -71,6 +72,9 @@ Future<void> setupServiceLocator() async {
   // Driver Position Repository (in-memory mock; swap for Supabase Realtime when ready)
   getIt.registerLazySingleton<DriverPositionRepository>(() => DriverPositionRepository());
   getIt.registerFactory<MapCubit>(() => MapCubit(getIt<DriverPositionRepository>()));
+
+  // Driver Profile Service for Supabase
+  getIt.registerLazySingleton<DriverProfileService>(() => DriverProfileService());
 
   // Register repositories
   getIt.registerLazySingleton<AuthRepository>(() => AuthRepository(getIt<ApiService>(), getIt<LocalStorageService>()));
