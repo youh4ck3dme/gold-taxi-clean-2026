@@ -1,11 +1,11 @@
 {
-    "name": "gold_taxi",
-    "short_name": "gold_taxi",
+    "name": "Gold Taxi",
+    "short_name": "Gold Taxi",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#1A1A1A",
+    "theme_color": "#FFB81C",
+    "description": "Spoľahlivá a bezpečná taxislužba Gold Taxi.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
