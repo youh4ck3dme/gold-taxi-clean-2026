@@ -5,6 +5,9 @@ set -e
 
 echo "=== Starting Flutter Web Build on Vercel ==="
 
+# Ensure empty assets directories exist
+mkdir -p assets assets/images assets/icons
+
 # 0. Generate .env file from Vercel environment variables
 echo "Generating .env file from environment variables..."
 echo "WP_BASE_URL: ${WP_BASE_URL:-[NOT SET]}"
