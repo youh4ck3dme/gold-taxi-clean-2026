@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Exit immediately if a command exits with a non-zero status
 set -e
@@ -27,13 +27,10 @@ EOF
 echo ".env file generated successfully!"
 
 # 1. Clone Flutter SDK (stable channel, shallow clone to save space & time)
-if [ ! -d "flutter" ]; then
-  echo "Cloning Flutter SDK (stable channel)..."
-  git clone https://github.com/flutter/flutter.git --depth 1 -b stable
-else
-  echo "Flutter SDK already exists, pulling updates..."
-  cd flutter && git pull && cd ..
-fi
+echo "Cleaning old Flutter SDK if any..."
+rm -rf flutter
+echo "Cloning Flutter SDK (stable channel)..."
+git clone https://github.com/flutter/flutter.git --depth 1 -b stable
 
 # 2. Add Flutter to PATH for this execution session (Prepend to ensure local copy is used)
 export PATH="$(pwd)/flutter/bin:$PATH"

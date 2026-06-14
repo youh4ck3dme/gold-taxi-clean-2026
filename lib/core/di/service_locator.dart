@@ -7,7 +7,10 @@ import '../services/local_storage_service.dart';
 import '../services/secure_storage_service.dart';
 import '../services/notification_service.dart';
 import '../services/deep_link_service.dart';
+import '../services/analytics_service.dart';
 import '../interceptors/auth_interceptor.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubits/auth_cubit.dart';
@@ -52,14 +55,26 @@ import '../../features/map/presentation/cubits/ride_cubit.dart';
 
 import '../../features/search/data/repositories/search_repository.dart';
 import '../../features/search/presentation/bloc/search_bloc.dart';
+import '../../features/search/data/places_repository.dart';
+import '../../features/search/data/recent_places_repository.dart';
+import '../../features/search/presentation/bloc/places_search_cubit.dart';
 import '../../features/map/data/repositories/ride_repository.dart';
 import '../../features/map/data/repositories/mock_ride_repository.dart';
 import '../../features/map/data/repositories/supabase_ride_repository.dart';
+import '../../features/map/data/repositories/promo_repository.dart';
+import '../../features/map/data/repositories/mock_promo_repository.dart';
+import '../../features/map/data/repositories/supabase_promo_repository.dart';
 
 import '../../features/faq/data/repositories/faq_repository.dart';
 import '../../features/faq/presentation/bloc/faq_bloc.dart';
 import '../../features/insolvency_monitoring/presentation/cubits/insolvency_cubit.dart';
 import '../services/insolvency_predictor_service.dart';
+
+import '../../features/chat/data/repositories/chat_repository.dart';
+import '../../features/chat/presentation/bloc/chat_cubit.dart';
+import '../../features/earnings/data/repositories/earnings_repository.dart';
+import '../../features/earnings/data/repositories/supabase_earnings_repository.dart';
+import '../../features/earnings/data/repositories/mock_earnings_repository.dart';
 
 enum BackendMode { mock, supabase }
 
@@ -76,6 +91,10 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.mock}) async {
   getIt.registerLazySingleton<InsolvencyPredictorService>(() => InsolvencyPredictorService());
   getIt.registerLazySingleton<NotificationService>(() => NotificationService());
   getIt.registerLazySingleton<DeepLinkService>(() => DeepLinkService());
+  getIt.registerLazySingleton<AnalyticsService>(() => AnalyticsService(
+        analytics: Firebase.apps.isNotEmpty ? FirebaseAnalytics.instance : null,
+        isEnabled: true,
+      ));
 
   // Driver Position Repository (in-memory mock; swap for Supabase Realtime when ready)
   getIt.registerLazySingleton<DriverPositionRepository>(() => DriverPositionRepository());
@@ -127,7 +146,9 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.mock}) async {
         getIt<Connectivity>(),
       ));
 
-
+  // Places Search
+  getIt.registerLazySingleton<PlacesRepository>(() => PlacesRepository());
+  getIt.registerLazySingleton<RecentPlacesRepository>(() => RecentPlacesRepository());
   // Ride Repository (Swappable)
   if (mode == BackendMode.supabase) {
     getIt.registerLazySingleton<RideRepository>(() => SupabaseRideRepository(Supabase.instance.client));
@@ -139,6 +160,31 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.mock}) async {
         getIt<ApiService>(),
         getIt<Connectivity>(),
       ));
+
+  // Chat Repository
+  if (mode == BackendMode.supabase) {
+    getIt.registerLazySingleton<ChatRepository>(() => ChatRepository(Supabase.instance.client));
+  } else {
+    // For now we use the same since ChatRepository expects SupabaseClient.
+    // If we build a MockChatRepository, we can swap it here.
+    getIt.registerLazySingleton<ChatRepository>(() => ChatRepository(Supabase.instance.client));
+  }
+
+  // Earnings Repository
+  if (mode == BackendMode.supabase) {
+    getIt.registerLazySingleton<EarningsRepository>(() => SupabaseEarningsRepository(
+      supabase: Supabase.instance.client,
+    ));
+  } else {
+    getIt.registerLazySingleton<EarningsRepository>(() => MockEarningsRepository());
+  }
+
+  // Promo Repository
+  if (mode == BackendMode.supabase) {
+    getIt.registerLazySingleton<PromoRepository>(() => SupabasePromoRepository(Supabase.instance.client));
+  } else {
+    getIt.registerLazySingleton<PromoRepository>(() => MockPromoRepository());
+  }
 
   // Register Data Sources
   getIt.registerLazySingleton<BlogRemoteDataSource>(() => BlogRemoteDataSource(getIt<ApiService>()));
@@ -165,6 +211,14 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.mock}) async {
   getIt.registerFactory<ProfileCubit>(() => ProfileCubit(getIt<ProfileRepository>()));
   getIt.registerFactory<SearchBloc>(() => SearchBloc(getIt<SearchRepository>()));
   getIt.registerFactory<FaqBloc>(() => FaqBloc(getIt<FaqRepository>()));
-  getIt.registerFactory<RideCubit>(() => RideCubit(getIt<RideRepository>()));
+  getIt.registerFactory<RideCubit>(() => RideCubit(
+        getIt<RideRepository>(),
+        getIt<PromoRepository>(),
+      ));
+  getIt.registerFactory<PlacesSearchCubit>(() => PlacesSearchCubit(
+        placesRepository: getIt<PlacesRepository>(),
+        recentPlacesRepository: getIt<RecentPlacesRepository>(),
+      ));
+  getIt.registerFactory<ChatCubit>(() => ChatCubit(getIt<ChatRepository>()));
 }
 

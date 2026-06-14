@@ -105,4 +105,33 @@ class SupabaseRideRepository implements RideRepository {
       'current_lng': lng,
     }).eq('id', driverId);
   }
+
+  @override
+  Future<bool> checkLocationInZone(double lat, double lng) async {
+    try {
+      final response = await _client.rpc('check_location_in_zone', params: {
+        'p_lat': lat,
+        'p_lng': lng,
+      });
+      return response as bool? ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<double> getSurgeMultiplier(double lat, double lng) async {
+    try {
+      final response = await _client.rpc('calculate_surge_pricing', params: {
+        'p_lat': lat,
+        'p_lng': lng,
+      });
+      if (response is num) {
+        return response.toDouble();
+      }
+      return double.tryParse(response.toString()) ?? 1.0;
+    } catch (_) {
+      return 1.0;
+    }
+  }
 }

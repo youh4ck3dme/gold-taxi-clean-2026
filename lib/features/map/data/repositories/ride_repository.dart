@@ -31,4 +31,10 @@ abstract class RideRepository {
 
   /// Update driver location
   Future<void> updateDriverLocation(String driverId, double lat, double lng, {double? heading});
+
+  /// Check if the location is in an operating zone
+  Future<bool> checkLocationInZone(double lat, double lng);
+
+  /// Get the current surge multiplier for a location
+  Future<double> getSurgeMultiplier(double lat, double lng);
 }

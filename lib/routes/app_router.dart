@@ -27,13 +27,20 @@ import '../features/search/presentation/pages/search_page.dart';
 import '../features/faq/presentation/pages/faq_page.dart';
 import '../features/insolvency_monitoring/presentation/pages/insolvency_dashboard_page.dart';
 import 'package:gold_taxi/features/map/presentation/pages/map_page.dart';
+import '../features/chat/presentation/pages/chat_page.dart';
 import 'package:gold_taxi/features/map/presentation/pages/ride_request_page.dart';
 import 'package:gold_taxi/features/map/presentation/pages/active_ride_page.dart';
+import '../features/earnings/presentation/pages/earnings_page.dart';
+import '../features/earnings/presentation/cubits/earnings_cubit.dart';
+import '../features/earnings/data/repositories/earnings_repository.dart';
 import 'package:gold_taxi/features/map/presentation/cubits/map_cubit.dart';
 import 'package:gold_taxi/features/map/presentation/cubits/ride_cubit.dart';
 import '../core/services/mock_geocoding_service.dart';
 import '../features/profile/presentation/pages/driver_dashboard_page.dart';
 import '../features/profile/presentation/pages/admin_dashboard_page.dart';
+import '../features/profile/presentation/pages/driver_onboarding_page.dart';
+import '../features/profile/presentation/pages/driver_verification_status_page.dart';
+import '../features/profile/presentation/bloc/profile_cubit.dart';
 import '../features/shared/presentation/widgets/main_shell.dart';
 import '../core/constants/feature_flags.dart';
 import '../models/post_model.dart';
@@ -168,8 +175,28 @@ final appRouter = GoRouter(
     ),
     GoRoute(path: '/profile', builder: (context, state) => const ProfilePage()),
     GoRoute(path: '/profile/edit', builder: (context, state) => const EditProfilePage()),
-    GoRoute(path: '/driver', builder: (context, state) => const DriverDashboardPage()),
+    GoRoute(
+      path: '/driver',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<ProfileCubit>()..fetchProfile(),
+        child: const DriverDashboardPage(),
+      ),
+    ),
     GoRoute(path: '/admin', builder: (context, state) => const AdminDashboardPage()),
+    GoRoute(
+      path: '/driver/onboarding',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<ProfileCubit>()..fetchProfile(),
+        child: const DriverOnboardingPage(),
+      ),
+    ),
+    GoRoute(
+      path: '/driver/verification',
+      builder: (context, state) {
+        final status = state.extra as String? ?? 'pending_verification';
+        return DriverVerificationStatusPage(status: status);
+      },
+    ),
     GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
     GoRoute(
       path: '/ride-request',
@@ -186,6 +213,27 @@ final appRouter = GoRouter(
       builder: (context, state) => BlocProvider<RideCubit>(
         create: (_) => getIt<RideCubit>(),
         child: const ActiveRidePage(),
+      ),
+    ),
+    GoRoute(
+      path: '/chat',
+      builder: (context, state) {
+        final params = state.extra as Map<String, String>;
+        return ChatPage(
+          rideId: params['rideId']!,
+          driverId: params['driverId']!,
+          driverName: params['driverName']!,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/earnings',
+      builder: (context, state) => BlocProvider<EarningsCubit>(
+        create: (_) => EarningsCubit(
+          earningsRepository: getIt<EarningsRepository>(),
+          driverId: 'driver_1',
+        )..loadAllData(),
+        child: const EarningsPage(),
       ),
     ),
     GoRoute(path: '/faq', builder: (context, state) => const FaqPage()),

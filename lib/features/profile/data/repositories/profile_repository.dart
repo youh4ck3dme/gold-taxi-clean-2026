@@ -30,4 +30,37 @@ abstract class ProfileRepository {
 
   /// Fetch booking history for the current user
   Future<List<dynamic>> getBookingHistory(String userId);
+
+  /// Register current user as a driver
+  Future<void> registerAsDriver({
+    required String vehicleType,
+    required String vehiclePlate,
+    required List<String> serviceClasses,
+  });
+
+  /// Upload driver document to Supabase Storage (returns public URL)
+  Future<String> uploadDocument({
+    required String documentType,
+    required List<int> bytes,
+    required String fileName,
+  });
+
+  /// Save driver document URLs into the database
+  Future<void> saveDriverDocuments({
+    required String profilePhotoUrl,
+    required String idCardUrl,
+    required String licenseUrl,
+  });
+
+  /// Get driver documents URLs
+  Future<Map<String, dynamic>?> getDriverDocuments(String driverId);
+
+  /// Send SMS OTP verification code to a phone number
+  Future<void> sendPhoneOtp(String phone);
+
+  /// Verify SMS OTP verification code for a phone number
+  Future<bool> verifyPhoneOtp(String phone, String code);
+
+  /// Apply a referral code of another user to set referred_by
+  Future<void> applyReferralCode(String code);
 }

@@ -2,7 +2,7 @@
   "version": 2,
   "cleanUrls": true,
   "framework": null,
-  "buildCommand": "bash vercel-build.sh",
+  "buildCommand": "sh vercel-build.sh",
   "outputDirectory": "build/web",
   "rewrites": [
     {

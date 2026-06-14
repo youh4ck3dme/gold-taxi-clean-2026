@@ -19,6 +19,7 @@ class ProfileLoaded extends ProfileState {
   final List<dynamic> bookings;
   final Map<String, dynamic>? driverRecord;
   final Map<String, dynamic>? driverStats;
+  final Map<String, dynamic>? driverDocs;
   final String activeRole; // 'customer' or 'driver'
 
   const ProfileLoaded({
@@ -27,6 +28,7 @@ class ProfileLoaded extends ProfileState {
     required this.bookings,
     this.driverRecord,
     this.driverStats,
+    this.driverDocs,
     this.activeRole = 'customer',
   });
 
@@ -44,6 +46,7 @@ class ProfileLoaded extends ProfileState {
     List<dynamic>? bookings,
     Map<String, dynamic>? driverRecord,
     Map<String, dynamic>? driverStats,
+    Map<String, dynamic>? driverDocs,
     String? activeRole,
   }) {
     return ProfileLoaded(
@@ -52,12 +55,13 @@ class ProfileLoaded extends ProfileState {
       bookings: bookings ?? this.bookings,
       driverRecord: driverRecord ?? this.driverRecord,
       driverStats: driverStats ?? this.driverStats,
+      driverDocs: driverDocs ?? this.driverDocs,
       activeRole: activeRole ?? this.activeRole,
     );
   }
 
   @override
-  List<Object?> get props => [user, orders, bookings, driverRecord, driverStats, activeRole];
+  List<Object?> get props => [user, orders, bookings, driverRecord, driverStats, driverDocs, activeRole];
 }
 
 class ProfileError extends ProfileState {

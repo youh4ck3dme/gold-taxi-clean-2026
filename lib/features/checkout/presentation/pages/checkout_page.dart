@@ -5,6 +5,7 @@ import 'package:gold_taxi/core/di/service_locator.dart';
 import 'package:gold_taxi/core/services/api_service.dart';
 import 'package:gold_taxi/core/widgets/buttons/primary_button.dart';
 import 'package:gold_taxi/core/widgets/fields/app_text_field.dart';
+import 'package:gold_taxi/core/services/analytics_service.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
 
@@ -97,7 +98,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
         _isSubmitting = false;
       });
       context.go('/order-confirmation', extra: orderId);
-    } catch (e) {
+    } catch (e, stack) {
+      await getIt<AnalyticsService>().logPaymentFailed(
+        rideId: 'order_failed',
+        amount: cartState.total,
+        method: _paymentMethod,
+        errorReason: e.toString(),
+      );
+      await getIt<AnalyticsService>().recordError(e, stack, reason: 'Checkout order submission failed');
       if (mounted) {
         setState(() {
           _isSubmitting = false;

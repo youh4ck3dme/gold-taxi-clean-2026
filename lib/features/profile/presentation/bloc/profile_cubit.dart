@@ -16,11 +16,13 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       Map<String, dynamic>? driverRecord;
       Map<String, dynamic>? driverStats;
+      Map<String, dynamic>? driverDocs;
       if (user.isDriver) {
         driverRecord = await _profileRepository.getDriverRecord(user.id);
         if (driverRecord != null) {
           final driverId = driverRecord['id'] as String;
           driverStats = await _profileRepository.getDriverStats(driverId);
+          driverDocs = await _profileRepository.getDriverDocuments(driverId);
         }
       }
 
@@ -30,6 +32,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         bookings: bookings,
         driverRecord: driverRecord,
         driverStats: driverStats,
+        driverDocs: driverDocs,
         activeRole: user.isDriver ? 'driver' : 'customer',
       ));
     } catch (e) {
@@ -99,6 +102,96 @@ class ProfileCubit extends Cubit<ProfileState> {
       } catch (e) {
         emit(ProfileError(e.toString()));
       }
+    }
+  }
+
+  Future<void> registerAsDriver({
+    required String vehicleType,
+    required String vehiclePlate,
+    required List<String> serviceClasses,
+  }) async {
+    final currentState = state;
+    if (currentState is ProfileLoaded) {
+      emit(ProfileUpdating());
+      try {
+        await _profileRepository.registerAsDriver(
+          vehicleType: vehicleType,
+          vehiclePlate: vehiclePlate,
+          serviceClasses: serviceClasses,
+        );
+        await fetchProfile();
+      } catch (e) {
+        emit(ProfileError(e.toString()));
+      }
+    }
+  }
+
+  Future<void> uploadDriverDocuments({
+    required List<int> profilePhotoBytes,
+    required String profilePhotoName,
+    required List<int> idCardBytes,
+    required String idCardName,
+    required List<int> licenseBytes,
+    required String licenseName,
+  }) async {
+    final currentState = state;
+    if (currentState is ProfileLoaded) {
+      emit(ProfileUpdating());
+      try {
+        final profileUrl = await _profileRepository.uploadDocument(
+          documentType: 'profile_photo',
+          bytes: profilePhotoBytes,
+          fileName: profilePhotoName,
+        );
+
+        final idCardUrl = await _profileRepository.uploadDocument(
+          documentType: 'id_card',
+          bytes: idCardBytes,
+          fileName: idCardName,
+        );
+
+        final licenseUrl = await _profileRepository.uploadDocument(
+          documentType: 'license',
+          bytes: licenseBytes,
+          fileName: licenseName,
+        );
+
+        await _profileRepository.saveDriverDocuments(
+          profilePhotoUrl: profileUrl,
+          idCardUrl: idCardUrl,
+          licenseUrl: licenseUrl,
+        );
+
+        await fetchProfile();
+      } catch (e) {
+        emit(ProfileError(e.toString()));
+      }
+    }
+  }
+
+  Future<void> sendPhoneOtp(String phone) async {
+    try {
+      await _profileRepository.sendPhoneOtp(phone);
+    } catch (e) {
+      emit(ProfileError(e.toString()));
+    }
+  }
+
+  Future<bool> verifyPhoneOtp(String phone, String code) async {
+    try {
+      return await _profileRepository.verifyPhoneOtp(phone, code);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<String?> applyReferralCode(String code) async {
+    try {
+      await _profileRepository.applyReferralCode(code);
+      await fetchProfile();
+      return null;
+    } catch (e) {
+      return e.toString().replaceAll('Exception: ', '');
     }
   }
 }

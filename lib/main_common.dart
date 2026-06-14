@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'firebase_options.dart';
 
+import 'core/config/app_config.dart';
 import 'core/constants/app_constants.dart';
 import 'core/di/service_locator.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/api_service.dart';
 import 'routes/app_router.dart';
 
-Future<void> main() async {
+Future<void> mainCommon(AppConfig config) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Hive for local storage
@@ -26,52 +28,71 @@ Future<void> main() async {
   }
 
   // 2. Setup Service Locator (Dependency Injection)
-  // Check Dart defines first, then .env, then default
-  final backendModeStr = const String.fromEnvironment('BACKEND_MODE').isNotEmpty 
-      ? const String.fromEnvironment('BACKEND_MODE') 
-      : (dotenv.env['BACKEND_MODE'] ?? 'mock');
-      
-  final backendMode = backendModeStr.toLowerCase() == 'supabase' ? BackendMode.supabase : BackendMode.mock;
-  
+  final backendMode = config.enableMockMode ? BackendMode.mock : BackendMode.supabase;
   await setupServiceLocator(mode: backendMode);
   debugPrint('🏗️ Service Locator initialized in $backendMode mode.');
 
-  // 3. Enable Mock Mode for DEMO/PRODUCTION (real server unreachable)
-  if (backendMode == BackendMode.mock) {
+  // 3. Enable Mock Mode if requested
+  if (config.enableMockMode) {
     ApiService.enableMockMode();
     debugPrint('🎭 MOCK MODE ENABLED - Demo mode with mock data');
   }
 
   // 4. Resilient Firebase Initialization
+  bool firebaseInitialized = false;
   try {
     if (kIsWeb) {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      firebaseInitialized = true;
       debugPrint('🔥 Firebase Web initialized successfully.');
     } else {
       // Mobile platforms fallback: Initialize only if native configurations exist
       await Firebase.initializeApp();
+      firebaseInitialized = true;
       debugPrint('🔥 Firebase Mobile initialized successfully.');
     }
   } catch (e) {
-    // Skips initialization if missing native config files on iOS/Android
     debugPrint('⚠️ Warning: Firebase skipped or failed to initialize: $e');
   }
 
-  // 5. Initialize Supabase
+  // 5. Setup Crashlytics Error Handlers if Firebase is initialized
+  if (firebaseInitialized) {
+    try {
+      // Enable Crashlytics collection in production, or if configured
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(config.enableAnalytics);
+      
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        FirebaseCrashlytics.instance.recordFlutterError(details);
+      };
+
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+      debugPrint('🛡️ Firebase Crashlytics handlers registered.');
+    } catch (e) {
+      debugPrint('⚠️ Warning: Crashlytics configuration failed: $e');
+    }
+  } else {
+    // Fallback error logging for development/mock mode without Firebase
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      debugPrint('🔴 Uncaught Error: $error');
+      debugPrint(stack.toString());
+      return true;
+    };
+  }
+
+  // 6. Initialize Supabase
   try {
-    final supabaseUrl = const String.fromEnvironment('SUPABASE_URL').isNotEmpty
-        ? const String.fromEnvironment('SUPABASE_URL')
-        : (dotenv.env['SUPABASE_URL'] ?? 'https://your-supabase-url.supabase.co');
-
-    final supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY').isNotEmpty
-        ? const String.fromEnvironment('SUPABASE_ANON_KEY')
-        : (dotenv.env['SUPABASE_ANON_KEY'] ?? 'your-supabase-anon-key');
-
     await Supabase.initialize(
-      url: supabaseUrl,
-      publishableKey: supabaseAnonKey,
+      url: config.supabaseUrl,
+      publishableKey: config.supabaseAnonKey,
     );
     debugPrint('⚡ Supabase Client initialized successfully.');
   } catch (e) {

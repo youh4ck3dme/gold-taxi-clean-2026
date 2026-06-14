@@ -1,0 +1,131 @@
+name: Flutter CI/CD Release Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test_and_lint:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Linting Linter
+        run: flutter linter || flutter analyze
+
+      - name: Run Unit Tests
+        run: flutter test
+
+  build_android:
+    name: Build Android (Prod Flavor)
+    needs: test_and_lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Obfuscated Android App Bundle (.aab)
+        run: |
+          flutter build appbundle \
+            --release \
+            --flavor prod \
+            -t lib/main_prod.dart \
+            --obfuscate \
+            --split-debug-info=build/app/outputs/symbols
+
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-prod-release.aab
+          path: build/app/outputs/bundle/prodRelease/app-prod-release.aab
+
+      # DevOps Note: Set up Google Play Console secrets to enable automatic uploading
+      # - name: Upload to Google Play Internal Testing
+      #   uses: r0adrunner/upload-google-play@v1.1.1
+      #   with:
+      #     serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_JSON_KEY }}
+      #     packageName: com.nexify.goldtaxi
+      #     releaseFiles: build/app/outputs/bundle/prodRelease/app-prod-release.aab
+      #     track: internal
+
+  build_ios:
+    name: Build iOS (Prod Flavor)
+    needs: test_and_lint
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      # Setup codesigning / provision profiles if running production deployment
+      # - name: Install Apple Certificates & Profiles
+      #   uses: apple-actions/import-codesign-certs@v2
+      #   with:
+      #     p12-file-base64: ${{ secrets.APP_STORE_P12_BASE64 }}
+      #     p12-password: ${{ secrets.APP_STORE_P12_PASSWORD }}
+
+      - name: Build Obfuscated iOS IPA
+        run: |
+          flutter build ipa \
+            --release \
+            --flavor prod \
+            -t lib/main_prod.dart \
+            --obfuscate \
+            --split-debug-info=build/ios/outputs/symbols \
+            --no-codesign
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-prod-release.ipa
+          path: build/ios/archive/Runner.xcarchive
+
+      # DevOps Note: Set up App Store Connect API Key to enable automatic uploading
+      # - name: Upload to TestFlight
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app-path: 'build/ios/ipa/Runner.ipa'
+      #     issuer-id: ${{ secrets.APP_STORE_ISSUER_ID }}
+      #     api-key-id: ${{ secrets.APP_STORE_KEY_ID }}
+      #     api-private-key: ${{ secrets.APP_STORE_PRIVATE_KEY }}

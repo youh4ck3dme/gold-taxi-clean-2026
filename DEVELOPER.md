@@ -149,6 +149,89 @@ npm run maps:smoke
 
 Mapové testy sú pod `test/unit/map/`. Auth testy sú pod `test/unit/auth_*` a `test/widget/login_page_test.dart`.
 
+## Edge Functions (Supabase)
+
+Aplikácia využíva nasledovné Supabase Edge Functions:
+
+1. **`twilio_masked_call`**:
+   - **Popis**: Sprostredkováva maskované hovory medzi zákazníkom a vodičom bez odhalenia ich skutočných telefónnych čísiel.
+   - **Konfigurácia**: Vyžaduje `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` a `TWILIO_PHONE_NUMBER`.
+
+2. **`stripe_payout`**:
+   - **Popis**: Spracováva požiadavky na prevod a vyplatenie zárobkov vodiča na prepojený Stripe Connect účet.
+   - **Konfigurácia**: Vyžaduje `STRIPE_SECRET_KEY` a prepojenie s databázou.
+
+3. **`stripe_webhook`**:
+   - **Popis**: Asynchrónne spracováva udalosti zo služby Stripe (napr. `payout.paid`, `payout.failed`, `capability.updated`). Synchronizuje stavy platieb a overenia bankových účtov vodičov v databáze.
+   - **Konfigurácia**: Vyžaduje `STRIPE_SECRET_KEY` a `STRIPE_WEBHOOK_SECRET` pre produkčné prostredie. V lokálnom prostredí bez overovacieho kľúča spracuje eventy priamo z tela požiadavky.
+
 ## Git a priečinky
 
-Pred širokými refaktormi vytvor checkpoint/commit. Nevracaj cudzie zmeny. Dokumentáciu k tomu, čo patrí do ktorého priečinka, drží `docs/project-structure.md`.
+Pred širokými refaktormi vytvor checkpoint/commit. Nevracaj cudzie zmeny. Dokumentáciu k tomu, čo patrii do ktorého priečinka, drží `docs/project-structure.md`.
+
+## Promo Kódy a Referenčný Systém
+
+Aplikácia obsahuje marketingový promo a referenčný systém:
+
+1. **Promo Kódy (`public.promo_codes`):**
+   - Môžu byť percentuálne (napr. 10%) alebo fixné sumy (napr. 5 €).
+   - Databázová funkcia `validate_promo_code` asynchrónne overuje platnosť kódu, počet použití a obmedzenia pre konkrétneho používateľa.
+   - Súčasné aktívne promo kódy v databáze pre testovanie: `ZNAK10` a `TAXI5`.
+
+2. **Referenčný Systém:**
+   - Každému novému profilu sa pri registrácii automaticky vygeneruje unikátny kód (napr. `GOLD12` alebo `DEVE50`) pomocou triggeru `tr_generate_referral_code`.
+   - Zákazníci môžu zdieľať svoj referenčný kód priamo z profilovej stránky (`CustomerProfilePage`) pomocou systémového share dialógu (balík `share_plus`).
+   - Ak nový používateľ uplatní kód priateľa, jeho profil sa prepojí cez stĺpec `referred_by` a pri objednávaní jazdy získa zľavu 5 € na jazdu.
+
+## CI/CD, DevOps a Flavors
+
+Aplikácia podporuje konfiguráciu viacerých prostredí (Flavors) a automatizované CI/CD pomocou GitHub Actions.
+
+### Konfigurácia prostredí (Flavors)
+
+Používame tri hlavné entrypointy:
+1. `lib/main_common.dart`: Spoločné inicializačné jadro pre Firebase, Hive, Supabase a smerovanie chýb na Crashlytics.
+2. `lib/main_dev.dart`: Entrypoint pre vývojové prostredie (`dev` flavor). Štandardne zapína mockovanie API a služieb pre rýchly offline vývoj.
+3. `lib/main_prod.dart`: Entrypoint pre produkčné prostredie (`prod` flavor). Pripája sa k produkčným databázam a službám.
+
+#### Spustenie a zostavenie lokálne
+
+Pre spustenie konkrétneho flavoru použite flag `-t` a `--flavor`:
+```bash
+# Spustenie Development flavoru (mock mode zapnutý)
+flutter run -t lib/main_dev.dart --flavor dev
+
+# Spustenie Production flavoru
+flutter run -t lib/main_prod.dart --flavor prod
+```
+
+### Obfuskácia kódu
+
+Pre zníženie rizika reverzného inžinierstva a ochranu duševného vlastníctva sa produkčné zostavy zostavujú s obfuskáciou kódu pomocou prepínačov `--obfuscate` a `--split-debug-info`.
+
+Príkaz pre build Android App Bundle:
+```bash
+flutter build appbundle --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/app/outputs/symbols
+```
+
+Príkaz pre build iOS IPA (Archive):
+```bash
+flutter build ipa --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/ios/outputs/symbols
+```
+
+#### Dekódovanie obfuskátovaných chýb (De-obfuscation)
+
+Ak obdržíte obfuskátovaný stack trace (napr. z Firebase Crashlytics), môžete ho dekódovať pomocou symbolov vygenerovaných počas buildu:
+```bash
+flutter symbolize -i <cesta-k-obfuskovanemu-stacktrace.txt> -d build/app/outputs/symbols/app.android-arm64.symbols
+```
+
+### GitHub Actions CI/CD Pipeline
+
+Pipeline je definovaný v súbore `.github/workflows/release.yml` a automaticky sa spúšťa po každom pushnutí do vetvy `main`.
+
+1. **Test & Lint**: Spustí analýzu kódu a unit testy na Linuxe.
+2. **Build Android**: Vybuilduje obfuskovaný `.aab` súbor pre produkciu a uloží ho ako artifact.
+3. **Build iOS**: Vybuilduje obfuskovaný `.ipa` (archive) súbor pre produkciu na macOS runneri a uloží ho ako artifact.
+
+Pre automatické nahrávanie do Google Play / TestFlight odkomentujte príslušné kroky v workflow a nakonfigurujte tajné kľúče (Secrets) v nastaveniach GitHub repozitára.

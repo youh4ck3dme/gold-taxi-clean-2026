@@ -11,6 +11,8 @@ class UserModel extends Equatable {
   final bool isActive;
   final String? phone;
   final Map<String, dynamic> savedAddresses;
+  final String? referralCode;
+  final String? referredBy;
 
   const UserModel({
     required this.id,
@@ -22,6 +24,8 @@ class UserModel extends Equatable {
     this.isActive = true,
     this.phone,
     this.savedAddresses = const {},
+    this.referralCode,
+    this.referredBy,
   });
 
   /// Convert from JSON
@@ -36,6 +40,8 @@ class UserModel extends Equatable {
       isActive: json['is_active'] as bool? ?? true,
       phone: json['phone'] as String?,
       savedAddresses: json['saved_addresses'] as Map<String, dynamic>? ?? const {},
+      referralCode: json['referral_code'] as String?,
+      referredBy: json['referred_by'] as String?,
     );
   }
 
@@ -54,6 +60,8 @@ class UserModel extends Equatable {
     'is_active': isActive,
     'phone': phone,
     'saved_addresses': savedAddresses,
+    'referral_code': referralCode,
+    'referred_by': referredBy,
   };
 
   /// Get avatar URL from nested JSON
@@ -73,7 +81,19 @@ class UserModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, email, profilePictureUrl, role, bio, isActive, phone, savedAddresses];
+  List<Object?> get props => [
+        id,
+        name,
+        email,
+        profilePictureUrl,
+        role,
+        bio,
+        isActive,
+        phone,
+        savedAddresses,
+        referralCode,
+        referredBy,
+      ];
 
 
   bool get isCustomer => role == 'customer' || role == 'subscriber';

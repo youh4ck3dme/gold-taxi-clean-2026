@@ -126,6 +126,16 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                               ),
                             ),
                             IconButton(
+                              onPressed: () {
+                                context.push('/chat', extra: {
+                                  'rideId': state.currentRide?.id ?? '',
+                                  'driverId': state.driver?.driverId ?? '',
+                                  'driverName': state.driver?.name ?? 'Vodič',
+                                });
+                              },
+                              icon: const Icon(Icons.chat, color: Colors.green),
+                            ),
+                            IconButton(
                               onPressed: () {}, // Mock call
                               icon: const Icon(Icons.call, color: Colors.blue),
                             ),

@@ -70,6 +70,7 @@ void main() {
         'totalEarnings': 1250.50,
         'averageRating': 4.7,
       });
+      when(() => mockProfileRepository.getDriverDocuments(any())).thenAnswer((_) async => <String, dynamic>{});
 
       expectLater(
         profileCubit.stream,
@@ -104,6 +105,7 @@ void main() {
         'totalEarnings': 0.0,
         'averageRating': null,
       });
+      when(() => mockProfileRepository.getDriverDocuments(any())).thenAnswer((_) async => <String, dynamic>{});
 
       expectLater(
         profileCubit.stream,
@@ -207,6 +209,151 @@ void main() {
         serviceClasses: ['standard', 'comfort'],
         isOnline: true,
       );
+    });
+
+    test('registerAsDriver emits [ProfileUpdating, ProfileLoaded] and calls registerAsDriver', () async {
+      profileCubit.emit(const ProfileLoaded(user: testCustomer, orders: [], bookings: []));
+
+      when(() => mockProfileRepository.registerAsDriver(
+            vehicleType: any(named: 'vehicleType'),
+            vehiclePlate: any(named: 'vehiclePlate'),
+            serviceClasses: any(named: 'serviceClasses'),
+          )).thenAnswer((_) async => {});
+
+      when(() => mockProfileRepository.getUserProfile()).thenAnswer((_) async => testCustomer);
+      when(() => mockProfileRepository.getOrderHistory(any())).thenAnswer((_) async => []);
+      when(() => mockProfileRepository.getBookingHistory(any())).thenAnswer((_) async => []);
+
+      expectLater(
+        profileCubit.stream,
+        emitsInOrder([
+          isA<ProfileUpdating>(),
+          isA<ProfileLoading>(),
+          isA<ProfileLoaded>(),
+        ]),
+      );
+
+      await profileCubit.registerAsDriver(
+        vehicleType: 'Škoda Superb',
+        vehiclePlate: 'KE-555XX',
+        serviceClasses: ['standard', 'premium'],
+      );
+
+      verify(() => mockProfileRepository.registerAsDriver(
+            vehicleType: 'Škoda Superb',
+            vehiclePlate: 'KE-555XX',
+            serviceClasses: ['standard', 'premium'],
+          )).called(1);
+    });
+
+    test('uploadDriverDocuments uploads 3 docs and saves references', () async {
+      profileCubit.emit(const ProfileLoaded(user: testDriver, orders: [], bookings: []));
+
+      when(() => mockProfileRepository.uploadDocument(
+            documentType: any(named: 'documentType'),
+            bytes: any(named: 'bytes'),
+            fileName: any(named: 'fileName'),
+          )).thenAnswer((invocation) async {
+        final docType = invocation.namedArguments[#documentType] as String;
+        return 'https://supabase.storage/driver-documents/$docType.jpg';
+      });
+
+      when(() => mockProfileRepository.saveDriverDocuments(
+            profilePhotoUrl: any(named: 'profilePhotoUrl'),
+            idCardUrl: any(named: 'idCardUrl'),
+            licenseUrl: any(named: 'licenseUrl'),
+          )).thenAnswer((_) async => {});
+
+      when(() => mockProfileRepository.getUserProfile()).thenAnswer((_) async => testDriver);
+      when(() => mockProfileRepository.getOrderHistory(any())).thenAnswer((_) async => []);
+      when(() => mockProfileRepository.getBookingHistory(any())).thenAnswer((_) async => []);
+      when(() => mockProfileRepository.getDriverRecord(any())).thenAnswer((_) async => {'id': 'driver_1'});
+      when(() => mockProfileRepository.getDriverStats(any())).thenAnswer((_) async => {});
+      when(() => mockProfileRepository.getDriverDocuments(any())).thenAnswer((_) async => {});
+
+      expectLater(
+        profileCubit.stream,
+        emitsInOrder([
+          isA<ProfileUpdating>(),
+          isA<ProfileLoading>(),
+          isA<ProfileLoaded>(),
+        ]),
+      );
+
+      await profileCubit.uploadDriverDocuments(
+        profilePhotoBytes: [1, 2, 3],
+        profilePhotoName: 'photo.jpg',
+        idCardBytes: [4, 5, 6],
+        idCardName: 'id.jpg',
+        licenseBytes: [7, 8, 9],
+        licenseName: 'license.jpg',
+      );
+
+      verify(() => mockProfileRepository.uploadDocument(
+            documentType: 'profile_photo',
+            bytes: [1, 2, 3],
+            fileName: 'photo.jpg',
+          )).called(1);
+      verify(() => mockProfileRepository.uploadDocument(
+            documentType: 'id_card',
+            bytes: [4, 5, 6],
+            fileName: 'id.jpg',
+          )).called(1);
+      verify(() => mockProfileRepository.uploadDocument(
+            documentType: 'license',
+            bytes: [7, 8, 9],
+            fileName: 'license.jpg',
+          )).called(1);
+      verify(() => mockProfileRepository.saveDriverDocuments(
+            profilePhotoUrl: 'https://supabase.storage/driver-documents/profile_photo.jpg',
+            idCardUrl: 'https://supabase.storage/driver-documents/id_card.jpg',
+            licenseUrl: 'https://supabase.storage/driver-documents/license.jpg',
+          )).called(1);
+    });
+
+    test('sendPhoneOtp calls sendPhoneOtp on repository', () async {
+      when(() => mockProfileRepository.sendPhoneOtp(any())).thenAnswer((_) async => {});
+
+      await profileCubit.sendPhoneOtp('+421900123456');
+
+      verify(() => mockProfileRepository.sendPhoneOtp('+421900123456')).called(1);
+    });
+
+    test('verifyPhoneOtp returns true on success and false on failure', () async {
+      when(() => mockProfileRepository.verifyPhoneOtp('+421900123456', '123456')).thenAnswer((_) async => true);
+      when(() => mockProfileRepository.verifyPhoneOtp('+421900123456', '000000')).thenAnswer((_) async => false);
+
+      final success = await profileCubit.verifyPhoneOtp('+421900123456', '123456');
+      final failure = await profileCubit.verifyPhoneOtp('+421900123456', '000000');
+
+      expect(success, isTrue);
+      expect(failure, isFalse);
+    });
+
+    test('applyReferralCode calls applyReferralCode and fetches profile on success', () async {
+      profileCubit.emit(const ProfileLoaded(user: testCustomer, orders: [], bookings: []));
+
+      when(() => mockProfileRepository.applyReferralCode('MICHAL80')).thenAnswer((_) async => {});
+      when(() => mockProfileRepository.getUserProfile()).thenAnswer((_) async => testCustomer);
+      when(() => mockProfileRepository.getOrderHistory(any())).thenAnswer((_) async => []);
+      when(() => mockProfileRepository.getBookingHistory(any())).thenAnswer((_) async => []);
+
+      final result = await profileCubit.applyReferralCode('MICHAL80');
+
+      expect(result, isNull);
+      verify(() => mockProfileRepository.applyReferralCode('MICHAL80')).called(1);
+      verify(() => mockProfileRepository.getUserProfile()).called(1);
+    });
+
+    test('applyReferralCode returns error message on exception', () async {
+      profileCubit.emit(const ProfileLoaded(user: testCustomer, orders: [], bookings: []));
+
+      when(() => mockProfileRepository.applyReferralCode('INVALID')).thenThrow(Exception('Neplatný referenčný kód.'));
+
+      final result = await profileCubit.applyReferralCode('INVALID');
+
+      expect(result, 'Neplatný referenčný kód.');
+      verify(() => mockProfileRepository.applyReferralCode('INVALID')).called(1);
     });
   });
 }

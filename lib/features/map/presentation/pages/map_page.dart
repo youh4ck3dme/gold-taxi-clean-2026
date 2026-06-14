@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -9,6 +11,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:gold_taxi/features/map/presentation/cubits/map_cubit.dart';
 import 'package:gold_taxi/features/map/presentation/widgets/platform_map_widget.dart';
 import 'package:gold_taxi/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:gold_taxi/features/search/presentation/widgets/search_bottom_sheet.dart';
+// ignore: unused_import
 import '../../../../models/driver_position_model.dart';
 import '../../../../models/service_model.dart';
 
@@ -32,7 +36,7 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     super.initState();
     _mapCubit = context.read<MapCubit>();
-    
+
     // Set initial position to default immediately
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _mapCubit.updateCurrentPosition(_defaultPosition);
@@ -46,7 +50,7 @@ class _MapPageState extends State<MapPage> {
 
     // Test if location services are enabled.
     await Geolocator.isLocationServiceEnabled();
-    
+
     if (kIsWeb || defaultTargetPlatform == TargetPlatform.macOS) {
       // On Web/macOS, we proceed but handle potential failure in _getCurrentPosition
       setState(() {
@@ -64,7 +68,7 @@ class _MapPageState extends State<MapPage> {
         return;
       }
     }
-    
+
     if (permission == LocationPermission.deniedForever) {
       setState(() => _hasLocationPermission = false);
       return;
@@ -93,7 +97,7 @@ class _MapPageState extends State<MapPage> {
       if (mounted) {
         // Non-blocking warning: fallback to default Košice
         _mapCubit.updateCurrentPosition(_defaultPosition);
-        
+
         // Show a more friendly message for common web/macOS location issues
         String message = 'Nepodarilo sa získať presnú polohu. Používam predvolenú (Košice).';
         if (e.toString().contains('kCLErrorLocationUnknown') || e.toString().contains('User denied')) {
@@ -184,12 +188,16 @@ class _MapPageState extends State<MapPage> {
               }).toSet();
 
               final pos = currentPosition ?? _defaultPosition;
+              final isTracking = state is MapLoaded ? state.isTracking : false;
+              final selectedDriverId = state is MapLoaded ? state.selectedDriverId : null;
 
               return PlatformMapWidget(
                 latitude: pos.latitude,
                 longitude: pos.longitude,
                 zoom: 14.0,
                 markers: platformMarkers,
+                isAutoTracking: isTracking,
+                autoTrackMarkerId: selectedDriverId,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
                 compassEnabled: true,
@@ -207,6 +215,55 @@ class _MapPageState extends State<MapPage> {
                 },
               );
             },
+          ),
+
+          // Search Bar Overlay
+          Positioned(
+            top: 20,
+            left: 20,
+            right: 20,
+            child: GestureDetector(
+              onTap: () async {
+                final currentPos = context.read<MapCubit>().state is MapLoaded
+                    ? (context.read<MapCubit>().state as MapLoaded).currentPosition
+                    : null;
+
+                final selectedPlace = await SearchBottomSheet.show(
+                  context,
+                  currentLocation: currentPos ?? _defaultPosition,
+                );
+
+                if (!mounted) return;
+
+                if (selectedPlace != null && selectedPlace.lat != null && selectedPlace.lng != null) {
+                  // Move map to selected place
+                  _mapCubit.moveToCurrentPosition(LatLng(selectedPlace.lat!, selectedPlace.lng!));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Vybraté: ${selectedPlace.primaryText}')),
+                  );
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.search, color: Colors.grey[600]),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Kam to bude?',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
 
           // Current location button (floating)

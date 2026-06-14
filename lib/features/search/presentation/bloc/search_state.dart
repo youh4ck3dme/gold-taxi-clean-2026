@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import '../../data/repositories/search_repository.dart';
+import 'package:gold_taxi/features/search/data/models/place_model.dart';
+import 'package:gold_taxi/features/search/data/repositories/search_repository.dart';
 
 abstract class SearchState extends Equatable {
   const SearchState();
@@ -19,6 +20,23 @@ class SearchInitial extends SearchState {
 
 class SearchLoading extends SearchState {}
 
+class SearchLoaded extends SearchState {
+  final List<PlaceModel> results;
+  final bool isSearching;
+  final PlaceModel? homePlace;
+  final PlaceModel? workPlace;
+
+  const SearchLoaded({
+    required this.results,
+    this.isSearching = false,
+    this.homePlace,
+    this.workPlace,
+  });
+
+  @override
+  List<Object?> get props => [results, isSearching, homePlace, workPlace];
+}
+
 class SearchSuccess extends SearchState {
   final SearchResult result;
   final String query;
@@ -32,8 +50,8 @@ class SearchSuccess extends SearchState {
 class SearchError extends SearchState {
   final String message;
 
-  const SearchError(this.message);
+  const SearchError({required this.message});
 
   @override
-  List<Object?> get props => [message];
+  List<Object> get props => [message];
 }

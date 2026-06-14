@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'ride_status.dart';
+import 'ride_stop.dart';
 import '../core/services/pricing_service.dart';
 
 class RideModel extends Equatable {
@@ -24,6 +25,7 @@ class RideModel extends Equatable {
   final DateTime? completedAt;
   final DateTime? cancelledAt;
   final String? cancellationReason;
+  final List<RideStop> stops;
 
   const RideModel({
     required this.id,
@@ -46,6 +48,7 @@ class RideModel extends Equatable {
     this.completedAt,
     this.cancelledAt,
     this.cancellationReason,
+    this.stops = const [],
   });
 
   RideModel copyWith({
@@ -69,6 +72,7 @@ class RideModel extends Equatable {
     DateTime? completedAt,
     DateTime? cancelledAt,
     String? cancellationReason,
+    List<RideStop>? stops,
   }) {
     return RideModel(
       id: id ?? this.id,
@@ -91,6 +95,7 @@ class RideModel extends Equatable {
       completedAt: completedAt ?? this.completedAt,
       cancelledAt: cancelledAt ?? this.cancelledAt,
       cancellationReason: cancellationReason ?? this.cancellationReason,
+      stops: stops ?? this.stops,
     );
   }
 
@@ -118,6 +123,7 @@ class RideModel extends Equatable {
       'completed_at': completedAt?.toIso8601String(),
       'cancelled_at': cancelledAt?.toIso8601String(),
       'cancellation_reason': cancellationReason,
+      'stops': stops.map((s) => s.toJson()).toList(),
     };
   }
 
@@ -149,6 +155,10 @@ class RideModel extends Equatable {
       completedAt: (json['completed_at'] ?? json['completedAt']) != null ? DateTime.parse((json['completed_at'] ?? json['completedAt']) as String) : null,
       cancelledAt: (json['cancelled_at'] ?? json['cancelledAt']) != null ? DateTime.parse((json['cancelled_at'] ?? json['cancelledAt']) as String) : null,
       cancellationReason: (json['cancellation_reason'] ?? json['cancellationReason']) as String?,
+      stops: (json['stops'] as List<dynamic>?)
+              ?.map((s) => RideStop.fromJson(s as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 
@@ -157,6 +167,6 @@ class RideModel extends Equatable {
         id, customerId, driverId, pickupAddress, pickupLatLng, dropoffAddress,
         dropoffLatLng, serviceType, estimatedDistance, estimatedDuration,
         estimatedPrice, finalPrice, status, createdAt, updatedAt, acceptedAt,
-        startedAt, completedAt, cancelledAt, cancellationReason
+        startedAt, completedAt, cancelledAt, cancellationReason, stops
       ];
 }

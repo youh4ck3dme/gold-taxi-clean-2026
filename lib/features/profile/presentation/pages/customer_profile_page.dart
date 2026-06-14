@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../features/auth/presentation/cubits/auth_cubit.dart';
 import '../bloc/profile_cubit.dart';
 import '../bloc/profile_state.dart';
+import '../widgets/sms_verification_dialog.dart';
 
 class CustomerProfilePage extends StatefulWidget {
   const CustomerProfilePage({super.key});
@@ -15,6 +17,7 @@ class CustomerProfilePage extends StatefulWidget {
 class _CustomerProfilePageState extends State<CustomerProfilePage> {
   final _formKey = GlobalKey<FormState>();
   bool _isEditing = false;
+  final _referredByController = TextEditingController();
 
   late TextEditingKeyedControllers _controllers;
 
@@ -27,6 +30,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
   @override
   void dispose() {
     _controllers.dispose();
+    _referredByController.dispose();
     super.dispose();
   }
 
@@ -60,6 +64,33 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
   void _saveChanges(BuildContext context, ProfileLoaded state) async {
     if (_formKey.currentState!.validate()) {
       final normalizedPhone = _normalizePhone(_controllers.phone.text);
+      // Capture cubit reference before any async gaps
+      final profileCubit = context.read<ProfileCubit>();
+
+      // Check if phone has changed and verify via SMS OTP
+      if (normalizedPhone != (state.user.phone ?? '')) {
+        await profileCubit.sendPhoneOtp(normalizedPhone);
+        
+        if (!context.mounted) return;
+        
+        final verified = await SmsVerificationDialog.show(
+          context,
+          phone: normalizedPhone,
+          profileCubit: context.read<ProfileCubit>(),
+        );
+
+        if (verified != true) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Overenie telefónneho čísla zlyhalo.'),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+          return;
+        }
+      }
       
       final Map<String, dynamic> existingAddresses = Map.from(state.user.savedAddresses);
       
@@ -78,13 +109,14 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
         'work': workMap,
       };
 
-      await context.read<ProfileCubit>().updateCustomerProfile(
+      await profileCubit.updateCustomerProfile(
             fullName: _controllers.name.text.trim(),
             phone: normalizedPhone,
             savedAddresses: savedAddresses,
           );
       
       if (!context.mounted) return;
+
       
       setState(() {
         _isEditing = false;
@@ -178,6 +210,134 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                           ),
                         ],
                       ),
+                    ],
+                  ),
+                ),
+              ),
+              // Referral & Share Card
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.share, color: Colors.amber),
+                          SizedBox(width: 8),
+                          Text(
+                            'Odporuč a zarob',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 24),
+                      const Text(
+                        'Zdieľaj svoj kód s priateľmi. Ak sa zaregistrujú s tvojím kódom, obaja získate zľavu 5 € na ďalšiu jazdu!',
+                        style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.4),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Text(
+                              user.referralCode ?? 'Žiadny kód',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.share_outlined, size: 18),
+                            label: const Text('Zdieľať'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.amber.shade600,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: () {
+                              final refCode = user.referralCode;
+                              if (refCode != null) {
+                                Share.share(
+                                  'Zaregistruj sa v Gold-taxi s mojím kódom $refCode a získaj zľavu 5 € na svoju prvú jazdu! Stiahni si aplikáciu tu: https://gold-taxi.sk',
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      if (user.referredBy == null) ...[
+                        const Divider(height: 32),
+                        const Text(
+                          'Bol si odporúčaný? Zadaj kód priateľa:',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _referredByController,
+                                decoration: const InputDecoration(
+                                  hintText: 'Napr. JOZO50',
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  border: OutlineInputBorder(),
+                                ),
+                                textCapitalization: TextCapitalization.characters,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                              ),
+                              onPressed: () async {
+                                final code = _referredByController.text.trim();
+                                if (code.isEmpty) return;
+                                final error = await context.read<ProfileCubit>().applyReferralCode(code);
+                                if (!context.mounted) return;
+                                if (error != null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(error), backgroundColor: Colors.redAccent),
+                                  );
+                                } else {
+                                  _referredByController.clear();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Referenčný kód úspešne uplatnený! Získali ste zľavu 5 €.')),
+                                  );
+                                }
+                              },
+                              child: const Text('Uplatniť'),
+                            ),
+                          ],
+                        ),
+                      ] else ...[
+                        const Divider(height: 32),
+                        const Row(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.green, size: 18),
+                            SizedBox(width: 8),
+                            Text(
+                              'Referenčný kód bol uplatnený',
+                              style: TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -327,6 +487,50 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
 
               const SizedBox(height: 24),
 
+              if (!user.isDriver) ...[
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.local_taxi, color: Colors.amber),
+                            SizedBox(width: 8),
+                            Text(
+                              'Chcete u nás jazdiť?',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Zaregistrujte sa ako vodič, nahrajte potrebné dokumenty a začnite zarábať s Gold-Taxi.',
+                          style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.4),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            minimumSize: const Size(double.infinity, 45),
+                          ),
+                          onPressed: () => _showDriverRegistrationDialog(context),
+                          child: const Text('Zaregistrovať sa ako vodič', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              const SizedBox(height: 24),
+
               // Orders & Bookings Header
               const Text(
                 'Moja aktivita',
@@ -459,6 +663,122 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showDriverRegistrationDialog(BuildContext context) {
+    final formKey = GlobalKey<FormState>();
+    final vehicleTypeController = TextEditingController();
+    final vehiclePlateController = TextEditingController();
+    List<String> selectedClasses = ['standard'];
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Registrácia vodiča'),
+              content: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: vehicleTypeController,
+                        decoration: const InputDecoration(labelText: 'Značka a model vozidla'),
+                        validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte model vozidla' : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: vehiclePlateController,
+                        decoration: const InputDecoration(labelText: 'EČV (ŠPZ) vozidla'),
+                        validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte ŠPZ' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Triedy služieb',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey),
+                        ),
+                      ),
+                      CheckboxListTile(
+                        title: const Text('Štandard (Standard)'),
+                        value: selectedClasses.contains('standard'),
+                        onChanged: (v) {
+                          setState(() {
+                            if (v == true) {
+                              selectedClasses.add('standard');
+                            } else {
+                              selectedClasses.remove('standard');
+                            }
+                          });
+                        },
+                      ),
+                      CheckboxListTile(
+                        title: const Text('Komfort (Comfort)'),
+                        value: selectedClasses.contains('comfort'),
+                        onChanged: (v) {
+                          setState(() {
+                            if (v == true) {
+                              selectedClasses.add('comfort');
+                            } else {
+                              selectedClasses.remove('comfort');
+                            }
+                          });
+                        },
+                      ),
+                      CheckboxListTile(
+                        title: const Text('Prémiová (Premium)'),
+                        value: selectedClasses.contains('premium'),
+                        onChanged: (v) {
+                          setState(() {
+                            if (v == true) {
+                              selectedClasses.add('premium');
+                            } else {
+                              selectedClasses.remove('premium');
+                            }
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Zrušiť'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white),
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      if (selectedClasses.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Vyberte aspoň jednu triedu služieb')),
+                        );
+                        return;
+                      }
+                      Navigator.pop(dialogContext);
+                      
+                      // Call cubit to register
+                      await context.read<ProfileCubit>().registerAsDriver(
+                            vehicleType: vehicleTypeController.text.trim(),
+                            vehiclePlate: vehiclePlateController.text.trim(),
+                            serviceClasses: selectedClasses,
+                          );
+                    }
+                  },
+                  child: const Text('Registrovať'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

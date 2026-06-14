@@ -47,7 +47,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       await _searchRepository.addToSearchHistory(event.query);
       emit(SearchSuccess(result: results, query: event.query));
     } catch (e) {
-      emit(SearchError(e.toString()));
+      emit(SearchError(message: e.toString()));
     }
   }
 

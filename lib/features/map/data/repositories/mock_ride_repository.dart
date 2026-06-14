@@ -97,4 +97,24 @@ class MockRideRepository implements RideRepository {
   void dispose() {
     _ridesController.close();
   }
+
+  @override
+  Future<bool> checkLocationInZone(double lat, double lng) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Košice area boundary mock
+    if (lat >= 48.65 && lat <= 48.80 && lng >= 21.15 && lng <= 21.35) {
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  Future<double> getSurgeMultiplier(double lat, double lng) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    // Returns 1.5 surge in city center for testing visual indicators
+    if (lat >= 48.71 && lat <= 48.73 && lng >= 21.24 && lng <= 21.27) {
+      return 1.5;
+    }
+    return 1.0;
+  }
 }

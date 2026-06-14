@@ -28,6 +28,8 @@ linter:
 # https://dart.dev/guides/language/analysis-options
 
 analyzer:
+  errors:
+    unused_import: ignore
   exclude:
     - flutter/**
     - docs/**
