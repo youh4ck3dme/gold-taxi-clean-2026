@@ -8,11 +8,28 @@ This document provides instructions for deploying Gold-Taxi to production and ve
 
 | **Item** | **Value** |
 |----------|-----------|
-| **URL** | https://gold-taxi.vercel.app |
+| **URL** | https://goldtaxi-202ff.web.app |
 | **Backend** | Supabase: `nscxuxhapaabtsiduxlu.supabase.co` |
+| **Hosting** | Firebase Hosting (WIF Auth) |
 | **Release Tag** | `gold-taxi-production-pass-2026-06-14` |
 | **Status** | Phase 5B production complete ✅ |
 | **Zero critical technical debt** | Core launch flows verified |
+
+---
+
+## 0. Continuous Deployment (CI/CD)
+
+### GitHub Actions + Workload Identity Federation (WIF)
+The project is configured for secure, keyless deployment to Firebase Hosting using Google Cloud Workload Identity Federation.
+
+- **Workflow:** `.github/workflows/firebase-hosting-merge.yml`
+- **Trigger:** Auto-deploys to production on every push/merge to `main`.
+- **Security:** No JSON service account keys are stored in GitHub. Authentication is handled via OIDC tokens restricted to the `main` branch of `NEXIFY-STUDIO/gold-taxi`.
+
+**Required GitHub Secrets:**
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `GOOGLE_MAPS_API_KEY` (Restricted Browser Key)
 
 ---
 
