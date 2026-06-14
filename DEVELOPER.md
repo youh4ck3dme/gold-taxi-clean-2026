@@ -4,14 +4,25 @@ Tento dokument je hlavný technický prehľad pre Gold Taxi. README drží rých
 
 ## Stav projektu
 
-- Framework: Flutter / Dart.
-- Stav management: `flutter_bloc`, Cubit/Bloc podľa zložitosti flow.
-- DI: `get_it` v `lib/core/di/service_locator.dart`.
-- Routing: `go_router` v `lib/routes/app_router.dart`.
-- Hosting: Firebase Hosting site `goldtaxi-202ff`, public dir `build/web`.
-- Auth: Firebase Auth pre web Google Sign-In, Email/Password a Anonymous; WordPress JWT login ostáva ako existujúca cesta.
-- Maps: `google_maps_flutter` pre web/Android/iOS, `flutter_map` fallback pre desktop.
-- Backend zdroje: WordPress/WooCommerce, Supabase, Firebase.
+- Produkčné prostredie: https://goldtaxi-202ff.web.app
+- Backend: Supabase + WordPress/WooCommerce.
+- Auth: Google Sign-In (Firebase).
+
+### Správa rolí (Rigorózna konfigurácia)
+
+Prístup k administrátorským funkciám je riadený cez tabuľku `public.profiles` v Supabase. Roly sú nastavené nasledovne:
+
+1. **Super Admin (`admin`):** `larsenevans@gmail.com`
+   - Má plný prístup ku všetkým SQL funkciám a globálnemu monitoringu.
+2. **Majiteľ (`admin`):** `erikbabcan@gmail.com`
+   - Primárny účet pre správu taxislužby a biznis dashboardy.
+3. **Overený Zákazník (`customer`):** `enzoenzof2024@gmail.com`
+   - Používa sa na smoke-testy reálneho objednávkového toku.
+
+Pre zmenu rolí iných používateľov použite Supabase SQL Editor:
+```sql
+UPDATE public.profiles SET role = 'driver' WHERE email = '...';
+```
 
 ## Architektúra
 

@@ -8,11 +8,14 @@ Produkčná web adresa:
 https://goldtaxi-202ff.web.app
 ```
 
-Firebase projekt:
+## Prístup a Roly
 
-```text
-goldtaxi-202ff
-```
+Aplikácia rozlišuje prístup na základe priradených rolí. Kľúčové účty:
+- **Super Admin:** lars...ans@gmail.com (Úplná správa systému)
+- **Majiteľ:** erik...can@gmail.com (Správa prevádzky a dashboardov)
+- **Testovací zákazník:** enzo...024@gmail.com (Overenie zákazníckeho toku)
+
+Všetci ostatní prihlásení používatelia majú predvolenú rolu `customer`.
 
 ## Hlavné časti
 
