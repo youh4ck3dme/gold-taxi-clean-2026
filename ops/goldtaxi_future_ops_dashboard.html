@@ -1,0 +1,1148 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GoldTaxi Future Ops — Blueprint &amp; Proto Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(18, 25, 47, 0.92);
+      --panel-2: rgba(12, 18, 34, 0.95);
+      --card: #111a31;
+      --card-soft: #16213d;
+      --text: #e8eefc;
+      --muted: #97a4c3;
+      --muted-2: #667492;
+      --line: rgba(148, 163, 184, 0.18);
+      --gold: #f6c85f;
+      --gold-2: #ffdc83;
+      --green: #57d68d;
+      --red: #ff6678;
+      --orange: #ffb15d;
+      --blue: #73a7ff;
+      --purple: #b98cff;
+      --shadow: 0 24px 80px rgba(0,0,0,.35);
+      --radius: 22px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(246, 200, 95, .18), transparent 28rem),
+        radial-gradient(circle at top right, rgba(115, 167, 255, .18), transparent 24rem),
+        radial-gradient(circle at bottom left, rgba(185, 140, 255, .12), transparent 26rem),
+        var(--bg);
+      overflow-x: hidden;
+    }
+
+    button, input, textarea, select { font: inherit; }
+
+    .shell {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 60px;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--gold), #f59e0b);
+      box-shadow: 0 12px 40px rgba(246, 200, 95, .25);
+      color: #121212;
+      font-weight: 900;
+      font-size: 28px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 4vw, 52px);
+      line-height: 1;
+      margin: 0 0 8px;
+      letter-spacing: -0.05em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+      max-width: 820px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.055);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 13px;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); border-color: rgba(246,200,95,.42); background: rgba(255,255,255,.09); }
+    .btn:active { transform: translateY(0); }
+    .btn.primary { background: linear-gradient(135deg, var(--gold), #f59e0b); color: #131313; border-color: transparent; }
+    .btn.danger { color: #ffd7dc; border-color: rgba(255, 102, 120, .36); }
+    .btn.ghost { background: transparent; }
+    .btn.small { padding: 7px 10px; border-radius: 11px; font-size: 12px; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 1050px) {
+      .grid { grid-template-columns: 1fr; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .toolbar { justify-content: flex-start; }
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.045), transparent);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.02em;
+    }
+
+    .panel-body { padding: 18px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .stats { grid-template-columns: 1fr; } }
+
+    .stat {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.04);
+      min-height: 106px;
+    }
+
+    .stat .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .stat .value { font-size: 30px; font-weight: 900; margin-top: 8px; letter-spacing: -.05em; }
+    .stat .hint { color: var(--muted-2); font-size: 12px; margin-top: 6px; line-height: 1.4; }
+
+    .progress-wrap {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--gold), var(--green));
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+
+    .batch {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+      border-radius: 22px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .batch.locked { opacity: .58; }
+    .batch.active { border-color: rgba(246,200,95,.42); box-shadow: 0 0 0 1px rgba(246,200,95,.06), 0 18px 50px rgba(246,200,95,.08); }
+
+    .batch-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(255,255,255,.035);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .batch-title { font-weight: 900; font-size: 17px; }
+    .batch-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+    .batch-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      background: rgba(0,0,0,.16);
+    }
+    .badge.gold { color: #121212; background: var(--gold); border-color: transparent; }
+    .badge.green { color: #062b18; background: var(--green); border-color: transparent; }
+    .badge.red { color: #3a0610; background: var(--red); border-color: transparent; }
+    .badge.orange { color: #321900; background: var(--orange); border-color: transparent; }
+    .badge.blue { color: #071a3a; background: var(--blue); border-color: transparent; }
+    .badge.purple { color: #210e39; background: var(--purple); border-color: transparent; }
+
+    .items { padding: 12px; display: grid; gap: 10px; }
+
+    .item {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+      padding: 14px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: start;
+      transition: border-color .18s ease, transform .18s ease, opacity .18s ease;
+    }
+    .item:hover { border-color: rgba(255,255,255,.28); transform: translateY(-1px); }
+    .item.done { border-color: rgba(87,214,141,.35); background: linear-gradient(180deg, rgba(87,214,141,.08), rgba(255,255,255,.015)); }
+    .item.disabled { opacity: .5; pointer-events: none; }
+
+    .check {
+      appearance: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 9px;
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(0,0,0,.12);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      margin-top: 2px;
+    }
+    .check:checked {
+      background: linear-gradient(135deg, var(--green), #2dd4bf);
+      border-color: transparent;
+    }
+    .check:checked::after {
+      content: "✓";
+      color: #061f16;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .item-title { font-weight: 900; letter-spacing: -.02em; margin-bottom: 6px; }
+    .item-desc { color: var(--muted); line-height: 1.45; font-size: 13px; margin-bottom: 10px; }
+    .item-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+    .item-actions { display: flex; flex-direction: column; gap: 8px; }
+
+    .note {
+      width: 100%;
+      margin-top: 10px;
+      background: rgba(0,0,0,.2);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 10px 12px;
+      min-height: 44px;
+      resize: vertical;
+      outline: none;
+    }
+    .note:focus { border-color: rgba(246,200,95,.55); }
+
+    .gate {
+      border: 1px dashed rgba(246,200,95,.45);
+      background: linear-gradient(135deg, rgba(246,200,95,.10), rgba(115,167,255,.05));
+      border-radius: 18px;
+      padding: 16px;
+      margin: 0 12px 12px;
+    }
+    .gate.passed { border-color: rgba(87,214,141,.45); background: linear-gradient(135deg, rgba(87,214,141,.11), rgba(255,255,255,.02)); }
+    .gate.locked { opacity: .55; }
+
+    .gate-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 16px; font-weight: 900; }
+    .gate-sub { color: var(--muted); margin-top: 6px; font-size: 13px; line-height: 1.45; }
+
+    .gate-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .gate-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .gate-row input { width: 18px; height: 18px; accent-color: var(--green); }
+
+    .side-stack { display: grid; gap: 18px; position: sticky; top: 16px; }
+    @media (max-width: 1050px) { .side-stack { position: static; } }
+
+    .rule-list { display: grid; gap: 10px; }
+    .rule {
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .rule strong { color: var(--text); }
+
+    .form-grid { display: grid; gap: 10px; }
+    .field { display: grid; gap: 6px; }
+    .field label { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      color: var(--text);
+      background: rgba(0,0,0,.22);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 11px 12px;
+      outline: none;
+    }
+    .field textarea { min-height: 84px; resize: vertical; }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color: rgba(246,200,95,.55); }
+
+    .prompt-box {
+      width: 100%;
+      min-height: 180px;
+      white-space: pre-wrap;
+      color: #dce7ff;
+      background: #070b16;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      max-width: min(460px, calc(100vw - 36px));
+      background: #111827;
+      border: 1px solid rgba(246,200,95,.35);
+      color: var(--text);
+      padding: 14px 16px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity .22s ease, transform .22s ease;
+      z-index: 50;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .footer {
+      text-align: center;
+      color: var(--muted-2);
+      margin-top: 24px;
+      font-size: 12px;
+    }
+
+    .sep { height: 1px; background: var(--line); margin: 16px 0; }
+
+    .kbd {
+      font-family: var(--mono);
+      font-size: 11px;
+      border: 1px solid var(--line);
+      border-bottom-color: rgba(255,255,255,.32);
+      border-radius: 6px;
+      padding: 2px 6px;
+      color: var(--gold-2);
+      background: rgba(0,0,0,.22);
+    }
+
+    .hidden { display: none !important; }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .shell { width: 100%; padding: 0; }
+      .toolbar, .side-stack .panel:nth-child(n+2), .item-actions, .note, .toast { display: none !important; }
+      .panel, .batch, .item, .stat { box-shadow: none; background: #fff; color: #111; border-color: #ccc; }
+      .subtitle, .item-desc, .batch-sub, .rule, .gate-sub { color: #333; }
+      .badge { color: #111; border-color: #aaa; background: #f4f4f4; }
+      .grid { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="topbar">
+      <div class="brand">
+        <div class="logo">🚕</div>
+        <div>
+          <h1>GoldTaxi Future Ops</h1>
+          <div class="subtitle">
+            Odškrtávací dashboard pre blueprinty a prototypy. Pravidlo je jednoduché:
+            <strong>5 veľkých výstupov → STOPKA → diagnostika, testy, bezpečnosť → až potom ďalší batch.</strong>
+            Žiadne nekonečné blúdenie lesom. Creeper technického dlhu sa tu vybavuje na vstupe.
+          </div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="exportBtn">Export JSON</button>
+        <label class="btn" for="importFile">Import JSON</label>
+        <input class="hidden" id="importFile" type="file" accept="application/json" />
+        <button class="btn" id="printBtn">Print / PDF</button>
+        <button class="btn danger" id="resetBtn">Reset</button>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Prehľad progresu">
+      <div class="stat">
+        <div class="label">Celkový progress</div>
+        <div class="value" id="overallPct">0%</div>
+        <div class="progress-wrap" aria-hidden="true"><div class="progress-bar" id="overallBar"></div></div>
+      </div>
+      <div class="stat">
+        <div class="label">Hotové výstupy</div>
+        <div class="value" id="doneCount">0 / 0</div>
+        <div class="hint">Počíta sa blueprint + prototype. Minecraft sa neráta, aj keď vieme, že je production-ready.</div>
+      </div>
+      <div class="stat">
+        <div class="label">Aktuálny batch</div>
+        <div class="value" id="currentBatch">1</div>
+        <div class="hint" id="batchHint">Ideme pekne po poradí.</div>
+      </div>
+      <div class="stat">
+        <div class="label">Gate status</div>
+        <div class="value" id="gateStatus">OK</div>
+        <div class="hint" id="gateHint">Po 5 kusoch povinná pitva.</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Blueprinty &amp; Proty — hlavný board</h2>
+            <div class="subtitle">Odškrtávaj iba reálne doručené veci. Nie „skoro hotové". Skoro hotové je cintorín produktov.</div>
+          </div>
+          <span class="pill"><span>⚙️</span><span id="storageState">Auto-save ON</span></span>
+        </div>
+        <div class="panel-body" id="board"></div>
+      </div>
+
+      <aside class="side-stack">
+        <section class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Pravidlá hry</h2>
+          </div>
+          <div class="panel-body">
+            <div class="rule-list">
+              <div class="rule"><strong>1 aktívny cieľ.</strong> Nový nápad ide do parking lotu, nie do nového repa o 02:48.</div>
+              <div class="rule"><strong>5 veľkých výstupov max.</strong> Potom stopka, diagnostika, testy, security audit.</div>
+              <div class="rule"><strong>Žiadny Future Ops pred Core.</strong> Asterisk/AI až keď jazda funguje end-to-end.</div>
+              <div class="rule"><strong>Mock nie je produkt.</strong> Mock je tréningové koliesko. V produkcii je to poistná udalosť.</div>
+              <div class="rule"><strong>Predajný dôkaz.</strong> Po každom gate musí existovať demo, video alebo testovací pilot.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Pridať blueprint / proto</h2>
+          </div>
+          <div class="panel-body">
+            <form id="addForm" class="form-grid">
+              <div class="field">
+                <label for="itemTitle">Názov</label>
+                <input id="itemTitle" required placeholder="napr. Driver GPS foreground service" />
+              </div>
+              <div class="field">
+                <label for="itemType">Typ</label>
+                <select id="itemType">
+                  <option value="Blueprint">Blueprint</option>
+                  <option value="Prototype">Prototype</option>
+                  <option value="Security">Security</option>
+                  <option value="Backend">Backend</option>
+                  <option value="UX">UX</option>
+                  <option value="Sales">Sales</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="itemDesc">Popis / Done definition</label>
+                <textarea id="itemDesc" placeholder="Čo presne musí existovať, aby sa to dalo odškrtnúť?"></textarea>
+              </div>
+              <button class="btn primary" type="submit">Pridať do ďalšieho slotu</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">STOPKA prompt</h2>
+            <button class="btn small" id="copyPromptBtn">Copy</button>
+          </div>
+          <div class="panel-body">
+            <textarea class="prompt-box" id="diagnosticPrompt" readonly></textarea>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <div class="footer">GoldTaxi Core → Future Ops. Najprv fungujúca jazda. Potom robotický dispečer, ktorý sa bude hádať s vodičmi ako normálny dispečer, len bez cigariet.</div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'goldtaxi.future.ops.dashboard.v1';
+
+    const gateTasks = [
+      'flutter analyze = 0 errors / 0 warnings',
+      'unit tests + widget tests pre dotknuté moduly',
+      'happy path E2E na reálnom zariadení alebo web demo',
+      'security check: auth, RLS, secrets, mock mode, PII',
+      'demo dôkaz: video, screen recording alebo pilot link',
+      'CTO verdikt: pokračovať / freeze / refactor / kill'
+    ];
+
+    const defaultState = {
+      version: 1,
+      createdAt: new Date().toISOString(),
+      items: [
+        {
+          id: cryptoId(),
+          title: 'Auth unifikácia — Supabase Auth only',
+          type: 'Security',
+          desc: 'Vyhodiť WordPress JWT ako identity layer, Firebase nepoužívať ako user identity. profiles.id musí sedieť s auth.uid().',
+          batch: 1,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'Kill mock mode v produkcii',
+          type: 'Security',
+          desc: 'Žiadny auto-fallback do mocku pri network errore. Mock povolený iba v dev build konfigurácii.',
+          batch: 1,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'FCM pipeline end-to-end',
+          type: 'Backend',
+          desc: 'Uložiť fcm_token k profilu, push na driverov pri requested, push na customer pri accepted. Test na reálnom Androide.',
+          batch: 1,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'Background / foreground GPS pre vodiča',
+          type: 'Prototype',
+          desc: 'Vodič online → lokácia sa bezpečne upsertuje do driver_locations. Žiadne nekonečné inserty do dátového krematória.',
+          batch: 1,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'Ride happy path bez mocku',
+          type: 'Prototype',
+          desc: 'Customer vytvorí jazdu → driver dostane request → accept → customer vidí drivera → ride completed.',
+          batch: 1,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'RLS + tenant_id foundation',
+          type: 'Security',
+          desc: 'Pridať tenant_id do core tabuliek a RLS policy tak, aby sa druhá taxi firma nedostala do cudzieho bordelu.',
+          batch: 2,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'Dispatcher mini panel',
+          type: 'Prototype',
+          desc: 'Admin vidí aktívne jazdy, vodičov online a vie manuálne dohliadnuť flow. Bez sci-fi analytics.',
+          batch: 2,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'Driver online status + availability',
+          type: 'Backend',
+          desc: 'Vodič online/offline, dostupnosť, posledná lokácia, jasná viditeľnosť pre dispatcher/customer flow.',
+          batch: 2,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'Customer tracking link',
+          type: 'Prototype',
+          desc: 'Jednoduchý tracking link pre zákazníka: status, driver ETA, základná mapa. Nízka námaha, vysoký demo efekt.',
+          batch: 2,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'Pilot demo + sales kit',
+          type: 'Sales',
+          desc: '2-min video, demo account, pricing draft, landing/demo page. Keď sa to nedá ukázať, ešte to nie je produkt.',
+          batch: 2,
+          done: false,
+          note: ''
+        },
+        {
+          id: cryptoId(),
+          title: 'Asterisk voice dispatch blueprint',
+          type: 'Blueprint',
+          desc: 'Len architektúra a hranice. Žiadne buildovanie, kým GoldTaxi Core nemá pilot.',
+          batch: 3,
+          done: false,
+          note: 'DO NOT BUILD YET'
+        },
+        {
+          id: cryptoId(),
+          title: 'AI call agent prototype spec',
+          type: 'Blueprint',
+          desc: 'Definovať call flow: prijať hovor, vytiahnuť pickup/dropoff, potvrdiť cenu, vytvoriť ride. Zatiaľ papierový drak.',
+          batch: 3,
+          done: false,
+          note: 'DO NOT BUILD YET'
+        },
+        {
+          id: cryptoId(),
+          title: 'Nearest driver auto-dispatch algorithm',
+          type: 'Blueprint',
+          desc: 'Navrhnúť scoring: distance, availability, rating, cooldown, zone. Najprv blueprint, nie algoritmická čierna mágia.',
+          batch: 3,
+          done: false,
+          note: 'DO NOT BUILD YET'
+        },
+        {
+          id: cryptoId(),
+          title: 'WhatsApp / SMS booking bot',
+          type: 'Blueprint',
+          desc: 'Definovať minimalistický flow a provider. Build až po fungujúcom Core + pilot záujem.',
+          batch: 3,
+          done: false,
+          note: 'DO NOT BUILD YET'
+        },
+        {
+          id: cryptoId(),
+          title: 'White-label tenant onboarding',
+          type: 'Blueprint',
+          desc: 'Tenant setup, branding, roles, limits, billing. Pekné. Nebezpečné. Neskôr.',
+          batch: 3,
+          done: false,
+          note: 'DO NOT BUILD YET'
+        }
+      ],
+      gates: {}
+    };
+
+    let state = loadState();
+
+    const boardEl = document.getElementById('board');
+    const overallPctEl = document.getElementById('overallPct');
+    const overallBarEl = document.getElementById('overallBar');
+    const doneCountEl = document.getElementById('doneCount');
+    const currentBatchEl = document.getElementById('currentBatch');
+    const batchHintEl = document.getElementById('batchHint');
+    const gateStatusEl = document.getElementById('gateStatus');
+    const gateHintEl = document.getElementById('gateHint');
+    const toastEl = document.getElementById('toast');
+    const diagnosticPromptEl = document.getElementById('diagnosticPrompt');
+
+    function cryptoId() {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return 'id_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        if (!parsed.items || !Array.isArray(parsed.items)) return structuredClone(defaultState);
+        return parsed;
+      } catch (e) {
+        console.error(e);
+        return structuredClone(defaultState);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      document.getElementById('storageState').textContent = 'Saved ' + new Date().toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function typeClass(type) {
+      const map = {
+        Blueprint: 'purple',
+        Prototype: 'gold',
+        Security: 'red',
+        Backend: 'blue',
+        UX: 'orange',
+        Sales: 'green'
+      };
+      return map[type] || '';
+    }
+
+    function getBatches() {
+      const map = new Map();
+      for (const item of state.items) {
+        if (!map.has(item.batch)) map.set(item.batch, []);
+        map.get(item.batch).push(item);
+      }
+      return [...map.entries()].sort((a,b) => a[0] - b[0]);
+    }
+
+    function ensureGate(batch) {
+      if (!state.gates[batch]) {
+        state.gates[batch] = gateTasks.map(text => ({ id: cryptoId(), text, done: false }));
+      }
+      return state.gates[batch];
+    }
+
+    function isBatchComplete(batch) {
+      const items = state.items.filter(i => i.batch === batch);
+      return items.length > 0 && items.every(i => i.done);
+    }
+
+    function isGatePassed(batch) {
+      const gate = state.gates[batch];
+      return !!gate && gate.length > 0 && gate.every(t => t.done);
+    }
+
+    function firstLockedBatch() {
+      const batches = getBatches().map(([b]) => b);
+      for (const batch of batches) {
+        if (batch === 1) continue;
+        for (let prev = 1; prev < batch; prev++) {
+          if (!isGatePassed(prev)) return batch;
+        }
+      }
+      return Infinity;
+    }
+
+    function batchUnlocked(batch) {
+      for (let prev = 1; prev < batch; prev++) {
+        if (!isGatePassed(prev)) return false;
+      }
+      return true;
+    }
+
+    function activeBatch() {
+      const batches = getBatches().map(([b]) => b);
+      for (const batch of batches) {
+        if (!batchUnlocked(batch)) return Math.max(1, batch - 1);
+        if (!isBatchComplete(batch)) return batch;
+        if (isBatchComplete(batch) && !isGatePassed(batch)) return batch;
+      }
+      return batches[batches.length - 1] || 1;
+    }
+
+    function renderStats() {
+      const total = state.items.length;
+      const done = state.items.filter(i => i.done).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      overallPctEl.textContent = pct + '%';
+      overallBarEl.style.width = pct + '%';
+      doneCountEl.textContent = done + ' / ' + total;
+
+      const current = activeBatch();
+      currentBatchEl.textContent = current;
+
+      if (isBatchComplete(current) && !isGatePassed(current)) {
+        gateStatusEl.textContent = 'STOP';
+        gateStatusEl.style.color = 'var(--orange)';
+        gateHintEl.textContent = 'Batch hotový. Teraz pitva, testy, bezpečnosť. Nové hračky majú smolu.';
+        batchHintEl.textContent = 'Gate je aktívny. Ďalší batch je zamknutý.';
+      } else if (isGatePassed(current)) {
+        gateStatusEl.textContent = 'PASS';
+        gateStatusEl.style.color = 'var(--green)';
+        gateHintEl.textContent = 'Gate prešiel. Môžeš ísť na ďalší batch bez hanby.';
+        batchHintEl.textContent = 'Batch prešiel cez diagnostiku.';
+      } else {
+        gateStatusEl.textContent = 'OK';
+        gateStatusEl.style.color = 'var(--text)';
+        gateHintEl.textContent = 'Makaj na aktuálnych piatich výstupoch.';
+        batchHintEl.textContent = 'Ideme pekne po poradí.';
+      }
+    }
+
+    function renderBoard() {
+      const batches = getBatches();
+      boardEl.innerHTML = '';
+
+      for (const [batch, items] of batches) {
+        const unlocked = batchUnlocked(batch);
+        const complete = isBatchComplete(batch);
+        const gateActive = complete;
+        const gatePassed = isGatePassed(batch);
+        const batchEl = document.createElement('section');
+        batchEl.className = 'batch ' + (unlocked ? '' : 'locked') + (batch === activeBatch() ? ' active' : '');
+
+        const done = items.filter(i => i.done).length;
+        batchEl.innerHTML = `
+          <div class="batch-head">
+            <div>
+              <div class="batch-title">Batch ${batch} — ${batchTitle(batch)}</div>
+              <div class="batch-sub">${batchSubtitle(batch)}</div>
+            </div>
+            <div class="batch-meta">
+              <span class="badge ${complete ? 'green' : 'gold'}">${done} / ${items.length}</span>
+              <span class="badge ${unlocked ? 'blue' : 'red'}">${unlocked ? 'UNLOCKED' : 'LOCKED'}</span>
+              <span class="badge ${gatePassed ? 'green' : gateActive ? 'orange' : ''}">${gatePassed ? 'GATE PASS' : gateActive ? 'STOPKA' : 'BUILD'}</span>
+            </div>
+          </div>
+          <div class="items"></div>
+        `;
+
+        const itemsEl = batchEl.querySelector('.items');
+        items.sort((a,b) => state.items.indexOf(a) - state.items.indexOf(b)).forEach((item, idx) => {
+          itemsEl.appendChild(renderItem(item, unlocked, idx + 1));
+        });
+
+        batchEl.appendChild(renderGate(batch, unlocked, gateActive, gatePassed));
+        boardEl.appendChild(batchEl);
+      }
+
+      renderStats();
+      renderPrompt();
+      saveState();
+    }
+
+    function batchTitle(batch) {
+      if (batch === 1) return 'GoldTaxi Core Stabilizácia';
+      if (batch === 2) return 'Pilot Readiness';
+      if (batch === 3) return 'Future Ops Parking Lot';
+      return 'Custom Run';
+    }
+
+    function batchSubtitle(batch) {
+      if (batch === 1) return 'Najprv auth, mock, push, GPS a jazda bez podvodu na vlastný backend.';
+      if (batch === 2) return 'Z pilotného chaosu spraviť niečo, čo sa dá ukázať živému človeku s peňaženkou.';
+      if (batch === 3) return 'Tu bývajú šialené experimenty. Pekne v klietke, kým Core dýcha.';
+      return 'Päť výstupov, potom diagnostika. Žiadne výnimky, ani keď framework svieti.';
+    }
+
+    function renderItem(item, unlocked, number) {
+      const el = document.createElement('article');
+      el.className = 'item ' + (item.done ? 'done ' : '') + (unlocked ? '' : 'disabled');
+      el.dataset.id = item.id;
+      el.innerHTML = `
+        <input class="check" type="checkbox" ${item.done ? 'checked' : ''} ${unlocked ? '' : 'disabled'} aria-label="Označiť hotové" />
+        <div>
+          <div class="item-title">${escapeHtml(number + '. ' + item.title)}</div>
+          <div class="item-desc">${escapeHtml(item.desc || 'Bez popisu. To je samo o sebe bug. Daj tomu definition of done.')}</div>
+          <div class="item-foot">
+            <span class="badge ${typeClass(item.type)}">${escapeHtml(item.type || 'Item')}</span>
+            <span class="badge">Batch ${item.batch}</span>
+            <span class="badge ${item.done ? 'green' : ''}">${item.done ? 'DONE' : 'TODO'}</span>
+          </div>
+          <textarea class="note" placeholder="Poznámka, link na PR, commit, test výsledok...">${escapeHtml(item.note || '')}</textarea>
+        </div>
+        <div class="item-actions">
+          <button class="btn small ghost" data-action="up" title="Posunúť vyššie">↑</button>
+          <button class="btn small ghost" data-action="down" title="Posunúť nižšie">↓</button>
+          <button class="btn small danger" data-action="delete" title="Zmazať">×</button>
+        </div>
+      `;
+
+      el.querySelector('.check').addEventListener('change', (e) => {
+        item.done = e.target.checked;
+        renderBoard();
+        if (isBatchComplete(item.batch) && !isGatePassed(item.batch)) {
+          toast('Batch ' + item.batch + ' hotový. STOPKA. Teraz diagnostika, nie nový framework.');
+        }
+      });
+
+      el.querySelector('.note').addEventListener('input', (e) => {
+        item.note = e.target.value;
+        saveState();
+      });
+
+      el.querySelector('[data-action="delete"]').addEventListener('click', () => {
+        if (!confirm('Zmazať tento výstup? Toto nie je git reset, ale aj tak opatrne.')) return;
+        state.items = state.items.filter(i => i.id !== item.id);
+        normalizeBatches();
+        renderBoard();
+      });
+
+      el.querySelector('[data-action="up"]').addEventListener('click', () => moveItem(item.id, -1));
+      el.querySelector('[data-action="down"]').addEventListener('click', () => moveItem(item.id, 1));
+
+      return el;
+    }
+
+    function renderGate(batch, unlocked, gateActive, gatePassed) {
+      const gate = ensureGate(batch);
+      const el = document.createElement('div');
+      const active = gateActive && unlocked;
+      el.className = 'gate ' + (gatePassed ? 'passed ' : '') + (active ? '' : 'locked');
+      el.innerHTML = `
+        <div class="gate-title">
+          <span>${gatePassed ? '✅' : gateActive ? '🛑' : '🔒'} STOPKA po batchi ${batch}</span>
+          <span class="badge ${gatePassed ? 'green' : gateActive ? 'orange' : ''}">${gatePassed ? 'PASSED' : gateActive ? 'REQUIRED' : 'WAITING'}</span>
+        </div>
+        <div class="gate-sub">
+          ${gateActive ? 'Povinná diagnostika. Bez nej je ďalší batch zamknutý. Technický dlh síce nevie kričať, ale vie účtovať úroky.' : 'Gate sa odomkne, keď odškrtneš všetkých 5 výstupov v tomto batchi.'}
+        </div>
+        <div class="gate-list"></div>
+      `;
+      const list = el.querySelector('.gate-list');
+      gate.forEach(task => {
+        const row = document.createElement('label');
+        row.className = 'gate-row';
+        row.innerHTML = `<input type="checkbox" ${task.done ? 'checked' : ''} ${active ? '' : 'disabled'} /> <span>${escapeHtml(task.text)}</span>`;
+        row.querySelector('input').addEventListener('change', e => {
+          task.done = e.target.checked;
+          renderBoard();
+          if (isGatePassed(batch)) toast('Gate ' + batch + ' prešiel. Môžeš pokračovať. Bez fanfár, ale s menšou šancou na požiar.');
+        });
+        list.appendChild(row);
+      });
+      return el;
+    }
+
+    function normalizeBatches() {
+      state.items.forEach((item, index) => {
+        item.batch = Math.floor(index / 5) + 1;
+      });
+      const maxBatch = Math.max(1, ...state.items.map(i => i.batch));
+      Object.keys(state.gates).forEach(batch => {
+        if (+batch > maxBatch) delete state.gates[batch];
+      });
+    }
+
+    function moveItem(id, direction) {
+      const idx = state.items.findIndex(i => i.id === id);
+      if (idx < 0) return;
+      const next = idx + direction;
+      if (next < 0 || next >= state.items.length) return;
+      const [item] = state.items.splice(idx, 1);
+      state.items.splice(next, 0, item);
+      normalizeBatches();
+      renderBoard();
+    }
+
+    function renderPrompt() {
+      const current = activeBatch();
+      const items = state.items.filter(i => i.batch === current);
+      diagnosticPromptEl.value = `Act as a senior CTO, Flutter architect, security auditor, and SaaS operations reviewer.
+
+Project: GoldTaxi Future Ops
+Batch: ${current} — ${batchTitle(current)}
+
+Completed artifacts/prototypes:
+${items.map((i, idx) => `${idx + 1}. ${i.done ? '[DONE]' : '[TODO]'} ${i.title} — ${i.type}\n   Definition: ${i.desc || 'N/A'}\n   Notes: ${i.note || 'N/A'}`).join('\n')}
+
+Run a STOPKA diagnostic before I continue.
+
+Output:
+1. Brutal CTO verdict: PASS / WARNING / FAIL
+2. What is actually production-ready
+3. What is fake, mocked, hardcoded, or dangerous
+4. Flutter architecture issues
+5. Backend/Supabase/data issues
+6. Security issues: auth, RLS, secrets, tenant isolation, PII
+7. Required tests before next batch
+8. What must be frozen or deleted
+9. Exact next 5 blueprint/prototype items
+10. Final decision: continue / refactor / freeze / kill
+
+Be direct. No motivational bullshit. If this is a burning taxi, say it is a burning taxi.`;
+    }
+
+    function addItem(title, type, desc) {
+      const nextIndex = state.items.length;
+      const batch = Math.floor(nextIndex / 5) + 1;
+      state.items.push({
+        id: cryptoId(),
+        title,
+        type,
+        desc,
+        batch,
+        done: false,
+        note: ''
+      });
+      renderBoard();
+    }
+
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'goldtaxi-future-ops-dashboard-' + new Date().toISOString().slice(0,10) + '.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast('Export hotový. Záloha ako airbag pre chaos.');
+    }
+
+    function importJson(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(String(reader.result));
+          if (!imported.items || !Array.isArray(imported.items)) throw new Error('Invalid JSON');
+          state = imported;
+          normalizeBatches();
+          renderBoard();
+          toast('Import hotový. Pacient prežil.');
+        } catch (e) {
+          toast('Import zlyhal. JSON vyzerá ako stacktrace po výbuchu.', true);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function toast(message, danger = false) {
+      toastEl.textContent = message;
+      toastEl.style.borderColor = danger ? 'rgba(255,102,120,.5)' : 'rgba(246,200,95,.35)';
+      toastEl.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => toastEl.classList.remove('show'), 3200);
+    }
+
+    document.getElementById('addForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('itemTitle').value.trim();
+      const type = document.getElementById('itemType').value;
+      const desc = document.getElementById('itemDesc').value.trim();
+      if (!title) return;
+      addItem(title, type, desc);
+      e.target.reset();
+      toast('Pridané. Teraz to ešte dokončiť, tá malá nepodstatná časť.');
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', exportJson);
+    document.getElementById('importFile').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) importJson(file);
+      e.target.value = '';
+    });
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (!confirm('Naozaj resetovať dashboard? Toto je tá časť, kde sa človek tvári, že vie čo robí.')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = structuredClone(defaultState);
+      renderBoard();
+      toast('Reset hotový. Nový svet, rovnaké bugy.');
+    });
+    document.getElementById('copyPromptBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(diagnosticPromptEl.value);
+        toast('STOPKA prompt skopírovaný. Použi ho po každej päťke.');
+      } catch (e) {
+        diagnosticPromptEl.select();
+        document.execCommand('copy');
+        toast('STOPKA prompt skopírovaný fallbackom. Staré kúzla stále žijú.');
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveState();
+        toast('Uložené do localStorage.');
+      }
+    });
+
+    renderBoard();
+  </script>
+</body>
+</html>
