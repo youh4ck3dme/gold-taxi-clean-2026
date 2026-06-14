@@ -19,7 +19,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2'
+          flutter-version: any
           channel: 'stable'
           cache: true
 
@@ -41,9 +41,4 @@ jobs:
           service_account: 'github-action-1265342369@goldtaxi-202ff.iam.gserviceaccount.com'
 
       - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '' # Leave empty when using WIF with google-github-actions/auth
-          projectId: goldtaxi-202ff
-          channelId: live
+        run: npx -y firebase-tools@latest deploy --only hosting:goldtaxi-202ff --project goldtaxi-202ff
