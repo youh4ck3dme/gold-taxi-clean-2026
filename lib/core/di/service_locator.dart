@@ -104,7 +104,7 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.mock}) async {
   getIt.registerLazySingleton<DriverProfileService>(() => DriverProfileService());
 
   // Register repositories
-  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository(getIt<ApiService>(), getIt<LocalStorageService>()));
+  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository(getIt<LocalStorageService>()));
   getIt.registerLazySingleton<BlogRepository>(() => BlogRepository(
         getIt<BlogRemoteDataSource>(),
         getIt<BlogLocalDataSource>(),

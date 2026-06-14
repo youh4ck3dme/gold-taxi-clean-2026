@@ -228,13 +228,17 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/earnings',
-      builder: (context, state) => BlocProvider<EarningsCubit>(
-        create: (_) => EarningsCubit(
-          earningsRepository: getIt<EarningsRepository>(),
-          driverId: 'driver_1',
-        )..loadAllData(),
-        child: const EarningsPage(),
-      ),
+      builder: (context, state) {
+        final authState = getIt<AuthCubit>().state;
+        final driverId = authState is Authenticated ? authState.user.id : 'driver_1';
+        return BlocProvider<EarningsCubit>(
+          create: (_) => EarningsCubit(
+            earningsRepository: getIt<EarningsRepository>(),
+            driverId: driverId,
+          )..loadAllData(),
+          child: const EarningsPage(),
+        );
+      },
     ),
     GoRoute(path: '/faq', builder: (context, state) => const FaqPage()),
     GoRoute(path: '/insolvency', builder: (context, state) => const InsolvencyDashboardPage()),
