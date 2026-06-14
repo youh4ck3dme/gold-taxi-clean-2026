@@ -1,0 +1,54 @@
+name: Flutter CI
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Flutter Analyze, Test & Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Run Flutter analyze
+        run: flutter analyze
+
+      - name: Run Flutter tests
+        run: flutter test
+
+      - name: Build web (mock mode - always runs)
+        run: |
+          flutter build web --release --no-tree-shake-icons \
+            --dart-define=BACKEND_MODE=mock
+
+      - name: Build web (production mode - conditional)
+        if: env.SUPABASE_URL != '' && env.SUPABASE_ANON_KEY != ''
+        run: |
+          flutter build web --release --no-tree-shake-icons \
+            --dart-define=BACKEND_MODE=supabase \
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Production build skipped (no secrets)
+        if: env.SUPABASE_URL == '' || env.SUPABASE_ANON_KEY == ''
+        run: |
+          echo "⚠️  Production Supabase build skipped: SUPABASE_URL or SUPABASE_ANON_KEY secrets not configured"
+          echo "    Mock build passed. Configure GitHub secrets to enable production build."

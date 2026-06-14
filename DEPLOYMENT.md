@@ -49,6 +49,26 @@ Inject these variables during the build process using `--dart-define` or environ
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 
+### Vercel Deployment Guardrails
+
+**⚠️ REQUIRED for Production Deployment**
+
+| Variable | Required | Purpose | Security Note |
+|----------|----------|---------|---------------|
+| `BACKEND_MODE` | ✅ Yes | Backend mode selector | Must be `supabase` for production |
+| `SUPABASE_URL` | ✅ Yes | Supabase project URL | Use `https://nscxuxhapaabtsiduxlu.supabase.co` |
+| `SUPABASE_ANON_KEY` | ✅ Yes | Supabase publishable key | **NEVER use service_role** |
+| `WP_BASE_URL` | ⚠️ Optional | WordPress fallback | Only for legacy features |
+| `FIREBASE_*` | ⚠️ Optional | Firebase auth | For auth fallback |
+
+**🔒 Security Enforcement:**
+- ❌ **NO** `SUPABASE_SERVICE_ROLE_KEY` should ever be in client code
+- ❌ **NO** `service_role` in any environment variable
+- ✅ **ONLY** `anon`/`publishable` keys allowed in frontend
+
+**SPA Fallback Note:**
+All routes are rewrote to `/index.html` via `vercel.json`. Ensure your Supabase CORS settings allow the Vercel domain.
+
 ## 3. Flutter Web Build Command
 
 Run the following command to generate a production-ready PWA build:
@@ -88,3 +108,37 @@ If the Supabase integration fails in production:
 1.  Set `BACKEND_MODE=mock` in your environment variables.
 2.  Redeploy the application.
 3.  The app will revert to in-memory mock mode, preserving UX functionality without backend dependency.
+
+## 6. Release Baseline Protection
+
+**Current Stable Release:** `gold-taxi-production-pass-2026-06-14`
+
+### How to Rollback
+
+#### To a Specific Tag:
+```bash
+# Checkout the baseline tag
+git checkout gold-taxi-production-pass-2026-06-14
+
+# Push to main (force push - use with caution!)
+git push origin gold-taxi-production-pass-2026-06-14:main --force
+```
+
+#### To Mock Mode (Emergency):
+```bash
+# Temporarily switch to mock mode without redeploy
+# In Vercel: Set BACKEND_MODE=mock
+# Or rebuild with:
+flutter build web --release --no-tree-shake-icons --dart-define=BACKEND_MODE=mock
+```
+
+#### Verify Previous Build:
+```bash
+# List all tags
+git tag -l
+
+# Check what changed since baseline
+git diff gold-taxi-production-pass-2026-06-14..HEAD
+```
+
+**Emergency Contact:** If deployment fails, baseline tag `gold-taxi-production-pass-2026-06-14` is known stable.
