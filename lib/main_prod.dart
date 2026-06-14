@@ -16,7 +16,7 @@ void main() {
       'STRIPE_KEY_PROD',
       defaultValue: 'pk_live_prod_stripe_key',
     ),
-    enableMockMode: const bool.fromEnvironment('MOCK_MODE', defaultValue: false),
+    enableMockMode: false,
     enableAnalytics: true,
   );
 

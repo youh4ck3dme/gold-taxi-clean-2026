@@ -15,7 +15,8 @@ class AppConfig {
     required this.stripePublishableKey,
     required this.enableMockMode,
     required this.enableAnalytics,
-  });
+  }) : assert(environment != AppEnvironment.prod || !enableMockMode,
+            'Mock mode cannot be enabled in production');
 
   bool get isDev => environment == AppEnvironment.dev;
   bool get isProd => environment == AppEnvironment.prod;

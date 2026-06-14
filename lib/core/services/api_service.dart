@@ -25,11 +25,10 @@ class ApiService {
   late Dio _dio;
   final Logger _logger = Logger();
   final AuthInterceptor _authInterceptor;
-  bool _useMockData = false;
-  static bool _mockModeEnabled = false;
+  final bool _mockModeEnabled;
 
-  ApiService(this._authInterceptor, {Dio? dio, bool enableMockMode = false}) {
-    _mockModeEnabled = enableMockMode;
+  ApiService(this._authInterceptor, {Dio? dio, bool enableMockMode = false})
+      : _mockModeEnabled = enableMockMode {
     if (dio != null) {
       _dio = dio;
     } else {
@@ -86,15 +85,6 @@ class ApiService {
     ErrorInterceptorHandler handler,
   ) async {
     _logger.e('🔴 [API] Error: ${error.message}');
-    // Enable mock mode on connection errors
-    if (error.type == DioExceptionType.connectionError ||
-        error.type == DioExceptionType.connectionTimeout ||
-        error.message?.contains('failed host lookup') == true ||
-        error.message?.contains('Connection failed') == true) {
-      _useMockData = true;
-      _mockModeEnabled = true;
-      _logger.w('⚠️  Switching to MOCK DATA mode due to connection issues');
-    }
     handler.next(error);
   }
 
@@ -112,7 +102,7 @@ class ApiService {
     Map<String, dynamic>? headers,
   }) async {
     // If mock mode is enabled, return mock data
-    if (_mockModeEnabled || _useMockData) {
+    if (_mockModeEnabled) {
       return _getMockData(endpoint, queryParameters);
     }
 
@@ -124,14 +114,6 @@ class ApiService {
       );
       return response.data;
     } on DioException catch (e) {
-      // On connection errors, switch to mock
-      if (e.type == DioExceptionType.connectionError ||
-          e.type == DioExceptionType.connectionTimeout) {
-        _useMockData = true;
-        _mockModeEnabled = true;
-        _logger.w('⚠️  API Connection failed, using MOCK DATA: ${e.message}');
-        return _getMockData(endpoint, queryParameters);
-      }
       throw _handleError(e);
     }
   }
@@ -142,7 +124,7 @@ class ApiService {
     required Map<String, dynamic> data,
     Map<String, dynamic>? headers,
   }) async {
-    if (_mockModeEnabled || _useMockData) {
+    if (_mockModeEnabled) {
       return _postMockData(endpoint, data);
     }
 
@@ -154,12 +136,6 @@ class ApiService {
       );
       return response.data;
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionError ||
-          e.type == DioExceptionType.connectionTimeout) {
-        _useMockData = true;
-        _mockModeEnabled = true;
-        return _postMockData(endpoint, data);
-      }
       throw _handleError(e);
     }
   }
@@ -170,7 +146,7 @@ class ApiService {
     required Map<String, dynamic> data,
     Map<String, dynamic>? headers,
   }) async {
-    if (_mockModeEnabled || _useMockData) {
+    if (_mockModeEnabled) {
       return data; // Just return the data for PUT in mock mode
     }
 
@@ -182,12 +158,6 @@ class ApiService {
       );
       return response.data;
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionError ||
-          e.type == DioExceptionType.connectionTimeout) {
-        _useMockData = true;
-        _mockModeEnabled = true;
-        return data;
-      }
       throw _handleError(e);
     }
   }
@@ -197,7 +167,7 @@ class ApiService {
     String endpoint, {
     Map<String, dynamic>? headers,
   }) async {
-    if (_mockModeEnabled || _useMockData) {
+    if (_mockModeEnabled) {
       return {'success': true, 'message': 'Mock delete successful'};
     }
 
@@ -208,12 +178,6 @@ class ApiService {
       );
       return response.data;
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionError ||
-          e.type == DioExceptionType.connectionTimeout) {
-        _useMockData = true;
-        _mockModeEnabled = true;
-        return {'success': true, 'message': 'Mock delete successful'};
-      }
       throw _handleError(e);
     }
   }
@@ -372,7 +336,7 @@ class ApiService {
   /// Verify if endpoint exists by sending a lightweight probe (per_page=1)
   Future<bool> _isEndpointAvailable(String endpoint) async {
     // In mock mode, always return true
-    if (_mockModeEnabled || _useMockData) {
+    if (_mockModeEnabled) {
       return true;
     }
 
@@ -389,12 +353,6 @@ class ApiService {
         _endpointAvailability[normPath] = false;
         return false;
       }
-      // On connection errors, enable mock mode
-      if (e.type == DioExceptionType.connectionError ||
-          e.type == DioExceptionType.connectionTimeout) {
-        _useMockData = true;
-        _mockModeEnabled = true;
-      }
       return false; // Network issue, don't cache permanently as unavailable
     } catch (_) {
       return false;
@@ -408,7 +366,7 @@ class ApiService {
     int perPage = 10,
   }) async {
     // In mock mode, return mock data immediately
-    if (_mockModeEnabled || _useMockData) {
+    if (_mockModeEnabled) {
       return MockApiService.getMockCptData(cptName, count: perPage);
     }
 
@@ -481,20 +439,7 @@ class ApiService {
     return raw.map((json) => InvoiceModel.fromJson(json)).toList();
   }
 
-  /// Enable mock mode manually (for testing)
-  static void enableMockMode() {
-    _mockModeEnabled = true;
-  }
 
-  /// Disable mock mode manually
-  static void disableMockMode() {
-    _mockModeEnabled = false;
-  }
-
-  /// Check if mock mode is enabled
-  static bool isMockModeEnabled() {
-    return _mockModeEnabled;
-  }
 
   /// Close Dio instance
   void close() {

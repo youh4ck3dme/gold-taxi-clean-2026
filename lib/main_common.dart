@@ -17,6 +17,11 @@ import 'routes/app_router.dart';
 Future<void> mainCommon(AppConfig config) async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Enforce security check: mock mode must never run in production environment
+  if (config.environment == AppEnvironment.prod && config.enableMockMode) {
+    throw StateError('Security violation: Mock mode cannot be enabled in a production environment.');
+  }
+
   // Initialize Hive for local storage
   await Hive.initFlutter();
 
@@ -32,9 +37,8 @@ Future<void> mainCommon(AppConfig config) async {
   await setupServiceLocator(mode: backendMode);
   debugPrint('🏗️ Service Locator initialized in $backendMode mode.');
 
-  // 3. Enable Mock Mode if requested
+  // 3. Log Mock Mode if enabled
   if (config.enableMockMode) {
-    ApiService.enableMockMode();
     debugPrint('🎭 MOCK MODE ENABLED - Demo mode with mock data');
   }
 

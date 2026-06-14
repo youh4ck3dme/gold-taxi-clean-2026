@@ -44,7 +44,9 @@ class PlacesRepository {
       throw Exception('Rate limit exceeded (500 requests/24h)');
     }
 
-    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
+    final apiKey = const String.fromEnvironment('GOOGLE_MAPS_API_KEY').isNotEmpty
+        ? const String.fromEnvironment('GOOGLE_MAPS_API_KEY')
+        : dotenv.env['GOOGLE_MAPS_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
       throw Exception('GOOGLE_MAPS_API_KEY is not configured');
     }
@@ -83,7 +85,9 @@ class PlacesRepository {
   }
 
   Future<PlaceModel> getPlaceDetails(String placeId, LatLng? currentLocation) async {
-    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
+    final apiKey = const String.fromEnvironment('GOOGLE_MAPS_API_KEY').isNotEmpty
+        ? const String.fromEnvironment('GOOGLE_MAPS_API_KEY')
+        : dotenv.env['GOOGLE_MAPS_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
       throw Exception('GOOGLE_MAPS_API_KEY is not configured');
     }
