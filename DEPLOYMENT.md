@@ -2,6 +2,20 @@
 
 This document provides instructions for deploying Gold-Taxi to production and verifying the integration.
 
+---
+
+## 🏆 PRODUCTION BASELINE (Phase 5B Complete)
+
+| **Item** | **Value** |
+|----------|-----------|
+| **URL** | https://gold-taxi.vercel.app |
+| **Backend** | Supabase: `nscxuxhapaabtsiduxlu.supabase.co` |
+| **Release Tag** | `gold-taxi-production-pass-2026-06-14` |
+| **Status** | Phase 5B production complete ✅ |
+| **Zero critical technical debt** | Core launch flows verified |
+
+---
+
 ## 1. Supabase Setup (Live Migration)
 
 Follow these steps to set up the live Supabase environment:
