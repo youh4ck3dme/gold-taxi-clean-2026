@@ -26,6 +26,11 @@ jobs:
           flutter-version: any
           channel: 'stable'
 
+      - name: Install Linux desktop dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev
+
       - name: Install Dependencies
         run: flutter pub get
 
@@ -39,4 +44,4 @@ jobs:
         run: flutter test --machine > test-results.json
 
       - name: Run Integration Tests (Headless)
-        run: flutter test integration_test/app_integration_test.dart
+        run: xvfb-run -a flutter test -d linux integration_test/app_integration_test.dart

@@ -9,6 +9,9 @@ import 'package:gold_taxi/features/auth/presentation/cubits/auth_state.dart';
 import 'package:gold_taxi/features/auth/presentation/pages/login_page.dart';
 
 import 'package:gold_taxi/features/home/presentation/pages/home_page.dart';
+import 'package:gold_taxi/features/profile/presentation/bloc/profile_cubit.dart';
+import 'package:gold_taxi/features/profile/presentation/bloc/profile_state.dart';
+import 'package:gold_taxi/features/map/presentation/cubits/ride_cubit.dart';
 
 import 'package:gold_taxi/features/products/presentation/pages/products_page.dart';
 import 'package:gold_taxi/features/products/presentation/bloc/products_bloc.dart';
@@ -40,32 +43,49 @@ import 'package:gold_taxi/models/event_model.dart';
 import 'package:gold_taxi/models/post_model.dart';
 import 'package:gold_taxi/models/faq_model.dart';
 import 'package:gold_taxi/models/invoice_model.dart';
+import 'package:gold_taxi/models/ride_status.dart';
 import 'package:gold_taxi/core/services/insolvency_predictor_service.dart';
 
 class MockAuthCubit extends Mock implements AuthCubit {
   @override
   Future<void> close() async {}
 }
+
 class MockInsolvencyCubit extends Mock implements InsolvencyCubit {
   @override
   Future<void> close() async {}
 }
+
+class MockProfileCubit extends Mock implements ProfileCubit {
+  @override
+  Future<void> close() async {}
+}
+
+class MockRideCubit extends Mock implements RideCubit {
+  @override
+  Future<void> close() async {}
+}
+
 class MockBlogBloc extends Mock implements BlogBloc {
   @override
   Future<void> close() async {}
 }
+
 class MockProductsBloc extends Mock implements ProductsBloc {
   @override
   Future<void> close() async {}
 }
+
 class MockServicesBloc extends Mock implements ServicesBloc {
   @override
   Future<void> close() async {}
 }
+
 class MockEventsBloc extends Mock implements EventsBloc {
   @override
   Future<void> close() async {}
 }
+
 class MockFaqBloc extends Mock implements FaqBloc {
   @override
   Future<void> close() async {}
@@ -77,6 +97,8 @@ void main() {
   final getIt = GetIt.instance;
   late MockAuthCubit mockAuthCubit;
   late MockInsolvencyCubit mockInsolvencyCubit;
+  late MockProfileCubit mockProfileCubit;
+  late MockRideCubit mockRideCubit;
   late MockBlogBloc mockBlogBloc;
   late MockProductsBloc mockProductsBloc;
   late MockServicesBloc mockServicesBloc;
@@ -86,6 +108,8 @@ void main() {
   setUpAll(() {
     mockAuthCubit = MockAuthCubit();
     mockInsolvencyCubit = MockInsolvencyCubit();
+    mockProfileCubit = MockProfileCubit();
+    mockRideCubit = MockRideCubit();
     mockBlogBloc = MockBlogBloc();
     mockProductsBloc = MockProductsBloc();
     mockServicesBloc = MockServicesBloc();
@@ -94,6 +118,8 @@ void main() {
 
     getIt.registerSingleton<AuthCubit>(mockAuthCubit);
     getIt.registerSingleton<InsolvencyCubit>(mockInsolvencyCubit);
+    getIt.registerSingleton<ProfileCubit>(mockProfileCubit);
+    getIt.registerSingleton<RideCubit>(mockRideCubit);
     getIt.registerSingleton<BlogBloc>(mockBlogBloc);
     getIt.registerSingleton<ProductsBloc>(mockProductsBloc);
     getIt.registerSingleton<ServicesBloc>(mockServicesBloc);
@@ -110,12 +136,17 @@ void main() {
       id: '1',
       name: 'Test Driver',
       email: 'driver@test.com',
-      role: 'driver',
+      role: 'customer',
+      phone: '+421900123456',
     );
 
-    testWidgets('1. LoginPage renders form components and bypass button', (WidgetTester tester) async {
+    testWidgets('1. LoginPage renders form components and bypass button', (
+      WidgetTester tester,
+    ) async {
       when(() => mockAuthCubit.state).thenReturn(Unauthenticated());
-      when(() => mockAuthCubit.stream).thenAnswer((_) => Stream.value(Unauthenticated()));
+      when(
+        () => mockAuthCubit.stream,
+      ).thenAnswer((_) => Stream.value(Unauthenticated()));
 
       await tester.pumpWidget(const MaterialApp(home: LoginPage()));
       await tester.pumpAndSettle();
@@ -125,24 +156,45 @@ void main() {
       expect(find.text('🔧 DEVELOPER BYPASS → DOMOV'), findsOneWidget);
     });
 
-    testWidgets('2. HomePage displays personalized greeting and services grid', (WidgetTester tester) async {
-      when(() => mockAuthCubit.state).thenReturn(const Authenticated(testUser));
-      when(() => mockAuthCubit.stream).thenAnswer((_) => Stream.value(const Authenticated(testUser)));
+    testWidgets(
+      '2. HomePage displays personalized greeting and services grid',
+      (WidgetTester tester) async {
+        when(
+          () => mockAuthCubit.state,
+        ).thenReturn(const Authenticated(testUser));
+        when(
+          () => mockAuthCubit.stream,
+        ).thenAnswer((_) => Stream.value(const Authenticated(testUser)));
+        when(() => mockProfileCubit.fetchProfile()).thenAnswer((_) async {});
+        when(() => mockProfileCubit.state).thenReturn(
+          const ProfileLoaded(user: testUser, orders: [], bookings: []),
+        );
+        when(() => mockProfileCubit.stream).thenAnswer(
+          (_) => Stream.value(
+            const ProfileLoaded(user: testUser, orders: [], bookings: []),
+          ),
+        );
+        when(
+          () => mockRideCubit.state,
+        ).thenReturn(RideState(status: RideStatus.requested));
+        when(() => mockRideCubit.stream).thenAnswer(
+          (_) => Stream.value(RideState(status: RideStatus.requested)),
+        );
 
-      await tester.pumpWidget(const MaterialApp(home: HomePage()));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(const MaterialApp(home: HomePage()));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Ahoj, Test Driver 👋'), findsOneWidget);
-      expect(find.text('Naše služby'), findsOneWidget);
-      expect(find.text('Odvoz'), findsOneWidget);
-      expect(find.text('Obchod'), findsOneWidget);
-      expect(find.text('Udalosti'), findsOneWidget);
-      expect(find.text('Novinky'), findsOneWidget);
-      expect(find.text('Centrum podpory & FAQ'), findsOneWidget);
-      expect(find.text('Monitoring úpadku'), findsOneWidget);
-    });
+        expect(find.text('Ahoj, Test Driver 👋'), findsOneWidget);
+        expect(find.text('Objednajte si jazdu'), findsOneWidget);
+        expect(find.text('Kam to bude?'), findsOneWidget);
+        expect(find.text('Centrum podpory & FAQ'), findsOneWidget);
+        expect(find.text('Monitoring úpadku'), findsOneWidget);
+      },
+    );
 
-    testWidgets('3. ProductsPage loads list and builds product cards', (WidgetTester tester) async {
+    testWidgets('3. ProductsPage loads list and builds product cards', (
+      WidgetTester tester,
+    ) async {
       const product = ProductModel(
         id: 10,
         name: 'Taxi Premium Cap',
@@ -153,8 +205,12 @@ void main() {
         stock: 5,
       );
 
-      when(() => mockProductsBloc.state).thenReturn(const ProductsLoaded(products: [product]));
-      when(() => mockProductsBloc.stream).thenAnswer((_) => Stream.value(const ProductsLoaded(products: [product])));
+      when(
+        () => mockProductsBloc.state,
+      ).thenReturn(const ProductsLoaded(products: [product]));
+      when(() => mockProductsBloc.stream).thenAnswer(
+        (_) => Stream.value(const ProductsLoaded(products: [product])),
+      );
 
       await tester.pumpWidget(const MaterialApp(home: ProductsPage()));
       await tester.pump();
@@ -164,7 +220,9 @@ void main() {
       expect(find.text('12.00 €'), findsOneWidget);
     });
 
-    testWidgets('4. ServicesPage renders standard services list', (WidgetTester tester) async {
+    testWidgets('4. ServicesPage renders standard services list', (
+      WidgetTester tester,
+    ) async {
       const service = ServiceModel(
         id: 20,
         name: 'VIP Standard Drive',
@@ -176,8 +234,12 @@ void main() {
         category: 'Ride',
       );
 
-      when(() => mockServicesBloc.state).thenReturn(const ServicesLoaded(services: [service]));
-      when(() => mockServicesBloc.stream).thenAnswer((_) => Stream.value(const ServicesLoaded(services: [service])));
+      when(
+        () => mockServicesBloc.state,
+      ).thenReturn(const ServicesLoaded(services: [service]));
+      when(() => mockServicesBloc.stream).thenAnswer(
+        (_) => Stream.value(const ServicesLoaded(services: [service])),
+      );
 
       await tester.pumpWidget(const MaterialApp(home: ServicesPage()));
       await tester.pump();
@@ -186,7 +248,9 @@ void main() {
       expect(find.text('VIP Standard Drive'), findsOneWidget);
     });
 
-    testWidgets('5. EventsPage loads and lists planned taxi routes', (WidgetTester tester) async {
+    testWidgets('5. EventsPage loads and lists planned taxi routes', (
+      WidgetTester tester,
+    ) async {
       final event = EventModel(
         id: 30,
         date: DateTime(2026, 6, 15),
@@ -201,8 +265,12 @@ void main() {
         price: 10.0,
       );
 
-      when(() => mockEventsBloc.state).thenReturn(EventsLoaded(events: [event]));
-      when(() => mockEventsBloc.stream).thenAnswer((_) => Stream.value(EventsLoaded(events: [event])));
+      when(
+        () => mockEventsBloc.state,
+      ).thenReturn(EventsLoaded(events: [event]));
+      when(
+        () => mockEventsBloc.stream,
+      ).thenAnswer((_) => Stream.value(EventsLoaded(events: [event])));
 
       await tester.pumpWidget(const MaterialApp(home: EventsPage()));
       await tester.pump();
@@ -211,7 +279,9 @@ void main() {
       expect(find.text('Weekly Tour Bratislava'), findsOneWidget);
     });
 
-    testWidgets('6. BlogPage lists published news posts', (WidgetTester tester) async {
+    testWidgets('6. BlogPage lists published news posts', (
+      WidgetTester tester,
+    ) async {
       final post = PostModel(
         id: 40,
         date: DateTime(2026, 6, 11),
@@ -224,8 +294,12 @@ void main() {
         tagIds: const [],
       );
 
-      when(() => mockBlogBloc.state).thenReturn(BlogLoaded(posts: [post], hasReachedMax: true));
-      when(() => mockBlogBloc.stream).thenAnswer((_) => Stream.value(BlogLoaded(posts: [post], hasReachedMax: true)));
+      when(
+        () => mockBlogBloc.state,
+      ).thenReturn(BlogLoaded(posts: [post], hasReachedMax: true));
+      when(() => mockBlogBloc.stream).thenAnswer(
+        (_) => Stream.value(BlogLoaded(posts: [post], hasReachedMax: true)),
+      );
 
       await tester.pumpWidget(const MaterialApp(home: BlogPage()));
       await tester.pump();
@@ -234,7 +308,9 @@ void main() {
       expect(find.text('New Taxi Fleet Arrived'), findsOneWidget);
     });
 
-    testWidgets('7. FAQ Page displays question expansion tiles', (WidgetTester tester) async {
+    testWidgets('7. FAQ Page displays question expansion tiles', (
+      WidgetTester tester,
+    ) async {
       const faq = FaqModel(
         id: 50,
         question: 'Ako stornovať jazdu?',
@@ -243,7 +319,9 @@ void main() {
       );
 
       when(() => mockFaqBloc.state).thenReturn(const FaqLoaded(faqs: [faq]));
-      when(() => mockFaqBloc.stream).thenAnswer((_) => Stream.value(const FaqLoaded(faqs: [faq])));
+      when(
+        () => mockFaqBloc.stream,
+      ).thenAnswer((_) => Stream.value(const FaqLoaded(faqs: [faq])));
 
       await tester.pumpWidget(const MaterialApp(home: FaqPage()));
       await tester.pump();
@@ -252,7 +330,9 @@ void main() {
       expect(find.text('Ako stornovať jazdu?'), findsOneWidget);
     });
 
-    testWidgets('8. InsolvencyDashboardPage renders risk gauge and factors', (WidgetTester tester) async {
+    testWidgets('8. InsolvencyDashboardPage renders risk gauge and factors', (
+      WidgetTester tester,
+    ) async {
       final invoice = InvoiceModel(
         id: 'FA-2026-901',
         amount: 1500.0,
@@ -270,25 +350,38 @@ void main() {
         unpaidRatio: 0.5,
       );
 
-      when(() => mockInsolvencyCubit.loadScenario(any())).thenAnswer((_) async {});
-      when(() => mockInsolvencyCubit.state).thenReturn(InsolvencyLoaded(
-        invoices: [invoice],
-        prediction: prediction,
-        activeScenario: 'Reálne dáta (WordPress)',
-      ));
-      when(() => mockInsolvencyCubit.stream).thenAnswer((_) => Stream.value(InsolvencyLoaded(
-        invoices: [invoice],
-        prediction: prediction,
-        activeScenario: 'Reálne dáta (WordPress)',
-      )));
+      when(
+        () => mockInsolvencyCubit.loadScenario(any()),
+      ).thenAnswer((_) async {});
+      when(() => mockInsolvencyCubit.state).thenReturn(
+        InsolvencyLoaded(
+          invoices: [invoice],
+          prediction: prediction,
+          activeScenario: 'Reálne dáta (WordPress)',
+        ),
+      );
+      when(() => mockInsolvencyCubit.stream).thenAnswer(
+        (_) => Stream.value(
+          InsolvencyLoaded(
+            invoices: [invoice],
+            prediction: prediction,
+            activeScenario: 'Reálne dáta (WordPress)',
+          ),
+        ),
+      );
 
-      await tester.pumpWidget(const MaterialApp(home: InsolvencyDashboardPage()));
+      await tester.pumpWidget(
+        const MaterialApp(home: InsolvencyDashboardPage()),
+      );
       await tester.pump();
 
       expect(find.text('Monitoring úpadku'), findsOneWidget);
       expect(find.text('Vysoké riziko'), findsOneWidget);
       expect(find.text('75%'), findsOneWidget);
-      expect(find.text('Oneskorenie platieb viac ako 60 dní', skipOffstage: false), findsOneWidget);
+      expect(
+        find.text('Oneskorenie platieb viac ako 60 dní', skipOffstage: false),
+        findsOneWidget,
+      );
       expect(find.text('FA-2026-901', skipOffstage: false), findsOneWidget);
     });
   });
