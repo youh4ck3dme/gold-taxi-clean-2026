@@ -131,7 +131,7 @@ class AuthRepository {
   UserModel _userModelFromFirebaseUser(User user) {
     final email = user.email ?? '';
     return UserModel(
-      id: 0,
+      id: '0',
       name: user.displayName ?? email,
       email: email,
       profilePictureUrl: user.photoURL,

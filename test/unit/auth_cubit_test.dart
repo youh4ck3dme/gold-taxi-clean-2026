@@ -22,7 +22,7 @@ void main() {
 
   group('AuthCubit Unit Tests', () {
     const testUser = UserModel(
-      id: 1,
+      id: '1',
       name: 'Test User',
       email: 'test@test.com',
       role: 'subscriber',

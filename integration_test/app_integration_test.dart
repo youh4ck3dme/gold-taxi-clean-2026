@@ -107,7 +107,7 @@ void main() {
 
   group('Gold-Taxi Integration/Widget Tests', () {
     const testUser = UserModel(
-      id: 1,
+      id: '1',
       name: 'Test Driver',
       email: 'driver@test.com',
       role: 'driver',

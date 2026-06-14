@@ -45,7 +45,9 @@ import '../../features/services/data/repositories/bookings_repository.dart';
 import '../../features/services/presentation/bloc/bookings_bloc.dart';
 
 import '../../features/profile/data/repositories/profile_repository.dart';
-import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/data/repositories/mock_profile_repository.dart';
+import '../../features/profile/data/repositories/supabase_profile_repository.dart';
+import '../../features/profile/presentation/bloc/profile_cubit.dart';
 import '../../features/map/presentation/cubits/ride_cubit.dart';
 
 import '../../features/search/data/repositories/search_repository.dart';
@@ -113,14 +115,18 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.mock}) async {
         getIt<BookingsRemoteDataSource>(),
         getIt<Connectivity>(),
       ));
-  getIt.registerLazySingleton<ProfileRepository>(() => ProfileRepository(
-        getIt<ApiService>(),
-        getIt<Connectivity>(),
-      ));
+
+  if (mode == BackendMode.supabase) {
+    getIt.registerLazySingleton<ProfileRepository>(() => SupabaseProfileRepository(Supabase.instance.client));
+  } else {
+    getIt.registerLazySingleton<ProfileRepository>(() => MockProfileRepository());
+  }
+
   getIt.registerLazySingleton<SearchRepository>(() => SearchRepository(
         getIt<ApiService>(),
         getIt<Connectivity>(),
       ));
+
 
   // Ride Repository (Swappable)
   if (mode == BackendMode.supabase) {
@@ -156,8 +162,9 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.mock}) async {
   getIt.registerFactory<EventsBloc>(() => EventsBloc(getIt<EventsRepository>()));
   getIt.registerFactory<ReviewsBloc>(() => ReviewsBloc(getIt<ReviewsRepository>()));
   getIt.registerFactory<BookingsBloc>(() => BookingsBloc(getIt<BookingsRepository>()));
-  getIt.registerFactory<ProfileBloc>(() => ProfileBloc(getIt<ProfileRepository>()));
+  getIt.registerFactory<ProfileCubit>(() => ProfileCubit(getIt<ProfileRepository>()));
   getIt.registerFactory<SearchBloc>(() => SearchBloc(getIt<SearchRepository>()));
   getIt.registerFactory<FaqBloc>(() => FaqBloc(getIt<FaqRepository>()));
   getIt.registerFactory<RideCubit>(() => RideCubit(getIt<RideRepository>()));
 }
+

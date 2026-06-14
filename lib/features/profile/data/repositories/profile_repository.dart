@@ -1,67 +1,30 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:gold_taxi/core/constants/api_constants.dart';
-import 'package:gold_taxi/core/services/api_service.dart';
-import 'package:gold_taxi/models/user_model.dart';
-import 'package:gold_taxi/models/booking_model.dart';
+import '../../../../models/user_model.dart';
 
-class ProfileRepository {
-  final ApiService _apiService;
-  final Connectivity _connectivity;
-
-  ProfileRepository(this._apiService, this._connectivity);
-
+abstract class ProfileRepository {
   /// Fetch user profile details
-  Future<UserModel> getUserProfile() async {
-    final response = await _apiService.get('/wp-json/wp/v2/users/me');
-    return UserModel.fromJson(response as Map<String, dynamic>);
-  }
+  Future<UserModel> getUserProfile();
 
-  /// Update user profile details
-  Future<UserModel> updateUserProfile({
-    required String name,
-    required String bio,
-  }) async {
-    final response = await _apiService.post(
-      '/wp-json/wp/v2/users/me',
-      data: {
-        'name': name,
-        'description': bio,
-      },
-    );
-    return UserModel.fromJson(response as Map<String, dynamic>);
-  }
+  /// Update customer profile details (whitelisted fields only)
+  Future<UserModel> updateCustomerProfile({
+    required String fullName,
+    required String phone,
+    required Map<String, dynamic> savedAddresses,
+  });
 
-  /// Fetch order history for the current user from WooCommerce
-  Future<List<Map<String, dynamic>>> getOrderHistory(int userId) async {
-    final connectivityResult = await _connectivity.checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.none)) return [];
+  /// Update driver profile details (whitelisted fields only)
+  Future<void> updateDriverProfile({
+    required String vehicleType,
+    required String vehiclePlate,
+    required List<String> serviceClasses,
+    required bool isOnline,
+  });
 
-    try {
-      final response = await _apiService.get(
-        '/wp-json/wc/v3/orders',
-        queryParameters: {'customer': userId},
-      );
-      if (response is List) {
-        return response.cast<Map<String, dynamic>>();
-      }
-    } catch (_) {}
-    return [];
-  }
+  /// Fetch driver record details for driver profile page
+  Future<Map<String, dynamic>?> getDriverRecord(String userId);
 
-  /// Fetch booking history for the current user from JetEngine
-  Future<List<BookingModel>> getBookingHistory(int userId) async {
-    final connectivityResult = await _connectivity.checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.none)) return [];
+  /// Fetch order history for the current user
+  Future<List<Map<String, dynamic>>> getOrderHistory(String userId);
 
-    try {
-      final response = await _apiService.get(
-        ApiConstants.bookingsEndpoint,
-        queryParameters: {'customer_id': userId},
-      );
-      if (response is List) {
-        return response.map((item) => BookingModel.fromJson(item as Map<String, dynamic>)).toList();
-      }
-    } catch (_) {}
-    return [];
-  }
+  /// Fetch booking history for the current user
+  Future<List<dynamic>> getBookingHistory(String userId);
 }

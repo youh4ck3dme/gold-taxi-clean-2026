@@ -57,7 +57,7 @@ class AuthCubit extends Cubit<AuthState> {
   /// 🔧 DEVELOPER BYPASS — skip auth, go straight to home
   void developerBypass() {
     const devUser = UserModel(
-      id: 0,
+      id: '0',
       name: 'Developer',
       email: 'dev@localhost',
       role: 'administrator',

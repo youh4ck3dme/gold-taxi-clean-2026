@@ -3,8 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gold_taxi/core/di/service_locator.dart';
 import 'package:gold_taxi/core/widgets/buttons/primary_button.dart';
 import 'package:gold_taxi/core/widgets/fields/app_text_field.dart';
-import '../bloc/profile_bloc.dart';
-import '../bloc/profile_event.dart';
+import '../bloc/profile_cubit.dart';
 import '../bloc/profile_state.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -22,10 +21,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill fields with current bloc state if available
-    final profileBloc = getIt<ProfileBloc>();
-    if (profileBloc.state is ProfileLoaded) {
-      final user = (profileBloc.state as ProfileLoaded).user;
+    // Pre-fill fields with current cubit state if available
+    final profileCubit = getIt<ProfileCubit>();
+    if (profileCubit.state is ProfileLoaded) {
+      final user = (profileCubit.state as ProfileLoaded).user;
       _nameController.text = user.name;
       _bioController.text = user.bio ?? '';
     }
@@ -40,22 +39,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   void _save(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      context.read<ProfileBloc>().add(
-            UpdateProfile(
-              name: _nameController.text,
-              bio: _bioController.text,
-            ),
-          );
+      final profileCubit = context.read<ProfileCubit>();
+      final state = profileCubit.state;
+      if (state is ProfileLoaded) {
+        profileCubit.updateCustomerProfile(
+          fullName: _nameController.text,
+          phone: state.user.phone ?? '',
+          savedAddresses: state.user.savedAddresses,
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: getIt<ProfileBloc>(),
+      value: getIt<ProfileCubit>(),
       child: Builder(
         builder: (context) {
-          return BlocListener<ProfileBloc, ProfileState>(
+          return BlocListener<ProfileCubit, ProfileState>(
             listener: (context, state) {
               if (state is ProfileLoaded) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -87,7 +89,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         validator: null,
                       ),
                       const SizedBox(height: 32),
-                      BlocBuilder<ProfileBloc, ProfileState>(
+                      BlocBuilder<ProfileCubit, ProfileState>(
                         builder: (context, state) {
                           final isUpdating = state is ProfileUpdating;
                           return PrimaryButton(
@@ -107,3 +109,4 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 }
+
