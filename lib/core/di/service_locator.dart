@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/api_service.dart';
 import '../services/local_storage_service.dart';
@@ -46,23 +46,29 @@ import '../../features/services/presentation/bloc/bookings_bloc.dart';
 
 import '../../features/profile/data/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/map/presentation/cubits/ride_cubit.dart';
 
 import '../../features/search/data/repositories/search_repository.dart';
 import '../../features/search/presentation/bloc/search_bloc.dart';
+import '../../features/map/data/repositories/ride_repository.dart';
+import '../../features/map/data/repositories/mock_ride_repository.dart';
+import '../../features/map/data/repositories/supabase_ride_repository.dart';
 
 import '../../features/faq/data/repositories/faq_repository.dart';
 import '../../features/faq/presentation/bloc/faq_bloc.dart';
 import '../../features/insolvency_monitoring/presentation/cubits/insolvency_cubit.dart';
 import '../services/insolvency_predictor_service.dart';
 
+enum BackendMode { mock, supabase }
+
 final getIt = GetIt.instance;
 
 /// Setup Service Locator (Dependency Injection)
-Future<void> setupServiceLocator() async {
+Future<void> setupServiceLocator({BackendMode mode = BackendMode.mock}) async {
   // Register services as singletons
   getIt.registerLazySingleton<LocalStorageService>(() => SecureStorageService());
   getIt.registerLazySingleton<AuthInterceptor>(() => AuthInterceptor(getIt<LocalStorageService>()));
-  getIt.registerSingleton<ApiService>(ApiService(getIt<AuthInterceptor>(), enableMockMode: true));
+  getIt.registerSingleton<ApiService>(ApiService(getIt<AuthInterceptor>(), enableMockMode: mode == BackendMode.mock));
   getIt.registerLazySingleton<Connectivity>(() => Connectivity());
   getIt.registerLazySingleton<CartCubit>(() => CartCubit());
   getIt.registerLazySingleton<InsolvencyPredictorService>(() => InsolvencyPredictorService());
@@ -115,6 +121,14 @@ Future<void> setupServiceLocator() async {
         getIt<ApiService>(),
         getIt<Connectivity>(),
       ));
+
+  // Ride Repository (Swappable)
+  if (mode == BackendMode.supabase) {
+    getIt.registerLazySingleton<RideRepository>(() => SupabaseRideRepository(Supabase.instance.client));
+  } else {
+    getIt.registerLazySingleton<RideRepository>(() => MockRideRepository());
+  }
+
   getIt.registerLazySingleton<FaqRepository>(() => FaqRepository(
         getIt<ApiService>(),
         getIt<Connectivity>(),
@@ -145,4 +159,5 @@ Future<void> setupServiceLocator() async {
   getIt.registerFactory<ProfileBloc>(() => ProfileBloc(getIt<ProfileRepository>()));
   getIt.registerFactory<SearchBloc>(() => SearchBloc(getIt<SearchRepository>()));
   getIt.registerFactory<FaqBloc>(() => FaqBloc(getIt<FaqRepository>()));
+  getIt.registerFactory<RideCubit>(() => RideCubit(getIt<RideRepository>()));
 }

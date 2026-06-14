@@ -61,4 +61,8 @@ class UserModel extends Equatable {
 
   @override
   List<Object?> get props => [id, name, email, profilePictureUrl, role, bio, isActive];
+
+  bool get isCustomer => role == 'customer' || role == 'subscriber';
+  bool get isDriver => role == 'driver';
+  bool get isAdmin => role == 'admin' || role == 'administrator';
 }

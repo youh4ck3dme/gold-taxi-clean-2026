@@ -1,129 +1,123 @@
-# 🚕 Gold-Taxi Flutter Application
+# Gold Taxi
 
-[![Flutter CI/CD Pipeline & Diagnostics](https://github.com/NEXIFY-STUDIO/gold-taxi/actions/workflows/ci_cd_pipeline.yml/badge.svg)](https://github.com/NEXIFY-STUDIO/gold-taxi/actions/workflows/ci_cd_pipeline.yml)
-[![Flutter SDK](https://img.shields.io/badge/flutter-%3E%3D3.19.x-blue.svg)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/dart-%3E%3D3.2.0-orange.svg)](https://dart.dev)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+Flutter aplikácia pre taxi službu Gold Taxi. Aktuálny stav pokrýva prihlásenie, mapu vodičov, objednávkový tok, produkty, blog/novinky, recenzie, FAQ a interný insolvency monitoring.
 
-**Gold-Taxi** is a premium, feature-rich Flutter application designed for modern passenger transport services, custom e-commerce products, events management, and corporate financial health tracking. The app utilizes a highly scalable **Clean Architecture** combined with robust state management (BLoC/Cubit) and a centralized Dependency Injection system.
+Produkčná web adresa:
 
----
+```text
+https://goldtaxi-202ff.web.app
+```
 
-## 🌟 Key Features
+Firebase projekt:
 
-*   **🚖 Ride Booking & Services**: Real-time service selection (Odvoz, business trips, scheduled rides) with location tracking, map visualization, and pricing estimates.
-*   **🛒 Gold-Taxi E-Shop**: Built-in storefront featuring customized merchandise and taxi products, complete with detailed categories, a reactive shopping cart (`CartCubit`), and checkout workflows.
-*   **📈 Predictive Insolvency Monitoring**: 
-    *   Predicts potential client bankruptcy **3 months in advance** based on payment discipline and billing records.
-    *   Dynamic scoring algorithm (0-100%) checking average payment delay days, delay trends, and unpaid-to-overdue volume ratios.
-    *   Interactive UI dashboard containing circular gauges, risk summaries, billing history, and Slovak language risk factors.
-*   **📰 Corporate Blog / News Feed**: Integrates seamlessly with WordPress REST API to fetch corporate announcements and category-specific articles using resilient fallback logic.
-*   **💬 Reviews & Feedback**: Client ratings and comments per taxi driver and service with local persistence.
-*   **❓ Support Center & FAQs**: Expandable Frequently Asked Questions list sourced dynamically.
-*   **🔒 Secure Local Storage & Authentication**: Encrypted storage for session tokens utilizing `flutter_secure_storage`.
+```text
+goldtaxi-202ff
+```
 
----
+## Hlavné časti
 
-## 🛠 Tech Stack
+- Firebase Hosting pre Flutter web build z `build/web`.
+- Firebase Auth s povolenými providermi Google Sign-In, Email/Password a Anonymous.
+- Google Sign-In na webe cez `FirebaseAuth.signInWithPopup(GoogleAuthProvider())`.
+- Google Maps na webe cez `<script>` v `web/index.html`.
+- Platformová mapa v `PlatformMapWidget`: Google Maps pre web/Android/iOS, `flutter_map` fallback pre desktop platformy bez Google Maps pluginu.
+- Demo profil vodiča `Ján Novák` a ďalší vodiči v `DriverPositionRepository`; Supabase CRUD servis je pripravený v `DriverProfileService`.
+- WordPress/WooCommerce dátové zdroje cez `ApiService` a feature repositories.
+- Supabase inicializácia pre budúce realtime a profilové dáta vodičov.
 
-*   **Framework**: [Flutter](https://flutter.dev) (v3.19.x or higher)
-*   **Language**: [Dart](https://dart.dev) (v3.2.0+)
-*   **State Management**: `flutter_bloc` (v8.1.3+) & `equatable`
-*   **Routing & Deep Linking**: `go_router` (v12.1.1+) & `app_links`
-*   **Dependency Injection**: `get_it` (v7.5.0+)
-*   **Backend & DB Integrations**: 
-    *   [Supabase](https://supabase.com) (Auth & client sync)
-    *   [Firebase](https://firebase.google.com) (Messaging, core, crashlytics)
-    *   [WordPress / WooCommerce REST API](https://developer.wordpress.org/rest-api/) (CPT data source)
-*   **HTTP Client**: `dio` (v5.4.0) with custom `AuthInterceptor` loggers
+## Rýchly štart
 
----
+1. Priprav lokálny environment:
 
-## 🚀 Quick Start Guide
-
-### 1. Prerequisites
-Ensure you have the Flutter SDK installed on your system:
 ```bash
-flutter --version
+cp .env.example .env
 ```
 
-### 2. Environment Configuration
-Create a `.env` file in the root directory of the project and populate it with your environment keys:
-```properties
-WP_BASE_URL=https://your-wordpress-site.com
-SUPABASE_URL=https://your-supabase-url.supabase.co
-SUPABASE_ANON_KEY=your-supabase-anon-key
-FIREBASE_PROJECT_ID=your-firebase-project-id
-FIREBASE_API_KEY=your-firebase-api-key
-FIREBASE_APP_ID=your-firebase-app-id
-```
+2. Doplň hodnoty v `.env`. Skutočné secrety nepatria do gitu.
 
-### 3. Install Dependencies
-Run the package getter:
+3. Nainštaluj Flutter balíky:
+
 ```bash
 flutter pub get
 ```
 
-### 4. Build Code Generators
-Generate serialization files (`*.g.dart`) for API communication models:
-```bash
-flutter pub run build_runner build --delete-conflicting-outputs
-```
+4. Spusti web lokálne:
 
-### 5. Running the Application
-Launch the application on your desired target platform:
 ```bash
-# Run on Google Chrome (web-javascript)
 flutter run -d chrome
-
-# Run on macOS Desktop
-flutter run -d macos
-
-# Run on a connected iOS/Android emulator
-flutter run
 ```
 
----
+5. Spusti kontroly:
 
-## 🧪 Testing and Quality Assurance
-
-The project maintains a zero-tolerance policy for broken features. It has a comprehensive test suite encompassing unit, widget, and integration tests.
-
-### Running all tests locally:
 ```bash
-flutter test
+npm run analyze
+npm test
 ```
 
-### Running static analysis (lint checks):
+## Firebase deploy cez npm/npx
+
+Firebase CLI používaj cez `npx -y firebase-tools@latest`, aby sa nepoužívala zastaraná globálna verzia.
+
 ```bash
-flutter analyze
+npm run firebase:deploy
 ```
 
----
+Tento príkaz nasadí Hosting site `goldtaxi-202ff`. Auth konfigurácia sa nasadzuje samostatne:
 
-## 📁 Directory Structure
-
-```directory
-Gold-taxi/
-├── .github/workflows/      # CI/CD GitHub Actions pipelines
-├── android/                # Android native config (ProGuard configuration included)
-├── assets/                 # App icons, configuration, and .env
-├── docs/                   # Blueprints, design documents, and developer specifications
-├── integration_test/       # Headless app integration tests
-├── ios/                    # iOS CocoaPods and build configurations
-├── lib/
-│   ├── core/               # Shared constants, dependency locator, widgets & services
-│   ├── features/           # Clean-Architecture features (auth, products, insolvency, etc.)
-│   │   └── insolvency_monitoring/
-│   │       ├── data/
-│   │       └── presentation/
-│   │           ├── cubits/
-│   │           └── pages/
-│   ├── models/             # Shared data models (base WP models, invoices, cart, events)
-│   ├── routes/             # Centralized routing configuration (GoRouter setup)
-│   └── main.dart           # App entry point & resilient service initializations
-├── macos/                  # macOS native configurations
-└── test/                   # Comprehensive unit & widget tests
+```bash
+npm run firebase:deploy:auth
 ```
 
-For a deeper dive into architecture, state management, and the insolvency monitoring logic, check out the [DEVELOPER.md](DEVELOPER.md).
+Priamy ekvivalent bez npm skriptu:
+
+```bash
+npx -y firebase-tools@latest deploy --only hosting:goldtaxi-202ff --project goldtaxi-202ff
+```
+
+## Environment premenné
+
+Lokálny `.env` vychádza z `.env.example`:
+
+```properties
+WP_BASE_URL=https://your-wordpress-site.com
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key
+FIREBASE_PROJECT_ID=goldtaxi-202ff
+FIREBASE_API_KEY=your-firebase-web-api-key
+FIREBASE_APP_ID=your-firebase-web-app-id
+WOO_CONSUMER_KEY=your-local-woo-key
+WOO_CONSUMER_SECRET=your-local-woo-secret
+GOOGLE_MAPS_API_KEY=your-restricted-google-maps-browser-key
+```
+
+Firebase web konfigurácia pre aktuálnu aplikáciu je v `lib/firebase_options.dart`. Google Maps web key je zatiaľ vložený v `web/index.html`; musí byť obmedzený v Google Cloud Console na produkčné domény.
+
+## Dôležité súbory
+
+- `firebase.json` - Hosting, Auth provideri, SPA rewrite a bezpečnostné headers.
+- `.firebaserc` - predvolený Firebase projekt `goldtaxi-202ff`.
+- `lib/firebase_options.dart` - FlutterFire web konfigurácia.
+- `web/index.html` - Flutter bootstrap a Google Maps JavaScript `<script>`.
+- `lib/features/auth/` - Firebase/WordPress auth flow.
+- `lib/features/map/` - mapa vodičov, markery, driver repository a Supabase driver profil servis.
+- `docs/firebase-and-maps.md` - Firebase Hosting/Auth a Google Maps API plán.
+- `docs/project-structure.md` - kam patria priečinky a súbory v projekte.
+- `docs/environment-and-secrets.md` - pravidlá pre `.env`, API kľúče a secrety.
+
+## Kvalita
+
+Pred dokončením zmeny spusti:
+
+```bash
+npm run analyze
+npm test
+flutter build web --release
+```
+
+Pre Firebase Hosting deploy:
+
+```bash
+npm run firebase:deploy
+```
+
+Viac technických pravidiel je v `DEVELOPER.md`.

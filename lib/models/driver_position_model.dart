@@ -36,38 +36,33 @@ class DriverPositionModel extends Equatable {
   factory DriverPositionModel.fromMap(String id, Map<String, dynamic> data) {
     return DriverPositionModel(
       driverId: id,
-      name: data['name'] as String? ?? 'Unknown Driver',
-      avatar: data['avatar'] as String? ?? 'https://i.pravatar.cc/150?u=$id',
-      lat: (data['lat'] as num? ?? 0.0).toDouble(),
-      lng: (data['lng'] as num? ?? 0.0).toDouble(),
-      bearing: (data['bearing'] as num? ?? 0.0).toDouble(),
-      isAvailable: data['isAvailable'] as bool? ?? true,
-      carModel: data['carModel'] as String? ?? 'Unknown',
-      carPlate: data['carPlate'] as String? ?? 'XXX-XXX',
-      serviceType: data['serviceType'] as String? ?? 'Standard',
-      rating: (data['rating'] as num? ?? 0.0).toDouble(),
-      phone: data['phone'] as String? ?? '',
-      lastUpdated: data['lastUpdated'] != null
-          ? DateTime.tryParse(data['lastUpdated'].toString()) ?? DateTime.now()
-          : DateTime.now(),
+      name: (data['display_name'] ?? data['name'] ?? 'Unknown Driver') as String,
+      avatar: (data['avatar'] ?? 'https://i.pravatar.cc/150?u=$id') as String,
+      lat: (data['current_lat'] ?? data['lat'] ?? 0.0).toDouble(),
+      lng: (data['current_lng'] ?? data['lng'] ?? 0.0).toDouble(),
+      bearing: (data['bearing'] ?? 0.0).toDouble(),
+      isAvailable: (data['is_online'] ?? data['isAvailable'] ?? true) as bool,
+      carModel: (data['vehicle_type'] ?? data['carModel'] ?? 'Unknown') as String,
+      carPlate: (data['vehicle_plate'] ?? data['carPlate'] ?? 'XXX-XXX') as String,
+      serviceType: (data['serviceType'] ?? 'Standard') as String,
+      rating: (data['rating'] ?? 0.0).toDouble(),
+      phone: (data['phone'] ?? '') as String,
+      lastUpdated: DateTime.tryParse((data['updated_at'] ?? data['lastUpdated'] ?? '').toString()) ?? DateTime.now(),
     );
   }
 
   /// Convert to plain Map (Supabase upsert or JSON)
   Map<String, dynamic> toMap() {
     return {
-      'name': name,
-      'avatar': avatar,
-      'lat': lat,
-      'lng': lng,
+      'display_name': name,
+      'current_lat': lat,
+      'current_lng': lng,
       'bearing': bearing,
-      'isAvailable': isAvailable,
-      'carModel': carModel,
-      'carPlate': carPlate,
-      'serviceType': serviceType,
-      'rating': rating,
+      'is_online': isAvailable,
+      'vehicle_type': carModel,
+      'vehicle_plate': carPlate,
       'phone': phone,
-      'lastUpdated': lastUpdated.toIso8601String(),
+      'updated_at': lastUpdated.toIso8601String(),
     };
   }
 

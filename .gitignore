@@ -54,9 +54,32 @@ setup*.sh
 *.backup
 askpass.sh
 
-.vercel
-.firebase
+.vercel/
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+database-debug.log*
+ui-debug.log*
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
 .env*
+!.env.example
+
+# Signing keys, certificates, and local mobile config
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+*.mobileprovision
+*.provisionprofile
+android/key.properties
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 
 # Local flutter clone for vercel build
 /flutter/

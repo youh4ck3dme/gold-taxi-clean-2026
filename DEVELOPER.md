@@ -1,132 +1,142 @@
-# 🛠 Developer Documentation (DEVELOPER.md)
+# Developer Guide
 
-Welcome to the **Gold-Taxi Developer Guide**. This document details the architectural guidelines, state management strategies, routing rules, and custom integrations configured in the codebase.
+Tento dokument je hlavný technický prehľad pre Gold Taxi. README drží rýchly štart; tento súbor drží architektúru, pravidlá práce a prevádzkové poznámky.
 
----
+## Stav projektu
 
-## 🏛 Clean Architecture & Core Structure
+- Framework: Flutter / Dart.
+- Stav management: `flutter_bloc`, Cubit/Bloc podľa zložitosti flow.
+- DI: `get_it` v `lib/core/di/service_locator.dart`.
+- Routing: `go_router` v `lib/routes/app_router.dart`.
+- Hosting: Firebase Hosting site `goldtaxi-202ff`, public dir `build/web`.
+- Auth: Firebase Auth pre web Google Sign-In, Email/Password a Anonymous; WordPress JWT login ostáva ako existujúca cesta.
+- Maps: `google_maps_flutter` pre web/Android/iOS, `flutter_map` fallback pre desktop.
+- Backend zdroje: WordPress/WooCommerce, Supabase, Firebase.
 
-The application is structured around a modified **Clean Architecture** framework, optimized for Flutter's widget tree lifecycle and remote API fetching.
+## Architektúra
 
-```directory
-lib/
-├── core/
-│   ├── constants/       # Global styles (AppColors, AppTheme) and endpoints (ApiConstants)
-│   ├── di/              # Centralized service locator (GetIt configuration)
-│   ├── interceptors/    # Dio interceptors for auth tokens and request logging
-│   └── services/        # Platform & networking services (Api, Storage, Notifications)
-├── features/            # Modular feature folders
-│   ├── auth/            # Authentication presentation & repository
-│   ├── blog/            # WP CPT announcements & news
-│   ├── checkout/        # E-shop Cart & checkout flows
-│   ├── insolvency_monitoring/ # Predikcia úpadku & payment analytics
-│   ├── products/        # WooCommerce products storefront
-│   └── services/        # Ride booking & scheduling
-├── models/              # Shared models for serialization
-└── routes/              # Centralized router configuration (GoRouter config)
+Feature kód patrí pod `lib/features/<feature>/`:
+
+```text
+lib/features/<feature>/
+├── data/
+│   ├── datasources/
+│   ├── repositories/
+│   └── services/
+└── presentation/
+    ├── bloc/ alebo cubits/
+    ├── pages/
+    └── widgets/
 ```
 
-### Key Architectural Guidelines
-1.  **Strict Separation of Concerns**: No UI Widget should directly instantiate a service or repository. Use Cubit/BLoC state emitters as intermediates.
-2.  **Explicit Dependency Injection**: All services, repositories, bloc instances, and data sources are registered in [service_locator.dart](file:///Users/erikbabcan/Gold-taxi/lib/core/di/service_locator.dart).
-3.  **Data Isolation**: Network payloads are deserialized directly into typed models (e.g. `BaseWordPressModel` derivatives or `InvoiceModel`) and never passed as raw JSON maps to the presentation layer.
+Zdieľané služby, konštanty, theme, DI a widgety patria do `lib/core/`. Zdieľané modely patria do `lib/models/`. Nové routy sa registrujú v `lib/routes/app_router.dart`.
 
----
+Pravidlá:
 
-## 🚦 State Management and Lifecycle Rules
+- UI nevytvára repository alebo service priamo; používa Cubit/Bloc z DI.
+- Page-level Bloc/Cubit registruj ako `registerFactory`, aby sa bezpečne zatváral cez `BlocProvider`.
+- App-wide stav ako `AuthCubit` alebo `CartCubit` môže byť lazy singleton.
+- Network a storage hranice musia validovať dáta a neprepúšťať raw JSON do presentation vrstvy.
 
-We employ **flutter_bloc** (BLoC for multi-event pipelines, Cubits for simple states).
+## Firebase
 
-### ⚠️ Factory vs. Singleton Lifecycle Warning
-Understanding the difference in GetIt registrations is critical to prevent memory leaks and state errors:
-*   **Lazy Singletons** (`getIt.registerLazySingleton`): Used for global, app-wide managers like `AuthCubit` (tracks user login state) and `CartCubit` (tracks items in cart). These instances are persistent and are never disposed.
-*   **Factories** (`getIt.registerFactory`): Used for all page-level state management (e.g., `InsolvencyCubit`, `BlogBloc`, `SearchBloc`). 
-    *   *Rule*: Since page-level widgets use `BlocProvider(create: (context) => getIt<MyCubit>())`, the provider will call `close()` on the instance when the widget is disposed.
-    *   *Danger*: If a Cubit is registered as a singleton, the closed instance is cached. Re-opening the page will throw a `StateError`. Always use `registerFactory` for screen-specific Blocs/Cubits.
+Firebase skill pravidlá pre tento projekt:
 
----
+- CLI príkazy používaj ako `npx -y firebase-tools@latest ...`.
+- Hosting konfigurácia je v `firebase.json`.
+- Predvolený projekt je v `.firebaserc`: `goldtaxi-202ff`.
+- Auth provideri sú deklarovaní v `firebase.json` a po zmene sa musia nasadiť:
 
-## 🛣 Smerovanie & Routovanie (GoRouter)
-
-The routing engine is defined in [app_router.dart](file:///Users/erikbabcan/Gold-taxi/lib/routes/app_router.dart).
-
-```mermaid
-graph TD
-    A[GoRouter] --> B{Auth Status?}
-    B -->|Unauthenticated| C[/login]
-    B -->|Authenticated| D[ShellRoute / MainShell]
-    D --> E[/]
-    D --> F[/services]
-    D --> G[/products]
-    D --> H[/events]
-    D --> I[/blog]
-    A --> J[/insolvency]
-    A --> K[/cart]
-    A --> L[/checkout]
+```bash
+npx -y firebase-tools@latest deploy --only auth --project goldtaxi-202ff
 ```
 
-*   **ShellRoute (`MainShell`)**: Keeps the `BottomNavigationBar` state active and static when switching between main tabs.
-*   **FullScreen Routes**: Detail pages (like `/blog/detail` or `/checkout`) are placed outside the shell route, hiding the navigation bar and allowing a distraction-free immersive layout.
-*   **Auth Redirection**: On state changes emitted by `AuthCubit`, the `GoRouterRefreshStream` notifies GoRouter to re-evaluate current paths, automatically redirecting logged-out sessions to `/login`.
+Hosting deploy:
 
----
+```bash
+npx -y firebase-tools@latest deploy --only hosting:goldtaxi-202ff --project goldtaxi-202ff
+```
 
-## 📈 Predictive Insolvency Engine
+FlutterFire web config je v `lib/firebase_options.dart`. Android/iOS Firebase config zatiaľ nie je nastavený v `DefaultFirebaseOptions`; pri natívnej Firebase podpore použi FlutterFire/Firebase CLI a vedome rozhodni, či sa platformové config súbory budú commitovať.
 
-The predictive model is located in [insolvency_predictor_service.dart](file:///Users/erikbabcan/Gold-taxi/lib/core/services/insolvency_predictor_service.dart).
+## Authentication
 
-### 1. Mathematical Scoring Formula
-The predictor runs on all invoices emitted within a rolling **180-day window**. It evaluates three core risk components:
+Aktívny auth modul je `lib/features/auth/`.
 
-$$\text{Risk Score} = S_{\text{delay}} + S_{\text{ratio}} + S_{\text{trend}} + S_{\text{critical}}$$
+- `AuthRepository.login()` používa WordPress JWT endpoint a voliteľný Firebase Email/Password fallback.
+- `AuthRepository.signInWithGoogle()` používa na webe `FirebaseAuth.signInWithPopup(GoogleAuthProvider())`.
+- `AuthCubit` drží auth stav pre routing.
+- `LoginPage` obsahuje Google Sign-In tlačidlo.
 
-1.  **Average Delay ($S_{\text{delay}}$, Max 40 pts)**:
-    $$\text{Average Delay} > 60\text{ days} \implies 40\text{ pts}$$
-    $$30 < \text{Average Delay} \le 60\text{ days} \implies 25\text{ pts}$$
-    $$15 < \text{Average Delay} \le 30\text{ days} \implies 10\text{ pts}$$
-2.  **Unpaid-to-Overdue Ratio ($S_{\text{ratio}}$, Max 45 pts)**:
-    $$\text{Unpaid Ratio} = \frac{\sum \text{Amount of Overdue Unpaid Invoices}}{\sum \text{Total Invoiced Amount}}$$
-    $$\text{Unpaid Ratio} > 0.6 \implies 45\text{ pts}$$
-    $$0.4 < \text{Unpaid Ratio} \le 0.6 \implies 30\text{ pts}$$
-    $$0.2 < \text{Unpaid Ratio} \le 0.4 \implies 15\text{ pts}$$
-    $$0.05 < \text{Unpaid Ratio} \le 0.2 \implies 5\text{ pts}$$
-3.  **Delay Trend ($S_{\text{trend}}$, Max 20 pts)**:
-    Evaluates whether the client's payment discipline is deteriorating by comparing the average delay of the *Recent Window* (0-90 days) against the *Prior Window* (90-180 days):
-    $$\text{Delay Trend} = \text{AvgDelay}_{\text{0-90}} - \text{AvgDelay}_{\text{90-180}}$$
-    $$\text{Delay Trend} > 15\text{ days} \implies 20\text{ pts}$$
-    $$5 < \text{Delay Trend} \le 15\text{ days} \implies 10\text{ pts}$$
-    $$\text{Delay Trend} < -5\text{ days} \text{ and } \text{Unpaid Ratio} < 0.3 \implies -10\text{ pts (Risk reduction bonus)}$$
-4.  **Critical Age ($S_{\text{critical}}$, Max 10 pts)**:
-    If any single invoice remains unpaid and has passed its due date by **more than 90 days**, a penalty of **+10 pts** is added.
+Na Flutter Web nepoužívaj webový `google_sign_in` flow, ak nie je explicitne potrebný. Súčasný web flow ide cez Firebase popup a vyhýba sa problémom s klientskym ID v `google_sign_in` 7.x.
 
-### 2. Risk Level Classifications & Preditions
-*   **Low Risk (`Nízke`)**: Score $< 35$. Payment is stable.
-*   **Medium Risk (`Stredné`)**: Score $35 - 69$. Generates warnings. Insolvency is predicted **if** the delay trend is deteriorating by $>20$ days and unpaid ratio exceeds $30\%$.
-*   **High Risk (`Vysoké`)**: Score $\ge 70$. Triggers a high-priority warning prediction. **Predicts insolvency 3 months (90 days) in advance.**
+## Mapy a vodiči
 
----
+Aktuálne súborové vlastníctvo:
 
-## 🌐 Resilient WordPress Fallback Client
+- `lib/features/map/data/repositories/driver_position_repository.dart` - aktuálny in-memory zdroj polôh vodičov a demo data.
+- `lib/features/map/data/services/driver_profile_service.dart` - Supabase CRUD servis pre tabuľku `driver_profiles`.
+- `lib/models/driver_position_model.dart` - spoločný model vodiča, auta a polohy.
+- `lib/features/map/presentation/cubits/map_cubit.dart` - map state, markery, výber vodiča, camera actions.
+- `lib/features/map/presentation/pages/map_page.dart` - obrazovka mapy, zoznam vodičov, call/order akcie.
+- `lib/features/map/presentation/widgets/platform_map_widget.dart` - Google Maps alebo OpenStreetMap fallback.
 
-Custom Post Types (CPT) can be unpredictable on staging/production environments due to plugin configurations. To counter this, `ApiService.fetchCptData` implements a **3-tier graceful fallback strategy**:
+Demo vodič:
 
-1.  **WP CPT Native Endpoint**: Tries to fetch from standard WordPress Custom Post Type routes (e.g. `/wp-json/wp/v2/booking`).
-2.  **JetEngine Elementor Route**: Fallback query directed to JetEngine elements `/wp-json/jet-engine/v1/booking`.
-3.  **Posts Type Query Filter**: Fallback query requesting general WordPress posts filtered by slug parameter `/wp-json/wp/v2/posts?type=booking`.
+```text
+driverId: demo_driver_jan_novak
+name: Ján Novák
+car: Škoda Octavia, BA-123GT
+location: 48.1486, 17.1077
+```
 
-This ensures that UI widgets never throw unexpected JSON structure exceptions even if some WP tables are missing.
+Keď bude pripravený realtime backend, nahraď `_mockDrivers` v `DriverPositionRepository` Supabase Realtime streamom alebo Firestore streamom. Presentation vrstva by sa nemala meniť, ak zachováš `Stream<List<DriverPositionModel>>`.
 
----
+## Google Maps Platform
 
-## 🛠 ProGuard & Build Configuration
+Pre aktuálnu aplikáciu sú najdôležitejšie:
 
-*   **Android Minification**:
-    Minification and resource shrinking are enabled for production release builds in `android/app/build.gradle.kts` to minimize size and optimize startup performance.
-    ```kotlin
-    isMinifyEnabled = true
-    isShrinkResources = true
-    ```
-    Custom ProGuard rules are located in [proguard-rules.pro](file:///Users/erikbabcan/Gold-taxi/android/app/proguard-rules.pro).
+- Maps JavaScript API - web mapa cez `web/index.html`.
+- Maps SDK for Android - natívna Android mapa cez Flutter plugin.
+- Maps SDK for iOS - natívna iOS mapa cez Flutter plugin.
+- Places API (New) - autocomplete a výber adries.
+- Geocoding API - prevod adresa/súradnice.
+- Routes API - ETA, vzdialenosť a trasa zákazník/vodič.
 
-*   **iOS Swift Package Manager (SPM) warning**:
-    Certain third-party plugins (e.g. `share_plus`, `google_maps_flutter_ios`, `connectivity_plus`) do not fully support SPM yet. CocoaPods integration via [Podfile](file:///Users/erikbabcan/Gold-taxi/ios/Podfile) must be preserved. Avoid forcing pure SPM builds on iOS modules until plugin vendors upgrade native pods.
+Roads API, Route Optimization API a Navigation SDK zapínaj až pri konkrétnom use-case. Viac je v `docs/firebase-and-maps.md`.
+
+Google Maps browser key musí byť obmedzený na:
+
+```text
+https://goldtaxi-202ff.web.app/*
+https://goldtaxi-202ff.firebaseapp.com/*
+```
+
+Lokálne referrery pridaj iba pre vývoj a nikdy nepoužívaj rovnaký key pre server-side API.
+
+## Secrets
+
+Nikdy necommituj:
+
+- `.env` ani produkčné env súbory.
+- WooCommerce consumer secret.
+- súkromné certifikáty, signing keys, `.pem`, `.p12`, `.jks`, `.keystore`.
+- server-side Google Maps API key.
+
+Firebase web config a browser Google Maps key nie sú klasické serverové secrety, ale musia byť obmedzené v konzole. Detaily sú v `docs/environment-and-secrets.md`.
+
+## Testy a kontroly
+
+Používaj npm skripty alebo priame Flutter príkazy:
+
+```bash
+npm run analyze
+npm test
+flutter build web --release
+```
+
+Mapové testy sú pod `test/unit/map/`. Auth testy sú pod `test/unit/auth_*` a `test/widget/login_page_test.dart`.
+
+## Git a priečinky
+
+Pred širokými refaktormi vytvor checkpoint/commit. Nevracaj cudzie zmeny. Dokumentáciu k tomu, čo patrí do ktorého priečinka, drží `docs/project-structure.md`.

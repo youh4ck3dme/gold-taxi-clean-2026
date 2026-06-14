@@ -33,18 +33,18 @@ void main() {
 
     test('DriverPositionModel fromMap creates correct instance', () {
       final data = {
-        'name': 'Ján Novák',
+        'display_name': 'Ján Novák',
         'avatar': 'https://i.pravatar.cc/150?u=jan_novak',
-        'lat': 48.1486,
-        'lng': 17.1077,
+        'current_lat': 48.1486,
+        'current_lng': 17.1077,
         'bearing': 45.0,
-        'isAvailable': true,
-        'carModel': 'Škoda Octavia',
-        'carPlate': 'BA-123GT',
+        'is_online': true,
+        'vehicle_type': 'Škoda Octavia',
+        'vehicle_plate': 'BA-123GT',
         'serviceType': 'Standard',
         'rating': 4.9,
         'phone': '+421 905 123 456',
-        'lastUpdated': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
       };
 
       final driver = DriverPositionModel.fromMap('demo_driver_jan_novak', data);
@@ -77,12 +77,11 @@ void main() {
 
       final map = driver.toMap();
 
-      expect(map['name'], 'Ján Novák');
-      expect(map['carModel'], 'Škoda Octavia');
-      expect(map['carPlate'], 'BA-123GT');
-      expect(map['rating'], 4.9);
-      expect(map['lat'], 48.1486);
-      expect(map['lng'], 17.1077);
+      expect(map['display_name'], 'Ján Novák');
+      expect(map['vehicle_type'], 'Škoda Octavia');
+      expect(map['vehicle_plate'], 'BA-123GT');
+      expect(map['current_lat'], 48.1486);
+      expect(map['current_lng'], 17.1077);
     });
 
     test('DriverPositionModel equality works correctly', () {
@@ -135,7 +134,6 @@ void main() {
     });
 
     test('Repository contains demo driver Ján Novák', () async {
-      // Test through getNearestDrivers which uses the internal driver list
       final drivers = await repository.getNearestDrivers(
         lat: 48.1486,
         lng: 17.1077,
@@ -154,32 +152,6 @@ void main() {
       expect(janNovak.isAvailable, true);
       expect(janNovak.lat, 48.1486);
       expect(janNovak.lng, 17.1077);
-    });
-
-    test('Repository has Bratislava center coordinates for demo driver', () async {
-      final drivers = await repository.getNearestDrivers(
-        lat: 48.1486,
-        lng: 17.1077,
-        limit: 1,
-        maxDistanceKm: 1.0,
-      );
-
-      expect(drivers.isNotEmpty, true);
-      
-      final firstDriver = drivers.first;
-      expect(firstDriver.lat, 48.1486);
-      expect(firstDriver.lng, 17.1077);
-    });
-
-    test('Demo driver has correct status online', () async {
-      final drivers = await repository.getNearestDrivers(
-        lat: 48.1486,
-        lng: 17.1077,
-        limit: 1,
-      );
-
-      expect(drivers.isNotEmpty, true);
-      expect(drivers.first.isAvailable, true);
     });
   });
 }

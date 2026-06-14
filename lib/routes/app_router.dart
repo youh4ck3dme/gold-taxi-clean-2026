@@ -27,8 +27,15 @@ import '../features/search/presentation/pages/search_page.dart';
 import '../features/faq/presentation/pages/faq_page.dart';
 import '../features/insolvency_monitoring/presentation/pages/insolvency_dashboard_page.dart';
 import 'package:gold_taxi/features/map/presentation/pages/map_page.dart';
+import 'package:gold_taxi/features/map/presentation/pages/ride_request_page.dart';
+import 'package:gold_taxi/features/map/presentation/pages/active_ride_page.dart';
 import 'package:gold_taxi/features/map/presentation/cubits/map_cubit.dart';
+import 'package:gold_taxi/features/map/presentation/cubits/ride_cubit.dart';
+import '../core/services/mock_geocoding_service.dart';
+import '../features/profile/presentation/pages/driver_dashboard_page.dart';
+import '../features/profile/presentation/pages/admin_dashboard_page.dart';
 import '../features/shared/presentation/widgets/main_shell.dart';
+import '../core/constants/feature_flags.dart';
 import '../models/post_model.dart';
 import '../models/product_model.dart';
 import '../models/service_model.dart';
@@ -57,6 +64,18 @@ final appRouter = GoRouter(
   redirect: (context, state) {
     final authState = getIt<AuthCubit>().state;
     final isLoggingIn = state.matchedLocation == '/login';
+
+    // Feature Flags Check
+    if (state.matchedLocation.startsWith('/blog') && !FeatureFlags.blogEnabled) return '/';
+    if (state.matchedLocation.startsWith('/products') && !FeatureFlags.productsEnabled) return '/';
+    if (state.matchedLocation.startsWith('/events') && !FeatureFlags.eventsEnabled) return '/';
+    if (state.matchedLocation.startsWith('/insolvency') && !FeatureFlags.insolvencyEnabled) return '/';
+
+    if (authState is Authenticated) {
+      final user = authState.user;
+      if (state.matchedLocation == '/driver' && !user.isDriver) return '/';
+      if (state.matchedLocation == '/admin' && !user.isAdmin) return '/';
+    }
 
     if (authState is AuthInitial) {
       getIt<AuthCubit>().checkAuthStatus();
@@ -149,7 +168,23 @@ final appRouter = GoRouter(
     ),
     GoRoute(path: '/profile', builder: (context, state) => const ProfilePage()),
     GoRoute(path: '/profile/edit', builder: (context, state) => const EditProfilePage()),
+    GoRoute(path: '/driver', builder: (context, state) => const DriverDashboardPage()),
+    GoRoute(path: '/admin', builder: (context, state) => const AdminDashboardPage()),
     GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
+    GoRoute(
+      path: '/ride-request',
+      builder: (context, state) {
+        final destination = state.extra as LocationModel;
+        return RideRequestPage(destination: destination);
+      },
+    ),
+    GoRoute(
+      path: '/active-ride',
+      builder: (context, state) => BlocProvider<RideCubit>(
+        create: (_) => getIt<RideCubit>(),
+        child: const ActiveRidePage(),
+      ),
+    ),
     GoRoute(path: '/faq', builder: (context, state) => const FaqPage()),
     GoRoute(path: '/insolvency', builder: (context, state) => const InsolvencyDashboardPage()),
   ],

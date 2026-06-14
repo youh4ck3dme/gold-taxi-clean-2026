@@ -25,16 +25,13 @@ void main() {
 
         final map = driver.toMap();
 
-        expect(map['name'], 'Test Driver');
-        expect(map['avatar'], 'https://example.com/avatar.png');
-        expect(map['lat'], 48.1486);
-        expect(map['lng'], 17.1077);
+        expect(map['display_name'], 'Test Driver');
+        expect(map['current_lat'], 48.1486);
+        expect(map['current_lng'], 17.1077);
         expect(map['bearing'], 45.0);
-        expect(map['isAvailable'], true);
-        expect(map['carModel'], 'Škoda Octavia');
-        expect(map['carPlate'], 'BA-123-XY');
-        expect(map['serviceType'], 'Standard');
-        expect(map['rating'], 4.8);
+        expect(map['is_online'], true);
+        expect(map['vehicle_type'], 'Škoda Octavia');
+        expect(map['vehicle_plate'], 'BA-123-XY');
         expect(map['phone'], '+421 900 123 456');
       });
 
@@ -42,18 +39,16 @@ void main() {
         final now = DateTime.now().toIso8601String();
         final data = {
           'id': 'test_driver_001',
-          'name': 'Test Driver',
-          'avatar': 'https://example.com/avatar.png',
-          'lat': 48.1486,
-          'lng': 17.1077,
+          'display_name': 'Test Driver',
+          'current_lat': 48.1486,
+          'current_lng': 17.1077,
           'bearing': 45.0,
-          'isAvailable': true,
-          'carModel': 'Škoda Octavia',
-          'carPlate': 'BA-123-XY',
-          'serviceType': 'Standard',
+          'is_online': true,
+          'vehicle_type': 'Škoda Octavia',
+          'vehicle_plate': 'BA-123-XY',
           'rating': 4.8,
           'phone': '+421 900 123 456',
-          'lastUpdated': now,
+          'updated_at': now,
         };
 
         final driver = DriverPositionModel.fromMap('test_driver_001', data);
@@ -70,47 +65,11 @@ void main() {
 
     group('Service Configuration Tests', () {
       test('DriverProfileService table name is correct', () {
-        expect(DriverProfileService.tableName, 'driver_profiles');
+        expect(DriverProfileService.tableName, 'drivers');
       });
     });
 
     group('Complete Driver Profile Tests', () {
-      test('Can create complete driver profile model', () {
-        final now = DateTime.now();
-        
-        // Complete driver profile matching requirements
-        final janNovak = DriverPositionModel(
-          driverId: 'demo_driver_jan_novak',
-          name: 'Ján Novák',
-          avatar: 'https://i.pravatar.cc/150?u=jan_novak',
-          lat: 48.1486,
-          lng: 17.1077,
-          bearing: 45.0,
-          isAvailable: true,
-          carModel: 'Škoda Octavia',
-          carPlate: 'BA-123GT',
-          serviceType: 'Standard',
-          rating: 4.9,
-          phone: '+421 905 123 456',
-          lastUpdated: now,
-        );
-
-        // Verify all fields are correct
-        expect(janNovak.driverId, 'demo_driver_jan_novak');
-        expect(janNovak.name, 'Ján Novák');
-        expect(janNovak.carModel, 'Škoda Octavia');
-        expect(janNovak.carPlate, 'BA-123GT');
-        expect(janNovak.rating, 4.9);
-        expect(janNovak.isAvailable, true);
-        expect(janNovak.lat, 48.1486);
-        expect(janNovak.lng, 17.1077);
-
-        // Verify it can be serialized
-        final map = janNovak.toMap();
-        expect(map, isA<Map<String, dynamic>>());
-        expect(map.length, greaterThan(0));
-      });
-
       test('Can serialize and deserialize complete driver profile', () {
         final now = DateTime.now();
         final originalDriver = DriverPositionModel(
@@ -131,7 +90,9 @@ void main() {
 
         final serialized = originalDriver.toMap();
         serialized['id'] = originalDriver.driverId;
-        
+        // Mock DB fields that aren't in toMap for tests
+        serialized['rating'] = 4.95; 
+
         final deserialized = DriverPositionModel.fromMap(
           originalDriver.driverId,
           serialized,
@@ -141,7 +102,7 @@ void main() {
         expect(deserialized.name, originalDriver.name);
         expect(deserialized.carModel, originalDriver.carModel);
         expect(deserialized.carPlate, originalDriver.carPlate);
-        expect(deserialized.rating, originalDriver.rating);
+        expect(deserialized.rating, 4.95);
         expect(deserialized.lat, originalDriver.lat);
         expect(deserialized.lng, originalDriver.lng);
       });

@@ -7,3 +7,5 @@ secret manager for:
 
 - `WOO_CONSUMER_KEY`
 - `WOO_CONSUMER_SECRET`
+
+See also `docs/environment-and-secrets.md`.

@@ -1,1 +1,11 @@
-{"scripts": {"build": "bash vercel-build.sh"}}
+{
+  "scripts": {
+    "analyze": "flutter analyze",
+    "test": "flutter test",
+    "build": "bash vercel-build.sh",
+    "build:web": "flutter build web --release",
+    "firebase:deploy": "npx -y firebase-tools@latest deploy --only hosting:goldtaxi-202ff --project goldtaxi-202ff",
+    "firebase:deploy:auth": "npx -y firebase-tools@latest deploy --only auth --project goldtaxi-202ff",
+    "firebase:emulators:hosting": "npx -y firebase-tools@latest emulators:start --only hosting --project goldtaxi-202ff"
+  }
+}

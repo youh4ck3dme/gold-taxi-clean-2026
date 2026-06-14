@@ -83,108 +83,86 @@ class HomePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      // Search Card (Where to? - Bolt Style)
-                      InkWell(
-                        onTap: () => context.push('/search'),
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          decoration: BoxDecoration(
-                            color: isDarkMode ? AppColors.grey900 : AppColors.grey50,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isDarkMode ? AppColors.grey800 : AppColors.grey200,
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.search,
-                                color: AppColors.secondary,
-                                size: 28,
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Text(
-                                  'Kam to bude?',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: isDarkMode ? AppColors.grey400 : AppColors.grey500,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                color: isDarkMode ? AppColors.grey600 : AppColors.grey400,
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-
-                      // Section Title: Main Services
-                      Text(
-                        'Naše služby',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Grid of Services (Bolt Category Cards)
-                      GridView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 220,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          mainAxisExtent: 125,
-                        ),
+                      // On-Demand Flow Card (Bolt Style)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildServiceCard(
-                            context: context,
-                            title: 'Odvoz',
-                            subtitle: 'Objednať taxík',
-                            icon: Icons.local_taxi,
-                            color: AppColors.secondary,
-                            onTap: () => context.push('/services'),
+                          Text(
+                            'Objednajte si jazdu',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                ),
                           ),
-                          _buildServiceCard(
-                            context: context,
-                            title: 'Obchod',
-                            subtitle: 'Gold-Taxi E-shop',
-                            icon: Icons.shopping_bag,
-                            color: AppColors.accent,
-                            onTap: () => context.push('/products'),
+                          const SizedBox(height: 16),
+                          InkWell(
+                            onTap: () => context.push('/search'),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                              decoration: BoxDecoration(
+                                color: isDarkMode ? AppColors.grey900 : AppColors.grey50,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: AppColors.secondary.withValues(alpha: 0.3),
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.secondary.withValues(alpha: 0.1),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.search,
+                                    color: AppColors.secondary,
+                                    size: 32,
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Text(
+                                      'Kam to bude?',
+                                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                            color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          _buildServiceCard(
-                            context: context,
-                            title: 'Udalosti',
-                            subtitle: 'Plánované jazdy',
-                            icon: Icons.event,
-                            color: AppColors.success,
-                            onTap: () => context.push('/events'),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Secondary CTA: Schedule Ride (Hybrid Model)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildActionTile(
+                              context: context,
+                              title: 'Naplánovať jazdu',
+                              subtitle: 'Letiská, limuzíny...',
+                              icon: Icons.calendar_month,
+                              color: Colors.blue,
+                              onTap: () => context.push('/services'),
+                            ),
                           ),
-                          _buildServiceCard(
-                            context: context,
-                            title: 'Novinky',
-                            subtitle: 'Články & Blog',
-                            icon: Icons.article,
-                            color: Colors.purple,
-                            onTap: () => context.push('/blog'),
-                          ),
-                          _buildServiceCard(
-                            context: context,
-                            title: 'Mapa',
-                            subtitle: 'Sledovať vodičov',
-                            icon: Icons.map,
-                            color: Colors.blue,
-                            onTap: () => context.push('/map'),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildActionTile(
+                              context: context,
+                              title: 'Mapa vodičov',
+                              subtitle: 'Sledovať okolie',
+                              icon: Icons.map,
+                              color: Colors.green,
+                              onTap: () => context.push('/map'),
+                            ),
                           ),
                         ],
                       ),
@@ -301,7 +279,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceCard({
+  Widget _buildActionTile({
     required BuildContext context,
     required String title,
     required String subtitle,
@@ -315,65 +293,36 @@ class HomePage extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isDarkMode ? AppColors.darkSurface : AppColors.white,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDarkMode ? AppColors.grey800 : AppColors.grey100,
+          ),
           boxShadow: [
             BoxShadow(
-              color: isDarkMode ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(
-            color: isDarkMode ? AppColors.grey800 : AppColors.grey100,
-            width: 1,
-          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Icon container with circular background
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 22,
-              ),
+            Icon(icon, color: color, size: 30),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isDarkMode ? AppColors.grey400 : AppColors.grey500,
-                          fontSize: 11,
-                        ),
-                  ),
-                ],
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: isDarkMode ? AppColors.grey400 : AppColors.grey500,
+                fontSize: 11,
               ),
             ),
           ],

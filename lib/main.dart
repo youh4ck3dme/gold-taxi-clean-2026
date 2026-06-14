@@ -22,18 +22,27 @@ Future<void> main() async {
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
-    debugPrint('⚠️ Warning: Failed to load .env file: $e');
+    debugPrint('⚠️ Note: .env file not found, using environment defines if available.');
   }
 
-  // 2. Enable Mock Mode for DEMO/PRODUCTION (real server unreachable)
-  // Remove this in production when real backend is ready
-  ApiService.enableMockMode();
-  debugPrint('🎭 MOCK MODE ENABLED - Demo mode with mock data');
-
   // 2. Setup Service Locator (Dependency Injection)
-  await setupServiceLocator();
+  // Check Dart defines first, then .env, then default
+  final backendModeStr = const String.fromEnvironment('BACKEND_MODE').isNotEmpty 
+      ? const String.fromEnvironment('BACKEND_MODE') 
+      : (dotenv.env['BACKEND_MODE'] ?? 'mock');
+      
+  final backendMode = backendModeStr.toLowerCase() == 'supabase' ? BackendMode.supabase : BackendMode.mock;
+  
+  await setupServiceLocator(mode: backendMode);
+  debugPrint('🏗️ Service Locator initialized in $backendMode mode.');
 
-  // 3. Resilient Firebase Initialization
+  // 3. Enable Mock Mode for DEMO/PRODUCTION (real server unreachable)
+  if (backendMode == BackendMode.mock) {
+    ApiService.enableMockMode();
+    debugPrint('🎭 MOCK MODE ENABLED - Demo mode with mock data');
+  }
+
+  // 4. Resilient Firebase Initialization
   try {
     if (kIsWeb) {
       await Firebase.initializeApp(
@@ -50,10 +59,15 @@ Future<void> main() async {
     debugPrint('⚠️ Warning: Firebase skipped or failed to initialize: $e');
   }
 
-  // 4. Initialize Supabase
+  // 5. Initialize Supabase
   try {
-    final supabaseUrl = dotenv.env['SUPABASE_URL'] ?? 'https://your-supabase-url.supabase.co';
-    final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? 'your-supabase-anon-key';
+    final supabaseUrl = const String.fromEnvironment('SUPABASE_URL').isNotEmpty
+        ? const String.fromEnvironment('SUPABASE_URL')
+        : (dotenv.env['SUPABASE_URL'] ?? 'https://your-supabase-url.supabase.co');
+
+    final supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY').isNotEmpty
+        ? const String.fromEnvironment('SUPABASE_ANON_KEY')
+        : (dotenv.env['SUPABASE_ANON_KEY'] ?? 'your-supabase-anon-key');
 
     await Supabase.initialize(
       url: supabaseUrl,
