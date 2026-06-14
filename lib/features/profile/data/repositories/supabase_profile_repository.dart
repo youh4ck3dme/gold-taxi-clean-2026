@@ -89,9 +89,44 @@ class SupabaseProfileRepository implements ProfileRepository {
   }
 
   @override
+  Future<Map<String, dynamic>> getDriverStats(String driverId) async {
+    final data = await _client
+        .from('rides')
+        .select('status, final_price, estimated_price, rating')
+        .eq('driver_id', driverId);
+
+    final completedRides = (data as List)
+        .where((r) => r['status'] == 'completed')
+        .toList();
+
+    final totalRides = completedRides.length;
+
+    double totalEarnings = 0;
+    double ratingSum = 0;
+    int ratingCount = 0;
+
+    for (final ride in completedRides) {
+      final price = (ride['final_price'] ?? ride['estimated_price']);
+      if (price != null) {
+        totalEarnings += (price is num) ? price.toDouble() : double.tryParse(price.toString()) ?? 0;
+      }
+      final rating = ride['rating'];
+      if (rating != null) {
+        ratingSum += (rating is num) ? rating.toDouble() : double.tryParse(rating.toString()) ?? 0;
+        ratingCount++;
+      }
+    }
+
+    return {
+      'totalRides': totalRides,
+      'totalEarnings': totalEarnings,
+      'averageRating': ratingCount > 0 ? (ratingSum / ratingCount) : null,
+    };
+  }
+
+  @override
   Future<List<Map<String, dynamic>>> getOrderHistory(String userId) async {
-    // Return empty list or fetch from Supabase rides if needed.
-    // In Supabase mode, order/ride history is loaded via RideRepository or maps.
+    // In Supabase mode, order history comes from rides table via RideRepository
     return [];
   }
 

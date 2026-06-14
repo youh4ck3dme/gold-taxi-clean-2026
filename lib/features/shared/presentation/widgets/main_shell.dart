@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/di/service_locator.dart';
+import '../../../auth/presentation/cubits/auth_cubit.dart';
+import '../../../profile/presentation/bloc/profile_cubit.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -49,9 +53,14 @@ class MainShell extends StatelessWidget {
     const selectedItemColor = AppColors.secondary; // Gold accent
     final unselectedItemColor = isDarkMode ? AppColors.grey500 : AppColors.grey400;
 
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: Container(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: getIt<AuthCubit>()),
+        BlocProvider.value(value: getIt<ProfileCubit>()),
+      ],
+      child: Scaffold(
+        body: child,
+        bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: backgroundColor,
           boxShadow: [
@@ -119,6 +128,7 @@ class MainShell extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

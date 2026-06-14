@@ -52,11 +52,35 @@ class ProfilePage extends StatelessWidget {
             final user = state.user;
             if (user.isAdmin) {
               return const AdminProfilePage();
-            } else if (user.isDriver) {
-              return const DriverProfilePage();
-            } else {
-              return const CustomerProfilePage();
             }
+
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Profil'),
+                actions: [
+                  if (user.isDriver)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.person_outline, size: 18),
+                          Switch(
+                            value: state.activeRole == 'driver',
+                            onChanged: (isDriver) {
+                              context.read<ProfileCubit>().switchRole(isDriver ? 'driver' : 'customer');
+                            },
+                            activeThumbColor: Colors.amber,
+                          ),
+                          const Icon(Icons.local_taxi, size: 18),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              body: state.activeRole == 'driver' 
+                ? const DriverProfilePage() 
+                : const CustomerProfilePage(),
+            );
           }
           return const SizedBox();
         },

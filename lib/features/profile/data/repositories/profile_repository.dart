@@ -22,6 +22,9 @@ abstract class ProfileRepository {
   /// Fetch driver record details for driver profile page
   Future<Map<String, dynamic>?> getDriverRecord(String userId);
 
+  /// Fetch aggregated driver statistics (total rides, earnings, avg rating)
+  Future<Map<String, dynamic>> getDriverStats(String driverId);
+
   /// Fetch order history for the current user
   Future<List<Map<String, dynamic>>> getOrderHistory(String userId);
 

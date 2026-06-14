@@ -91,4 +91,14 @@ class MockProfileRepository implements ProfileRepository {
     await Future.delayed(const Duration(milliseconds: 300));
     return [];
   }
+
+  @override
+  Future<Map<String, dynamic>> getDriverStats(String driverId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return {
+      'ridesCount': 42,
+      'totalEarnings': 256.40,
+      'averageRating': 4.9,
+    };
+  }
 }

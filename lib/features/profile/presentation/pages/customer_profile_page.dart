@@ -109,78 +109,92 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
 
         final user = state.user;
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Môj Profil'),
-            actions: [
-              IconButton(
-                icon: Icon(_isEditing ? Icons.close : Icons.edit),
-                onPressed: () {
-                  setState(() {
-                    if (_isEditing) {
-                      _initializeControllers(state);
-                    }
-                    _isEditing = !_isEditing;
-                  });
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.redAccent),
-                onPressed: () => getIt<AuthCubit>().logout(),
-              ),
-            ],
-          ),
-          body: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // User Avatar and Name display
-                  Center(
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.amber.shade100,
-                          child: Icon(Icons.person, size: 55, color: Colors.amber.shade900),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          user.name,
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          user.email,
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.amber.shade50,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.amber.shade200),
-                          ),
-                          child: Text(
-                            'Zákazník',
-                            style: TextStyle(color: Colors.amber.shade900, fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ),
-                      ],
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // User Avatar and Name display
+              Center(
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.amber.shade100,
+                      child: Icon(Icons.person, size: 55, color: Colors.amber.shade900),
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 12),
+                    Text(
+                      user.name,
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      user.email,
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.amber.shade200),
+                      ),
+                      child: Text(
+                        'Zákazník',
+                        style: TextStyle(color: Colors.amber.shade900, fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
 
-                  // Account Fields section
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
+              // Loyalty Points Card
+              Card(
+                color: Colors.amber.shade600,
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.stars, color: Colors.white, size: 40),
+                      const SizedBox(width: 16),
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Moje vernostné body',
+                            style: TextStyle(color: Colors.white70, fontSize: 14),
+                          ),
+                          Text(
+                            '${state.loyaltyPoints} b.',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Account Fields section
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Row(
                             children: [
@@ -192,110 +206,226 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                               ),
                             ],
                           ),
-                          const Divider(height: 24),
-                          if (_isEditing) ...[
-                            TextFormField(
-                              controller: _controllers.name,
-                              decoration: const InputDecoration(
-                                labelText: 'Celé meno',
-                                prefixIcon: Icon(Icons.person),
-                              ),
-                              validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte meno' : null,
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _controllers.phone,
-                              decoration: const InputDecoration(
-                                labelText: 'Telefónne číslo',
-                                prefixIcon: Icon(Icons.phone),
-                                hintText: '+421 / 09...',
-                              ),
-                              validator: _validatePhone,
-                            ),
-                          ] else ...[
-                            _buildInfoRow('Celé meno', user.name),
-                            const SizedBox(height: 16),
-                            _buildInfoRow('Telefón', user.phone ?? 'Neuvedené'),
-                          ],
+                          IconButton(
+                            icon: Icon(_isEditing ? Icons.close : Icons.edit, size: 20),
+                            onPressed: () {
+                              setState(() {
+                                if (_isEditing) {
+                                  _initializeControllers(state);
+                                }
+                                _isEditing = !_isEditing;
+                              });
+                            },
+                          ),
                         ],
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Saved Addresses section
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Row(
+                      const Divider(height: 12),
+                      if (_isEditing) ...[
+                        Form(
+                          key: _formKey,
+                          child: Column(
                             children: [
-                              Icon(Icons.bookmark_outline, color: Colors.amber),
-                              SizedBox(width: 8),
-                              Text(
-                                'Uložené adresy',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              TextFormField(
+                                controller: _controllers.name,
+                                decoration: const InputDecoration(
+                                  labelText: 'Celé meno',
+                                  prefixIcon: Icon(Icons.person),
+                                ),
+                                validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte meno' : null,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _controllers.phone,
+                                decoration: const InputDecoration(
+                                  labelText: 'Telefónne číslo',
+                                  prefixIcon: Icon(Icons.phone),
+                                  hintText: '+421 / 09...',
+                                ),
+                                validator: _validatePhone,
                               ),
                             ],
                           ),
-                          const Divider(height: 24),
-                          if (_isEditing) ...[
-                            TextFormField(
-                              controller: _controllers.homeAddress,
-                              decoration: const InputDecoration(
-                                labelText: 'Adresa Domov',
-                                prefixIcon: Icon(Icons.home_outlined),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _controllers.workAddress,
-                              decoration: const InputDecoration(
-                                labelText: 'Adresa Práca',
-                                prefixIcon: Icon(Icons.work_outline),
-                              ),
-                            ),
-                          ] else ...[
-                            _buildAddressRow(
-                              Icons.home,
-                              'Domov',
-                              user.savedAddresses['home']?['address'] as String? ?? 'Nastaviť adresu',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildAddressRow(
-                              Icons.work,
-                              'Práca',
-                              user.savedAddresses['work']?['address'] as String? ?? 'Nastaviť adresu',
-                            ),
-                          ],
+                        ),
+                      ] else ...[
+                        _buildInfoRow('Celé meno', user.name),
+                        const SizedBox(height: 16),
+                        _buildInfoRow('Telefón', user.phone ?? 'Neuvedené'),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Saved Addresses section
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.bookmark_outline, color: Colors.amber),
+                          SizedBox(width: 8),
+                          Text(
+                            'Uložené adresy',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
-                    ),
+                      const Divider(height: 24),
+                      if (_isEditing) ...[
+                        TextFormField(
+                          controller: _controllers.homeAddress,
+                          decoration: const InputDecoration(
+                            labelText: 'Adresa Domov',
+                            prefixIcon: Icon(Icons.home_outlined),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _controllers.workAddress,
+                          decoration: const InputDecoration(
+                            labelText: 'Adresa Práca',
+                            prefixIcon: Icon(Icons.work_outline),
+                          ),
+                        ),
+                      ] else ...[
+                        _buildAddressRow(
+                          Icons.home,
+                          'Domov',
+                          user.savedAddresses['home']?['address'] as String? ?? 'Nastaviť adresu',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildAddressRow(
+                          Icons.work,
+                          'Práca',
+                          user.savedAddresses['work']?['address'] as String? ?? 'Nastaviť adresu',
+                        ),
+                      ],
+                    ],
                   ),
-
-                  if (_isEditing) ...[
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber.shade600,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () => _saveChanges(context, state),
-                      child: const Text('Uložiť zmeny', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ],
+                ),
               ),
-            ),
+
+              if (_isEditing) ...[
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber.shade600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () => _saveChanges(context, state),
+                  child: const Text('Uložiť zmeny', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ],
+
+              const SizedBox(height: 24),
+
+              // Orders & Bookings Header
+              const Text(
+                'Moja aktivita',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+
+              // Orders Section
+              _buildActivityCard(
+                title: 'Moje objednávky',
+                icon: Icons.shopping_bag_outlined,
+                itemCount: state.orders.length,
+                child: state.orders.isEmpty
+                    ? const Text('Žiadne objednávky')
+                    : Column(
+                        children: state.orders.take(3).map((order) {
+                          return ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            title: Text('Objednávka #${order['id']}'),
+                            subtitle: Text(order['status'] ?? 'Neznámy stav'),
+                            trailing: Text('${order['total']} ${order['currency'] ?? "€"}'),
+                          );
+                        }).toList(),
+                      ),
+              ),
+              const SizedBox(height: 12),
+
+              // Bookings Section
+              _buildActivityCard(
+                title: 'Moje rezervácie',
+                icon: Icons.calendar_today_outlined,
+                itemCount: state.bookings.length,
+                child: state.bookings.isEmpty
+                    ? const Text('Žiadne rezervácie')
+                    : Column(
+                        children: state.bookings.take(3).map((booking) {
+                          return ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(booking['title']?['rendered'] ?? 'Rezervácia'),
+                            subtitle: Text(booking['date'] ?? ''),
+                          );
+                        }).toList(),
+                      ),
+              ),
+              const SizedBox(height: 32),
+              
+              // Logout button at bottom
+              OutlinedButton.icon(
+                icon: const Icon(Icons.logout, color: Colors.redAccent),
+                label: const Text('Odhlásiť sa', style: TextStyle(color: Colors.redAccent)),
+                onPressed: () => getIt<AuthCubit>().logout(),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.redAccent),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildActivityCard({
+    required String title,
+    required IconData icon,
+    required int itemCount,
+    required Widget child,
+  }) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(icon, color: Colors.amber, size: 20),
+                    const SizedBox(width: 8),
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                if (itemCount > 0)
+                  Text('$itemCount položiek', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
+            ),
+            const Divider(height: 24),
+            child,
+          ],
+        ),
+      ),
     );
   }
 

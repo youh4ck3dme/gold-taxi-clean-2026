@@ -15,8 +15,13 @@ class ProfileCubit extends Cubit<ProfileState> {
       final bookings = await _profileRepository.getBookingHistory(user.id);
 
       Map<String, dynamic>? driverRecord;
+      Map<String, dynamic>? driverStats;
       if (user.isDriver) {
         driverRecord = await _profileRepository.getDriverRecord(user.id);
+        if (driverRecord != null) {
+          final driverId = driverRecord['id'] as String;
+          driverStats = await _profileRepository.getDriverStats(driverId);
+        }
       }
 
       emit(ProfileLoaded(
@@ -24,9 +29,19 @@ class ProfileCubit extends Cubit<ProfileState> {
         orders: orders,
         bookings: bookings,
         driverRecord: driverRecord,
+        driverStats: driverStats,
+        activeRole: user.isDriver ? 'driver' : 'customer',
       ));
     } catch (e) {
       emit(ProfileError(e.toString()));
+    }
+  }
+
+  void switchRole(String newRole) {
+    final currentState = state;
+    if (currentState is ProfileLoaded) {
+      if (newRole == 'driver' && !currentState.user.isDriver) return;
+      emit(currentState.copyWith(activeRole: newRole));
     }
   }
 
@@ -79,6 +94,7 @@ class ProfileCubit extends Cubit<ProfileState> {
           orders: currentState.orders,
           bookings: currentState.bookings,
           driverRecord: updatedDriverRecord,
+          driverStats: currentState.driverStats,
         ));
       } catch (e) {
         emit(ProfileError(e.toString()));

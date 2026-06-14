@@ -80,124 +80,138 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
         }
 
         final user = state.user;
+        final stats = state.driverStats ?? {'ridesCount': 0, 'totalEarnings': 0.0, 'averageRating': 5.0};
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Profil Vodiča'),
-            actions: [
-              IconButton(
-                icon: Icon(_isEditing ? Icons.close : Icons.edit),
-                onPressed: () {
-                  setState(() {
-                    if (_isEditing) {
-                      _initializeFields(state);
-                    }
-                    _isEditing = !_isEditing;
-                  });
-                },
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Driver header
+              Center(
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.green.shade100,
+                      child: Icon(Icons.local_taxi, size: 55, color: Colors.green.shade900),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      user.name,
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      user.email,
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: Text(
+                        'Vodič',
+                        style: TextStyle(color: Colors.green.shade900, fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.redAccent),
-                onPressed: () => getIt<AuthCubit>().logout(),
-              ),
-            ],
-          ),
-          body: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              const SizedBox(height: 16),
+
+              // Taxi Statistics Section
+              Row(
                 children: [
-                  // Driver header
-                  Center(
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.green.shade100,
-                          child: Icon(Icons.local_taxi, size: 55, color: Colors.green.shade900),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          user.name,
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          user.email,
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.green.shade200),
-                          ),
-                          child: Text(
-                            'Vodič',
-                            style: TextStyle(color: Colors.green.shade900, fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ),
-                      ],
+                  Expanded(
+                    child: _buildStatCard(
+                      'Jazdy',
+                      '${stats['ridesCount']}',
+                      Icons.directions_car,
+                      Colors.blue,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Zárobok',
+                      '${(stats['totalEarnings'] as num).toStringAsFixed(2)} €',
+                      Icons.account_balance_wallet,
+                      Colors.green,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Rating',
+                      '${stats['averageRating']} ★',
+                      Icons.star,
+                      Colors.amber,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
 
-                  // Online / Offline Status Card
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // Online / Offline Status Card
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Prevádzkový stav',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _isOnline ? 'Ste online a prijímate jazdy' : 'Ste offline',
-                                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                              ),
-                            ],
+                          const Text(
+                            'Prevádzkový stav',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                          Switch.adaptive(
-                            value: _isOnline,
-                            activeTrackColor: Colors.green,
-                            onChanged: (val) {
-                              setState(() {
-                                _isOnline = val;
-                              });
-                              // Save state instantly to backend as well to match drivers flow
-                              context.read<ProfileCubit>().updateDriverProfile(
-                                    vehicleType: _vehicleTypeController.text.trim(),
-                                    vehiclePlate: _vehiclePlateController.text.trim(),
-                                    serviceClasses: _selectedServiceClasses,
-                                    isOnline: val,
-                                  );
-                            },
+                          const SizedBox(height: 2),
+                          Text(
+                            _isOnline ? 'Ste online a prijímate jazdy' : 'Ste offline',
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                           ),
                         ],
                       ),
-                    ),
+                      Switch.adaptive(
+                        value: _isOnline,
+                        activeTrackColor: Colors.green,
+                        onChanged: (val) {
+                          setState(() {
+                            _isOnline = val;
+                          });
+                          // Save state instantly to backend as well to match drivers flow
+                          context.read<ProfileCubit>().updateDriverProfile(
+                                vehicleType: _vehicleTypeController.text.trim(),
+                                vehiclePlate: _vehiclePlateController.text.trim(),
+                                serviceClasses: _selectedServiceClasses,
+                                isOnline: val,
+                              );
+                        },
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
+                ),
+              ),
+              const SizedBox(height: 16),
 
-                  // Vehicle Details Card
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              // Vehicle Details Card
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Row(
                             children: [
@@ -209,66 +223,125 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                               ),
                             ],
                           ),
-                          const Divider(height: 24),
-                          if (_isEditing) ...[
-                            TextFormField(
-                              controller: _vehicleTypeController,
-                              decoration: const InputDecoration(
-                                labelText: 'Typ vozidla (značka / model)',
-                                prefixIcon: Icon(Icons.car_repair),
-                              ),
-                              validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte model vozidla' : null,
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _vehiclePlateController,
-                              decoration: const InputDecoration(
-                                labelText: 'EČV vozidla (ŠPZ)',
-                                prefixIcon: Icon(Icons.pin),
-                                hintText: 'napr. KE-123AB',
-                              ),
-                              validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte ŠPZ vozidla' : null,
-                            ),
-                            const SizedBox(height: 20),
-                            const Text(
-                              'Triedy služieb',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
-                            ),
-                            const SizedBox(height: 8),
-                            _buildServiceCheckbox('standard', 'Štandard (Standard)'),
-                            _buildServiceCheckbox('comfort', 'Komfort (Comfort)'),
-                            _buildServiceCheckbox('premium', 'Prémiová (Premium)'),
-                          ] else ...[
-                            _buildInfoRow('Model vozidla', _vehicleTypeController.text.isNotEmpty ? _vehicleTypeController.text : 'Neuvedené'),
-                            const SizedBox(height: 16),
-                            _buildInfoRow('EČV (ŠPZ)', _vehiclePlateController.text.isNotEmpty ? _vehiclePlateController.text : 'Neuvedené'),
-                            const SizedBox(height: 16),
-                            _buildServiceClassesRow(_selectedServiceClasses),
-                          ],
+                          IconButton(
+                            icon: Icon(_isEditing ? Icons.close : Icons.edit, size: 20),
+                            onPressed: () {
+                              setState(() {
+                                if (_isEditing) {
+                                  _initializeFields(state);
+                                }
+                                _isEditing = !_isEditing;
+                              });
+                            },
+                          ),
                         ],
                       ),
-                    ),
+                      const Divider(height: 12),
+                      if (_isEditing) ...[
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _vehicleTypeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Typ vozidla (značka / model)',
+                                  prefixIcon: Icon(Icons.car_repair),
+                                ),
+                                validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte model vozidla' : null,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _vehiclePlateController,
+                                decoration: const InputDecoration(
+                                  labelText: 'EČV vozidla (ŠPZ)',
+                                  prefixIcon: Icon(Icons.pin),
+                                  hintText: 'napr. KE-123AB',
+                                ),
+                                validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte ŠPZ vozidla' : null,
+                              ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Triedy služieb',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildServiceCheckbox('standard', 'Štandard (Standard)'),
+                              _buildServiceCheckbox('comfort', 'Komfort (Comfort)'),
+                              _buildServiceCheckbox('premium', 'Prémiová (Premium)'),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        _buildInfoRow('Model vozidla', _vehicleTypeController.text.isNotEmpty ? _vehicleTypeController.text : 'Neuvedené'),
+                        const SizedBox(height: 16),
+                        _buildInfoRow('EČV (ŠPZ)', _vehiclePlateController.text.isNotEmpty ? _vehiclePlateController.text : 'Neuvedené'),
+                        const SizedBox(height: 16),
+                        _buildServiceClassesRow(_selectedServiceClasses),
+                      ],
+                    ],
                   ),
-
-                  if (_isEditing) ...[
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade600,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () => _saveChanges(context),
-                      child: const Text('Uložiť zmeny', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ],
+                ),
               ),
-            ),
+
+              if (_isEditing) ...[
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () => _saveChanges(context),
+                  child: const Text('Uložiť zmeny', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ],
+              
+              const SizedBox(height: 32),
+              
+              // Logout button at bottom
+              OutlinedButton.icon(
+                icon: const Icon(Icons.logout, color: Colors.redAccent),
+                label: const Text('Odhlásiť sa', style: TextStyle(color: Colors.redAccent)),
+                onPressed: () => getIt<AuthCubit>().logout(),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.redAccent),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
