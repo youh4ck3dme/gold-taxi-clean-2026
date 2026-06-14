@@ -95,6 +95,8 @@ class AuthRepository {
   /// Get current user profile
   Future<UserModel?> getCurrentUser() async {
     final token = await _storage.getToken();
+    
+    // Skip WordPress call if no token exists (Anonymous/Supabase-only mode)
     if (token == null || token.isEmpty || token == 'null') {
       final firebaseUser = _firebaseAuth?.currentUser;
       if (firebaseUser != null) {
@@ -108,11 +110,17 @@ class AuthRepository {
       if (response != null && response is Map<String, dynamic>) {
         return UserModel.fromJson(response);
       }
+      
       final firebaseUser = _firebaseAuth?.currentUser;
       return firebaseUser == null
           ? null
           : _userModelFromFirebaseUser(firebaseUser);
     } catch (e) {
+      // If WordPress returns 401 or fails, clear invalid token and continue
+      if (e.toString().contains('401')) {
+        await _storage.deleteToken();
+      }
+      
       final firebaseUser = _firebaseAuth?.currentUser;
       return firebaseUser == null
           ? null

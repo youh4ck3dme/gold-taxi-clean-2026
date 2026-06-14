@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:gold_taxi/features/map/presentation/cubits/map_cubit.dart';
 import 'package:gold_taxi/features/map/presentation/widgets/platform_map_widget.dart';
@@ -26,18 +25,30 @@ class _MapPageState extends State<MapPage> {
   bool _isLoadingLocation = false;
   bool _hasLocationPermission = false;
 
-  // Default position (Bratislava center)
-  final LatLng _defaultPosition = const LatLng(48.1486, 17.1077);
+  // Default position: Centrum Košice (instead of Bratislava)
+  final LatLng _defaultPosition = const LatLng(48.7219, 21.2575);
 
   @override
   void initState() {
     super.initState();
     _mapCubit = context.read<MapCubit>();
+    
+    // Set initial position to default immediately
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _mapCubit.updateCurrentPosition(_defaultPosition);
+    });
+
     _checkLocationPermission();
   }
 
   Future<void> _checkLocationPermission() async {
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    await Geolocator.isLocationServiceEnabled();
+    
     if (kIsWeb || defaultTargetPlatform == TargetPlatform.macOS) {
+      // On Web/macOS, we proceed but handle potential failure in _getCurrentPosition
       setState(() {
         _hasLocationPermission = true;
       });
@@ -45,14 +56,24 @@ class _MapPageState extends State<MapPage> {
       return;
     }
 
-    final status = await Permission.locationWhenInUse.request();
-    setState(() {
-      _hasLocationPermission = status.isGranted;
-    });
-
-    if (status.isGranted) {
-      _getCurrentPosition();
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() => _hasLocationPermission = false);
+        return;
+      }
     }
+    
+    if (permission == LocationPermission.deniedForever) {
+      setState(() => _hasLocationPermission = false);
+      return;
+    }
+
+    setState(() {
+      _hasLocationPermission = true;
+    });
+    _getCurrentPosition();
   }
 
   Future<void> _getCurrentPosition() async {
@@ -61,15 +82,33 @@ class _MapPageState extends State<MapPage> {
     try {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 5),
       );
       if (mounted) {
         _mapCubit.updateCurrentPosition(LatLng(position.latitude, position.longitude));
         await _mapCubit.moveToCurrentPosition(LatLng(position.latitude, position.longitude));
       }
     } catch (e) {
+      debugPrint('Geolocation error: $e');
       if (mounted) {
+        // Non-blocking warning: fallback to default Košice
+        _mapCubit.updateCurrentPosition(_defaultPosition);
+        
+        // Show a more friendly message for common web/macOS location issues
+        String message = 'Nepodarilo sa získať presnú polohu. Používam predvolenú (Košice).';
+        if (e.toString().contains('kCLErrorLocationUnknown') || e.toString().contains('User denied')) {
+          message = 'Prístup k polohe je obmedzený. Používam predvolenú polohu v Košiciach.';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Nepodarilo sa získať polohu: $e')),
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'OK',
+              onPressed: () {},
+            ),
+          ),
         );
       }
     } finally {
