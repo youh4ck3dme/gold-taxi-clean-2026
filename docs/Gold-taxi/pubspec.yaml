@@ -1,0 +1,115 @@
+name: gold_taxi
+description: "Gold-Taxi Flutter App - Mobile application for WordPress JetEngine."
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  flutter_bloc: ^8.1.3
+  bloc: ^8.1.2
+  equatable: ^2.0.5
+  provider: ^6.1.5+1
+
+  # Supabase
+  supabase_flutter: ^2.12.4
+
+  # Dependency Injection
+  get_it: ^7.5.0
+
+  # HTTP Client
+  dio: ^5.3.1
+  retrofit: ^4.0.0
+  json_annotation: ^4.8.1
+
+  # Local Storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.2.2
+
+  # Firebase
+  firebase_core: ^3.1.0
+  firebase_auth: ^5.1.0
+  cloud_firestore: ^5.6.12
+  firebase_messaging: ^15.0.0
+  firebase_crashlytics: ^4.0.0
+
+  # Security
+  flutter_secure_storage: ^9.2.2
+
+  # Image & Media
+  cached_network_image: ^3.3.0
+  flutter_html: ^3.0.0-alpha.6
+  image_picker: ^1.0.7
+  video_player: ^2.8.1
+
+  # Location & Maps
+  google_maps_flutter: ^2.10.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  geolocator: ^9.0.2
+  geocoding: ^3.0.0
+
+  # Date & Time
+  intl: ^0.20.2
+  table_calendar: ^3.0.9
+
+  # Navigation & Deep Linking
+  go_router: ^12.1.1
+  app_links: ^7.1.2
+
+  # Utilities
+  uuid: ^4.0.0
+  flutter_dotenv: ^5.1.0
+  connectivity_plus: ^6.1.1
+  url_launcher: ^6.1.14
+  share_plus: ^10.1.3
+  permission_handler: ^11.4.0
+
+  # UI/UX
+  flutter_spinkit: ^5.2.0
+  shimmer: ^3.0.0
+  lottie: ^2.7.0
+  badges: ^3.1.1
+
+  # Logging
+  logger: ^2.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+  # Code Generation
+  json_serializable: ^6.7.0
+  build_runner: ^2.4.6
+
+  # Analysis & Testing
+  flutter_lints: ^3.0.0
+  mocktail: ^1.0.3
+  mockito: ^5.4.4
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - .env
+
+#  fonts:
+#    - family: Poppins
+#      fonts:
+#        - asset: assets/fonts/Poppins-Regular.ttf
+#        - asset: assets/fonts/Poppins-Bold.ttf
+#          weight: 700
+#        - asset: assets/fonts/Poppins-SemiBold.ttf
+#          weight: 600

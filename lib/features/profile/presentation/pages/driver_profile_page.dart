@@ -80,7 +80,10 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
         }
 
         final user = state.user;
-        final stats = state.driverStats ?? {'ridesCount': 0, 'totalEarnings': 0.0, 'averageRating': 5.0};
+        final stats = state.driverStats;
+        final totalRides = stats?['totalRides'] ?? 0;
+        final totalEarnings = stats?['totalEarnings'] ?? 0.0;
+        final averageRating = stats?['averageRating'];
 
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
@@ -129,7 +132,7 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                   Expanded(
                     child: _buildStatCard(
                       'Jazdy',
-                      '${stats['ridesCount']}',
+                      '$totalRides',
                       Icons.directions_car,
                       Colors.blue,
                     ),
@@ -138,7 +141,7 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                   Expanded(
                     child: _buildStatCard(
                       'Zárobok',
-                      '${(stats['totalEarnings'] as num).toStringAsFixed(2)} €',
+                      '${(totalEarnings as num).toStringAsFixed(2)} €',
                       Icons.account_balance_wallet,
                       Colors.green,
                     ),
@@ -147,13 +150,14 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                   Expanded(
                     child: _buildStatCard(
                       'Rating',
-                      '${stats['averageRating']} ★',
+                      averageRating != null ? '${(averageRating as num).toStringAsFixed(1)} ★' : '–',
                       Icons.star,
                       Colors.amber,
                     ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 16),
 
               // Online / Offline Status Card

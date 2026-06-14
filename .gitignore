@@ -84,3 +84,4 @@ ios/Runner/GoogleService-Info.plist
 
 # Local flutter clone for vercel build
 /flutter/
+.vercel
