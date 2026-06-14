@@ -69,7 +69,7 @@ class AuthRepository {
       }
       return _userModelFromFirebaseUser(user);
     } catch (e) {
-      return null;
+      rethrow;
     }
   }
 

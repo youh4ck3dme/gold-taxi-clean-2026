@@ -45,11 +45,19 @@ class AuthCubit extends Cubit<AuthState> {
   /// Google Sign-In action
   Future<void> signInWithGoogle() async {
     emit(AuthLoading());
-    final user = await _authRepository.signInWithGoogle();
-    if (user != null) {
-      emit(Authenticated(user));
-    } else {
-      emit(const AuthError('Google prihlásenie zlyhalo.'));
+    try {
+      final user = await _authRepository.signInWithGoogle();
+      if (user != null) {
+        emit(Authenticated(user));
+      } else {
+        emit(const AuthError('Google prihlásenie zlyhalo (Používateľ nebol nájdený).'));
+        emit(Unauthenticated());
+      }
+    } on FirebaseAuthException catch (e) {
+      emit(AuthError('Google prihlásenie zlyhalo: [${e.code}] ${e.message}'));
+      emit(Unauthenticated());
+    } catch (e) {
+      emit(AuthError('Google prihlásenie zlyhalo: $e'));
       emit(Unauthenticated());
     }
   }
