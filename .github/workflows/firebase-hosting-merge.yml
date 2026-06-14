@@ -28,6 +28,9 @@ jobs:
 
       - name: Build Web
         run: |
+      - name: Create Dummy Env File 
+        run: touch .env 
+
           flutter build web --release --no-tree-shake-icons \
             --dart-define=BACKEND_MODE=supabase \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
