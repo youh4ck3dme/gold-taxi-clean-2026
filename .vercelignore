@@ -1,0 +1,50 @@
+# Ignore native platform folders (Vercel only builds Web)
+android/
+ios/
+macos/
+linux/
+windows/
+
+# Ignore local builds, cache and tools
+.dart_tool/
+.dart-tool/
+build/
+.vercel/
+.firebase/
+.idea/
+.vscode/
+.home/
+node_modules/
+
+# Ignore local flutter SDK clones
+flutter/
+/flutter/
+
+# Ignore testing, documentation, and metadata
+test/
+integration_test/
+docs/
+scratch/
+supabase/
+.github/
+.git/
+
+# Ignore lock files and system files
+.DS_Store
+*.log
+*.zip
+*.cleaned.csv
+askpass.sh
+setup_github_secrets.sh
+sonar-project.properties
+*.iml
+*.ipr
+*.iws
+*.backup
+
+# Ignore credentials
+.env
+.env.local
+.env.development
+.env.production
+.env.staging

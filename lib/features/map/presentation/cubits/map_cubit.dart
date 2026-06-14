@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -115,9 +116,11 @@ class MapCubit extends Cubit<MapState> {
             snippet:
                 '${driver.serviceType} • ${driver.rating}★ • ${driver.carModel}',
           ),
-          icon: driver.isAvailable
-              ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen)
-              : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          icon: kIsWeb
+              ? BitmapDescriptor.defaultMarker
+              : (driver.isAvailable
+                  ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen)
+                  : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed)),
           rotation: driver.bearing,
           onTap: () => selectDriver(driver.driverId),
         ),

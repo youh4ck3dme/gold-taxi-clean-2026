@@ -75,6 +75,9 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> {
 
   /// Get taxi icon for Google Maps based on availability status
   gmaps.BitmapDescriptor _getTaxiIcon(bool isAvailable) {
+    if (kIsWeb) {
+      return gmaps.BitmapDescriptor.defaultMarker;
+    }
     return gmaps.BitmapDescriptor.defaultMarkerWithHue(
       isAvailable ? gmaps.BitmapDescriptor.hueOrange : gmaps.BitmapDescriptor.hueViolet,
     );
