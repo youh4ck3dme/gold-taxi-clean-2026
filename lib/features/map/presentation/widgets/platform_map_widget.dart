@@ -10,10 +10,10 @@ import 'google_maps_loader_stub.dart'
 
 /// A platform-adaptive map widget.
 ///
-/// Uses Google Maps on Web and iOS (where the native plugin is available).
+/// Uses Google Maps on Web, Android, and iOS when a platform key is configured.
 /// Falls back to flutter_map (OpenStreetMap) on macOS (and any other platform
 /// where google_maps_flutter is not supported).
-class PlatformMapWidget extends StatelessWidget {
+class PlatformMapWidget extends StatefulWidget {
   final double latitude;
   final double longitude;
   final double zoom;
@@ -40,6 +40,26 @@ class PlatformMapWidget extends StatelessWidget {
     this.onMapCreated,
     this.gestureRecognizers,
   });
+
+  @override
+  State<PlatformMapWidget> createState() => _PlatformMapWidgetState();
+}
+
+class _PlatformMapWidgetState extends State<PlatformMapWidget> {
+  bool _googleMapsReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _googleMapsReady = _useGoogleMaps && isGoogleMapsInitialized();
+    if (_useGoogleMaps && !_googleMapsReady) {
+      ensureGoogleMapsInitialized().then((ready) {
+        if (mounted) {
+          setState(() => _googleMapsReady = ready);
+        }
+      });
+    }
+  }
 
   /// Check if Google Maps is supported on this platform.
   static bool get _useGoogleMaps {
@@ -78,15 +98,15 @@ class PlatformMapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (_useGoogleMaps && isGoogleMapsInitialized()) {
+    if (_useGoogleMaps && _googleMapsReady) {
       return _buildGoogleMap();
     }
     return _buildFlutterMap();
   }
 
-  /// Google Maps implementation (Web, iOS)
+  /// Google Maps implementation (Web, Android, iOS)
   Widget _buildGoogleMap() {
-    final gMarkers = markers.map((m) {
+    final gMarkers = widget.markers.map((m) {
       return gmaps.Marker(
         markerId: gmaps.MarkerId(m.id),
         position: gmaps.LatLng(m.latitude, m.longitude),
@@ -102,23 +122,23 @@ class PlatformMapWidget extends StatelessWidget {
 
     return gmaps.GoogleMap(
       initialCameraPosition: gmaps.CameraPosition(
-        target: gmaps.LatLng(latitude, longitude),
-        zoom: zoom,
+        target: gmaps.LatLng(widget.latitude, widget.longitude),
+        zoom: widget.zoom,
       ),
       markers: gMarkers,
-      myLocationEnabled: myLocationEnabled,
-      myLocationButtonEnabled: myLocationButtonEnabled,
-      compassEnabled: compassEnabled,
-      zoomControlsEnabled: zoomControlsEnabled,
-      padding: padding,
-      onMapCreated: (controller) => onMapCreated?.call(controller),
-      gestureRecognizers: gestureRecognizers ?? {},
+      myLocationEnabled: widget.myLocationEnabled,
+      myLocationButtonEnabled: widget.myLocationButtonEnabled,
+      compassEnabled: widget.compassEnabled,
+      zoomControlsEnabled: widget.zoomControlsEnabled,
+      padding: widget.padding,
+      onMapCreated: (controller) => widget.onMapCreated?.call(controller),
+      gestureRecognizers: widget.gestureRecognizers ?? {},
     );
   }
 
   /// Flutter Map (OpenStreetMap) implementation (macOS fallback)
   Widget _buildFlutterMap() {
-    final fMarkers = markers.map((m) {
+    final fMarkers = widget.markers.map((m) {
       return Marker(
         point: ll.LatLng(m.latitude, m.longitude),
         width: 40,
@@ -135,8 +155,8 @@ class PlatformMapWidget extends StatelessWidget {
 
     return FlutterMap(
       options: MapOptions(
-        initialCenter: ll.LatLng(latitude, longitude),
-        initialZoom: zoom,
+        initialCenter: ll.LatLng(widget.latitude, widget.longitude),
+        initialZoom: widget.zoom,
       ),
       children: [
         TileLayer(

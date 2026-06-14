@@ -17,7 +17,7 @@ Konfigurácia v repozitári:
 - `.firebaserc` nastavuje default projekt `goldtaxi-202ff`.
 - `firebase.json` nastavuje Hosting, Auth providery, SPA rewrite a security headers.
 - `lib/firebase_options.dart` obsahuje FlutterFire web config.
-- `web/index.html` načítava Google Maps JavaScript API cez `<script>`.
+- Web načítava Google Maps JavaScript API dynamicky iba vtedy, keď build dostane `GOOGLE_MAPS_API_KEY`.
 
 ## Firebase CLI
 
@@ -86,6 +86,13 @@ https://goldtaxi-202ff.web.app/*
 https://goldtaxi-202ff.firebaseapp.com/*
 ```
 
+Web build:
+
+```bash
+flutter build web --release --dart-define=GOOGLE_MAPS_API_KEY="$GOOGLE_MAPS_API_KEY"
+npm run maps:smoke -- https://goldtaxi-202ff.web.app/
+```
+
 Pre lokálny vývoj použi samostatný development key alebo dočasne pridaj localhost referrer:
 
 ```text
@@ -99,7 +106,7 @@ Zapnúť teraz:
 
 | API | Prečo |
 | --- | --- |
-| Maps JavaScript API | Webová mapa cez `<script>` v `web/index.html`. |
+| Maps JavaScript API | Webová mapa načítaná dynamicky cez `GOOGLE_MAPS_API_KEY`. |
 | Maps SDK for Android | Flutter natívna mapa na Androide cez `google_maps_flutter`. |
 | Maps SDK for iOS | Flutter natívna mapa na iOS cez `google_maps_flutter`. |
 | Places API (New) | Vyhľadávanie miest, autocomplete pickup/dropoff adries. |

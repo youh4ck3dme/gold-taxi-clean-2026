@@ -8,7 +8,10 @@ import GoogleMaps
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GMSServices.provideAPIKey("AIzaSyCBFWUDAG0d3ZrLe06sn014DOTQQaUP-24")
+    if let googleMapsApiKey = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_MAPS_API_KEY") as? String,
+       !googleMapsApiKey.isEmpty {
+      GMSServices.provideAPIKey(googleMapsApiKey)
+    }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 

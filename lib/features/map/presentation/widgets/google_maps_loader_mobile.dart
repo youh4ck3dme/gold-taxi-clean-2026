@@ -1,4 +1,7 @@
 bool isGoogleMapsInitialized() {
-  // Always true for mobile/desktop native since the SDK is embedded/configured at build time.
-  return true;
+  return const String.fromEnvironment('GOOGLE_MAPS_API_KEY').isNotEmpty;
+}
+
+Future<bool> ensureGoogleMapsInitialized() async {
+  return isGoogleMapsInitialized();
 }

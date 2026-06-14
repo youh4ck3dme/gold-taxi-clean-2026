@@ -96,7 +96,7 @@ Keď bude pripravený realtime backend, nahraď `_mockDrivers` v `DriverPosition
 
 Pre aktuálnu aplikáciu sú najdôležitejšie:
 
-- Maps JavaScript API - web mapa cez `web/index.html`.
+- Maps JavaScript API - web mapa načítaná dynamicky cez `GOOGLE_MAPS_API_KEY`.
 - Maps SDK for Android - natívna Android mapa cez Flutter plugin.
 - Maps SDK for iOS - natívna iOS mapa cez Flutter plugin.
 - Places API (New) - autocomplete a výber adries.
@@ -133,6 +133,7 @@ Používaj npm skripty alebo priame Flutter príkazy:
 npm run analyze
 npm test
 flutter build web --release
+npm run maps:smoke
 ```
 
 Mapové testy sú pod `test/unit/map/`. Auth testy sú pod `test/unit/auth_*` a `test/widget/login_page_test.dart`.

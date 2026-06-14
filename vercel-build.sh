@@ -22,6 +22,7 @@ SUPABASE_URL=${SUPABASE_URL}
 SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
 WOO_CONSUMER_KEY=${WOO_CONSUMER_KEY}
 WOO_CONSUMER_SECRET=${WOO_CONSUMER_SECRET}
+GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
 EOF
 echo ".env file generated successfully!"
 
@@ -61,6 +62,7 @@ echo "Compiling Flutter Web application with Production Credentials..."
 flutter build web --release --no-tree-shake-icons \
   --dart-define=BACKEND_MODE=supabase \
   --dart-define=SUPABASE_URL=${SUPABASE_URL} \
-  --dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+  --dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY} \
+  --dart-define=GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
 
 echo "=== Vercel Build Script Completed Successfully ==="

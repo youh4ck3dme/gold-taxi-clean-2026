@@ -24,7 +24,7 @@ Aktuálne používané premenné:
 | `FIREBASE_APP_ID` | public client config | Firebase app ID. |
 | `WOO_CONSUMER_KEY` | secret | Používaj iba lokálne/CI secret store. |
 | `WOO_CONSUMER_SECRET` | secret | Nikdy necommitovať. |
-| `GOOGLE_MAPS_API_KEY` | restricted client key | Browser key musí mať HTTP referrer restrictions. |
+| `GOOGLE_MAPS_API_KEY` | restricted client key | Web key musí mať HTTP referrer restrictions; Android/iOS používajú vlastné platformové restrictions. |
 
 ## Čo je secret
 
@@ -44,6 +44,7 @@ Firebase web API key, Firebase app ID, Supabase anon key a Google Maps browser k
 - Firebase Auth musí mať správne authorized domains.
 - Supabase musí mať zapnuté RLS a least-privilege policies.
 - Google Maps key musí mať application restrictions a API restrictions.
+- Google Maps key nevkladaj priamo do `web/index.html`, `AndroidManifest.xml` ani Swift súborov; používaj build-time premenné.
 
 ## GitHub Actions
 

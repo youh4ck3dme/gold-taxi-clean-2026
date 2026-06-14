@@ -75,6 +75,7 @@ pnpm-debug.log*
 *.p12
 *.pem
 *.key
+*key*.json
 *.mobileprovision
 *.provisionprofile
 android/key.properties

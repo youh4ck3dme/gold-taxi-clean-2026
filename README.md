@@ -19,7 +19,7 @@ goldtaxi-202ff
 - Firebase Hosting pre Flutter web build z `build/web`.
 - Firebase Auth s povolenými providermi Google Sign-In, Email/Password a Anonymous.
 - Google Sign-In na webe cez `FirebaseAuth.signInWithPopup(GoogleAuthProvider())`.
-- Google Maps na webe cez `<script>` v `web/index.html`.
+- Google Maps na webe sa načítava dynamicky cez `GOOGLE_MAPS_API_KEY`.
 - Platformová mapa v `PlatformMapWidget`: Google Maps pre web/Android/iOS, `flutter_map` fallback pre desktop platformy bez Google Maps pluginu.
 - Demo profil vodiča `Ján Novák` a ďalší vodiči v `DriverPositionRepository`; Supabase CRUD servis je pripravený v `DriverProfileService`.
 - WordPress/WooCommerce dátové zdroje cez `ApiService` a feature repositories.
@@ -90,14 +90,14 @@ WOO_CONSUMER_SECRET=your-local-woo-secret
 GOOGLE_MAPS_API_KEY=your-restricted-google-maps-browser-key
 ```
 
-Firebase web konfigurácia pre aktuálnu aplikáciu je v `lib/firebase_options.dart`. Google Maps web key je zatiaľ vložený v `web/index.html`; musí byť obmedzený v Google Cloud Console na produkčné domény.
+Firebase web konfigurácia pre aktuálnu aplikáciu je v `lib/firebase_options.dart`. Google Maps key sa nevkladá priamo do platformových súborov; web build ho dostáva cez `--dart-define=GOOGLE_MAPS_API_KEY=...`, Android cez manifest placeholder `GOOGLE_MAPS_API_KEY` a iOS cez `Info.plist` build setting `GOOGLE_MAPS_API_KEY`. Ak key chýba, mapa bezpečne padne na OpenStreetMap fallback.
 
 ## Dôležité súbory
 
 - `firebase.json` - Hosting, Auth provideri, SPA rewrite a bezpečnostné headers.
 - `.firebaserc` - predvolený Firebase projekt `goldtaxi-202ff`.
 - `lib/firebase_options.dart` - FlutterFire web konfigurácia.
-- `web/index.html` - Flutter bootstrap a Google Maps JavaScript `<script>`.
+- `web/index.html` - Flutter bootstrap bez hardcoded Google Maps key.
 - `lib/features/auth/` - Firebase/WordPress auth flow.
 - `lib/features/map/` - mapa vodičov, markery, driver repository a Supabase driver profil servis.
 - `docs/firebase-and-maps.md` - Firebase Hosting/Auth a Google Maps API plán.
@@ -112,6 +112,7 @@ Pred dokončením zmeny spusti:
 npm run analyze
 npm test
 flutter build web --release
+npm run maps:smoke
 ```
 
 Pre Firebase Hosting deploy:
