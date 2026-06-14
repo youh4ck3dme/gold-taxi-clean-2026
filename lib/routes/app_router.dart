@@ -175,7 +175,10 @@ final appRouter = GoRouter(
       path: '/ride-request',
       builder: (context, state) {
         final destination = state.extra as LocationModel;
-        return RideRequestPage(destination: destination);
+        return BlocProvider<RideCubit>(
+          create: (_) => getIt<RideCubit>(),
+          child: RideRequestPage(destination: destination),
+        );
       },
     ),
     GoRoute(
