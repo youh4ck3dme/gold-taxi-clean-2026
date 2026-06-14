@@ -10,9 +10,15 @@ ios/
 macos/
 linux/
 windows/
+flutter/
+
 
 # Ignore build artifacts and local caches
 .dart_tool/
+.dart-tool/
+.pub-cache/
+.pub/
+.flutter-plugins-dependencies
 build/
 .vercel/
 .home/
