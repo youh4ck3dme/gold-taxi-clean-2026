@@ -17,8 +17,8 @@ class MockApiService extends ApiService {
   static final List<String> _services = ['Standard', 'Premium', 'Business', 'Eco', 'Van', 'Ladies'];
   static final List<String> _providers = ['Gold-Taxi', 'Taxi Bratislava', 'City Taxi', 'Euro Taxi'];
 
-  MockApiService(AuthInterceptor authInterceptor)
-      : super(authInterceptor, enableMockMode: true);
+  MockApiService(super.authInterceptor)
+      : super(enableMockMode: true);
 
   @override
   Future<dynamic> get(
