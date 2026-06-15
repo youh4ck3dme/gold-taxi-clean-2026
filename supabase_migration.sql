@@ -100,36 +100,44 @@ create index if not exists ride_events_ride_id_created_at_idx on public.ride_eve
 -- RLS POLICIES
 
 -- Profiles
+drop policy if exists "Users can read own profile" on public.profiles;
 create policy "Users can read own profile" on public.profiles
   for select using (auth.uid() = id);
 
+drop policy if exists "Admins can read all profiles" on public.profiles;
 create policy "Admins can read all profiles" on public.profiles
   for select using (
     exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
   );
 
 -- Drivers
+drop policy if exists "Anyone can read online drivers" on public.drivers;
 create policy "Anyone can read online drivers" on public.drivers
   for select using (is_online = true);
 
+drop policy if exists "Drivers can update own record" on public.drivers;
 create policy "Drivers can update own record" on public.drivers
   for update using (user_id = auth.uid());
 
 -- Rides
+drop policy if exists "Customers can read own rides" on public.rides;
 create policy "Customers can read own rides" on public.rides
   for select using (customer_id = auth.uid());
 
+drop policy if exists "Drivers can read assigned or requested rides" on public.rides;
 create policy "Drivers can read assigned or requested rides" on public.rides
   for select using (
     driver_id in (select id from public.drivers where user_id = auth.uid()) 
     or status = 'requested'
   );
 
+drop policy if exists "Admins can read all rides" on public.rides;
 create policy "Admins can read all rides" on public.rides
   for select using (
     exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
   );
 
+drop policy if exists "Customers can create rides" on public.rides;
 create policy "Customers can create rides" on public.rides
   for insert with check (customer_id = auth.uid());
 
@@ -218,9 +226,24 @@ end;
 $$ language plpgsql security definer;
 
 -- Realtime enablement
-alter publication supabase_realtime add table public.rides;
-alter publication supabase_realtime add table public.drivers;
-alter publication supabase_realtime add table public.driver_locations;
+do $$
+begin
+  alter publication supabase_realtime add table public.rides;
+exception
+  when others then null;
+end $$;
+do $$
+begin
+  alter publication supabase_realtime add table public.drivers;
+exception
+  when others then null;
+end $$;
+do $$
+begin
+  alter publication supabase_realtime add table public.driver_locations;
+exception
+  when others then null;
+end $$;
 
 -- 6. MESSAGES Table
 create table if not exists public.messages (
@@ -235,6 +258,7 @@ create table if not exists public.messages (
 alter table public.messages enable row level security;
 
 -- Policies for Messages
+drop policy if exists "Anyone involved in the ride can read messages" on public.messages;
 create policy "Anyone involved in the ride can read messages" on public.messages
   for select using (
     exists (
@@ -247,6 +271,7 @@ create policy "Anyone involved in the ride can read messages" on public.messages
     )
   );
 
+drop policy if exists "Anyone involved in the ride can insert messages" on public.messages;
 create policy "Anyone involved in the ride can insert messages" on public.messages
   for insert with check (
     auth.uid() = sender_id
@@ -260,7 +285,12 @@ create policy "Anyone involved in the ride can insert messages" on public.messag
     )
   );
 
-alter publication supabase_realtime add table public.messages;
+do $$
+begin
+  alter publication supabase_realtime add table public.messages;
+exception
+  when others then null;
+end $$;
 
 -- Enable PostGIS extension
 create extension if not exists postgis;
@@ -277,9 +307,11 @@ create table if not exists public.operating_zones (
 alter table public.operating_zones enable row level security;
 
 -- Policies for Operating Zones
+drop policy if exists "Anyone can read operating zones" on public.operating_zones;
 create policy "Anyone can read operating zones" on public.operating_zones
   for select using (true);
 
+drop policy if exists "Admins can modify operating zones" on public.operating_zones;
 create policy "Admins can modify operating zones" on public.operating_zones
   for all using (
     exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
@@ -384,11 +416,13 @@ create table if not exists public.driver_documents (
 alter table public.driver_documents enable row level security;
 
 -- Policies for Driver Documents
+drop policy if exists "Drivers can read own documents" on public.driver_documents;
 create policy "Drivers can read own documents" on public.driver_documents
   for select using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
   );
 
+drop policy if exists "Drivers can upload/modify own documents" on public.driver_documents;
 create policy "Drivers can upload/modify own documents" on public.driver_documents
   for all using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
@@ -400,6 +434,7 @@ values ('driver-documents', 'driver-documents', false)
 on conflict (id) do nothing;
 
 -- Add storage policies for the bucket
+drop policy if exists "Drivers can upload their own documents" on storage.objects;
 create policy "Drivers can upload their own documents"
 on storage.objects for insert
 with check (
@@ -407,6 +442,7 @@ with check (
   and (storage.foldername(name))[1] = auth.uid()::text
 );
 
+drop policy if exists "Drivers can view their own documents" on storage.objects;
 create policy "Drivers can view their own documents"
 on storage.objects for select
 using (
@@ -432,11 +468,13 @@ create table if not exists public.driver_earnings (
 alter table public.driver_earnings enable row level security;
 
 -- Policies for Driver Earnings
+drop policy if exists "Drivers can view own earnings" on public.driver_earnings;
 create policy "Drivers can view own earnings" on public.driver_earnings
   for select using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
   );
 
+drop policy if exists "Drivers can insert own earnings" on public.driver_earnings;
 create policy "Drivers can insert own earnings" on public.driver_earnings
   for insert with check (
     driver_id in (select id from public.drivers where user_id = auth.uid())
@@ -458,19 +496,31 @@ create table if not exists public.payouts (
 alter table public.payouts enable row level security;
 
 -- Policies for Payouts
+drop policy if exists "Drivers can view own payouts" on public.payouts;
 create policy "Drivers can view own payouts" on public.payouts
   for select using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
   );
 
+drop policy if exists "Drivers can create own payouts" on public.payouts;
 create policy "Drivers can create own payouts" on public.payouts
   for insert with check (
     driver_id in (select id from public.drivers where user_id = auth.uid())
   );
 
 -- Enable Realtime for earnings and payouts
-alter publication supabase_realtime add table public.driver_earnings;
-alter publication supabase_realtime add table public.payouts;
+do $$
+begin
+  alter publication supabase_realtime add table public.driver_earnings;
+exception
+  when others then null;
+end $$;
+do $$
+begin
+  alter publication supabase_realtime add table public.payouts;
+exception
+  when others then null;
+end $$;
 
 -- RPC Function: Get driver earnings summary (today, week, month)
 create or replace function public.get_driver_earnings_summary(p_driver_id uuid)
@@ -525,9 +575,10 @@ create or replace function public.request_driver_payout(
 )
 returns json as $$
 declare
-  v_payout_id text;
+  v_payout_id uuid;
   v_status text;
   v_error text;
+  v_stripe_payout_id text;
 begin
   -- Create payout record
   insert into public.payouts (driver_id, amount, status, stripe_payout_id)
@@ -581,6 +632,7 @@ create index if not exists idx_driver_earnings_driver_id on public.driver_earnin
 create index if not exists idx_payouts_driver_id on public.payouts(driver_id);
 
 -- RLS update policy for drivers to change ride status
+drop policy if exists "Drivers can update own assigned rides" on public.rides;
 create policy "Drivers can update own assigned rides" on public.rides
   for update using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
@@ -627,6 +679,7 @@ create index if not exists idx_payouts_requested_at on public.payouts(requested_
 -- 2. MISSING RLS POLICY FOR RIDES TABLE
 
 -- Allow drivers to view their own rides
+drop policy if exists "Drivers can view own rides" on public.rides;
 create policy "Drivers can view own rides" on public.rides
   for select using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
@@ -635,6 +688,7 @@ create policy "Drivers can view own rides" on public.rides
   );
 
 -- Allow drivers to update their own ride status
+drop policy if exists "Drivers can update own ride status" on public.rides;
 create policy "Drivers can update own ride status" on public.rides
   for update to status using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
@@ -663,23 +717,31 @@ create table if not exists public.driver_bank_accounts (
 alter table public.driver_bank_accounts enable row level security;
 
 -- Policies for Driver Bank Accounts
+drop policy if exists "Drivers can view own bank account" on public.driver_bank_accounts;
 create policy "Drivers can view own bank account" on public.driver_bank_accounts
   for select using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
   );
 
+drop policy if exists "Drivers can create own bank account" on public.driver_bank_accounts;
 create policy "Drivers can create own bank account" on public.driver_bank_accounts
   for insert with check (
     driver_id in (select id from public.drivers where user_id = auth.uid())
   );
 
+drop policy if exists "Drivers can update own bank account" on public.driver_bank_accounts;
 create policy "Drivers can update own bank account" on public.driver_bank_accounts
   for update using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
   );
 
 -- Enable Realtime for bank accounts
-alter publication supabase_realtime add table public.driver_bank_accounts;
+do $$
+begin
+  alter publication supabase_realtime add table public.driver_bank_accounts;
+exception
+  when others then null;
+end $$;
 
 -- Indexes for driver_bank_accounts
 create index if not exists idx_driver_bank_accounts_driver_id on public.driver_bank_accounts(driver_id);
@@ -708,6 +770,7 @@ create table if not exists public.promo_codes (
 
 alter table public.promo_codes enable row level security;
 
+drop policy if exists "Anyone can view active promo codes" on public.promo_codes;
 create policy "Anyone can view active promo codes" on public.promo_codes
   for select using (valid_until > now());
 
@@ -724,9 +787,11 @@ create table if not exists public.user_promos (
 
 alter table public.user_promos enable row level security;
 
+drop policy if exists "Users can view own promo usage" on public.user_promos;
 create policy "Users can view own promo usage" on public.user_promos
   for select using (auth.uid() = user_id);
 
+drop policy if exists "Users can record promo usage" on public.user_promos;
 create policy "Users can record promo usage" on public.user_promos
   for insert with check (auth.uid() = user_id);
 

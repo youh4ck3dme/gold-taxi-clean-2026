@@ -56,7 +56,7 @@ Future<void> mainCommon(AppConfig config) async {
   }
 
   // 5. Setup Crashlytics Error Handlers if Firebase is initialized
-  if (firebaseInitialized) {
+  if (firebaseInitialized && !kIsWeb) {
     try {
       // Enable Crashlytics collection in production, or if configured
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(config.enableAnalytics);
