@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/api_service.dart';
+import '../services/mock_api_service.dart';
 import '../services/local_storage_service.dart';
 import '../services/secure_storage_service.dart';
 import '../services/notification_service.dart';
@@ -81,11 +83,16 @@ enum BackendMode { mock, supabase }
 final getIt = GetIt.instance;
 
 /// Setup Service Locator (Dependency Injection)
-Future<void> setupServiceLocator({BackendMode mode = BackendMode.mock}) async {
+Future<void> setupServiceLocator({BackendMode mode = BackendMode.supabase}) async {
+  assert(mode != BackendMode.mock || kDebugMode, 'Mock mode is not allowed outside debug/test builds.');
   // Register services as singletons
   getIt.registerLazySingleton<LocalStorageService>(() => SecureStorageService());
   getIt.registerLazySingleton<AuthInterceptor>(() => AuthInterceptor(getIt<LocalStorageService>()));
-  getIt.registerSingleton<ApiService>(ApiService(getIt<AuthInterceptor>(), enableMockMode: mode == BackendMode.mock));
+  if (mode == BackendMode.mock) {
+    getIt.registerSingleton<ApiService>(MockApiService(getIt<AuthInterceptor>()));
+  } else {
+    getIt.registerSingleton<ApiService>(ApiService(getIt<AuthInterceptor>()));
+  }
   getIt.registerLazySingleton<Connectivity>(() => Connectivity());
   getIt.registerLazySingleton<CartCubit>(() => CartCubit());
   getIt.registerLazySingleton<InsolvencyPredictorService>(() => InsolvencyPredictorService());

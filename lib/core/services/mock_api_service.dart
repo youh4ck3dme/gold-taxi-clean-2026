@@ -1,9 +1,14 @@
 import 'dart:math';
+import 'package:dio/dio';
+import 'package:logger/logger';
+import 'package:gold_taxi/core/interceptors/auth_interceptor.dart';
+import 'api_service.dart';
 
 /// Mock API Service - Returns realistic mock data for demo purposes
-/// Simulates a BOLT-like taxi application with live data
-class MockApiService {
-  static final Random _random = Random();
+class MockApiService extends ApiService {
+  final Logger _logger = Logger();
+  static const _random = _StaticRandom.random;
+
   static final List<String> _firstNames = ['Ján', 'Peter', 'Martin', 'Lucia', 'Eva', 'Marek', 'Zuzana', 'Michal', 'Katarína', 'Jozef'];
   static final List<String> _lastNames = ['Novák', 'Kováč', 'Horváth', 'Varga', 'Tóth', 'Nagy', 'Kzlich', 'Babčán', 'Dudáš', 'Lukáč'];
   static final List<String> _cities = ['Bratislava', 'Košice', 'Prešov', 'Žilina', 'Banská Bystrica', 'Nitra', 'Trnava', 'Trenčín'];
@@ -11,6 +16,190 @@ class MockApiService {
   static final List<String> _carModels = ['Škoda Octavia', 'Volkswagen Passat', 'Toyota Corolla', 'Ford Focus', 'Renault Megane', 'Hyundai i30', 'Kia Ceed'];
   static final List<String> _services = ['Standard', 'Premium', 'Business', 'Eco', 'Van', 'Ladies'];
   static final List<String> _providers = ['Gold-Taxi', 'Taxi Bratislava', 'City Taxi', 'Euro Taxi'];
+
+  MockApiService(AuthInterceptor authInterceptor)
+      : super(authInterceptor, enableMockMode: true);
+
+  @override
+  Future<dynamic> get(
+    String endpoint, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+  }) async {
+    return _getMockData(endpoint, queryParameters);
+  }
+
+  @override
+  Future<dynamic> post(
+    String endpoint, {
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? headers,
+  }) async {
+    return _postMockData(endpoint, data);
+  }
+
+  @override
+  Future<dynamic> put(
+    String endpoint, {
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? headers,
+  }) async {
+    return data;
+  }
+
+  @override
+  Future<dynamic> delete(
+    String endpoint, {
+    Map<String, dynamic>? headers,
+  }) async {
+    return {'success': true, 'message': 'Mock delete successful'};
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchCptData(
+    String cptName, {
+    int page = 1,
+    int perPage = 10,
+  }) async {
+    return getMockCptData(cptName, count: perPage);
+  }
+
+  // Generate mock CPT data (generic)
+  static List<Map<String, dynamic>> getMockCptData(String cptName, {int count = 10}) {
+    final lowerName = cptName.toLowerCase();
+    
+    switch (lowerName) {
+      case 'booking':
+        return getMockBookings(count: count);
+      case 'notification':
+        return getMockNotifications(count: count);
+      case 'faq':
+        return getMockFAQs(count: count);
+      case 'invoices':
+      case 'invoice':
+        return getMockInvoices(count: count);
+      case 'service':
+      case 'services':
+        return getMockServices(count: count);
+      case 'event':
+      case 'events':
+        return getMockEvents(count: count);
+      case 'product':
+      case 'products':
+        return getMockProducts(count: count);
+      case 'user':
+      case 'users':
+        return getMockUsers(count: count);
+      case 'post':
+      case 'posts':
+      default:
+        return getMockPosts(count: count);
+    }
+  }
+
+  /// Get mock data based on endpoint
+  dynamic _getMockData(String endpoint, Map<String, dynamic>? queryParameters) {
+    final normEndpoint = normalizeEndpoint(endpoint).toLowerCase();
+    final perPage = queryParameters?['per_page'] as int? ?? 10;
+
+    _logger.i('🎭 [MOCK] Providing mock data for: $normEndpoint');
+
+    // WordPress posts
+    if (normEndpoint.contains('/wp-json/wp/v2/posts')) {
+      return getMockPosts(count: perPage);
+    }
+    // WordPress users
+    if (normEndpoint.contains('/wp-json/wp/v2/users')) {
+      return getMockUsers(count: perPage);
+    }
+    // WooCommerce products
+    if (normEndpoint.contains('/wp-json/wc/v3/products')) {
+      return getMockProducts(count: perPage);
+    }
+    // Categories
+    if (normEndpoint.contains('/wp-json/wp/v2/categories')) {
+      return [
+        {'id': 1, 'name': 'Taxi Služby', 'slug': 'taxi-sluzby'},
+        {'id': 2, 'name': 'Akcie', 'slug': 'akcie'},
+        {'id': 3, 'name': 'Novinky', 'slug': 'novinky'},
+      ];
+    }
+    // Tags
+    if (normEndpoint.contains('/wp-json/wp/v2/tags')) {
+      return [
+        {'id': 1, 'name': 'Bratislava', 'slug': 'bratislava'},
+        {'id': 2, 'name': 'Košice', 'slug': 'kosice'},
+        {'id': 3, 'name': 'Letisko', 'slug': 'letisko'},
+      ];
+    }
+    // Media
+    if (normEndpoint.contains('/wp-json/wp/v2/media')) {
+      return List.generate(5, (i) => {
+        'id': 100 + i,
+        'source_url': 'https://via.placeholder.com/800x600/FFD700/000000?text=Image+${100 + i}',
+        'alt_text': 'Taxi Image ${100 + i}',
+      });
+    }
+    // JetEngine endpoints
+    if (normEndpoint.contains('/wp-json/jet-engine/v1/')) {
+      final cptName = normEndpoint.split('/').last;
+      return getMockCptData(cptName, count: perPage);
+    }
+    // JWT Auth - Token
+    if (normEndpoint.contains('/wp-json/jwt-auth/v1/token')) {
+      return {
+        'token': 'dev_auth_token_value',
+        'user_email': 'erik.babcan@example.com',
+        'user_nicename': 'erik.babcan',
+        'user_display_name': 'Erik Babčan',
+        'expires_in': 3600,
+      };
+    }
+    // JWT Auth - Validate
+    if (normEndpoint.contains('/wp-json/jwt-auth/v1/token/validate')) {
+      return {'code': 'dev_auth_valid_status', 'data': {'status': 200}};
+    }
+
+    // Default fallback
+    return getMockPosts(count: perPage);
+  }
+
+  /// Handle POST requests in mock mode
+  dynamic _postMockData(String endpoint, Map<String, dynamic> data) {
+    final normEndpoint = normalizeEndpoint(endpoint).toLowerCase();
+
+    _logger.i('🎭 [MOCK POST] $normEndpoint with data: ${data.keys}');
+
+    // Login endpoint
+    if (normEndpoint.contains('/wp-json/jwt-auth/v1/token')) {
+      return {
+        'token': 'dev_auth_token_value',
+        'user_email': data['username'] ?? 'erik.babcan@example.com',
+        'user_nicename': 'erik.babcan',
+        'user_display_name': 'Erik Babčan',
+        'expires_in': 3600,
+      };
+    }
+    // Bookings
+    if (normEndpoint.contains('booking') || normEndpoint.contains('bookings')) {
+      final booking = getMockBookings(count: 1)[0];
+      return {
+        ...booking,
+        'message': 'Objednávka úspešne vytvorená (MOCK)',
+        'success': true,
+      };
+    }
+    // Reviews
+    if (normEndpoint.contains('review') || normEndpoint.contains('reviews')) {
+      return {
+        'id': 1,
+        'message': 'Hodnotenie úspešne pridané (MOCK)',
+        'success': true,
+      };
+    }
+
+    return {'success': true, 'message': 'Mock POST successful', 'data': data};
+  }
 
   // Generate random date within last 30 days
   static DateTime _randomDate() {
@@ -38,7 +227,7 @@ class MockApiService {
       'id': index + 1,
       'date': _randomDate().toIso8601String(),
       'title': {
-        'rendered': 'Ako objednať taxi cez Gold-Taxi: Príručka pre začiatočníkov'
+        'rendered': 'Ako objednať taxi cez Gold-Taxi: Príručka pre začičínajúcich'
       },
       'content': {
         'rendered': 'Vítame vás v Gold-Taxi! Objednajte si taxi jednoducho cez našu aplikáciu...'
@@ -322,39 +511,6 @@ class MockApiService {
     });
   }
 
-  // Generate mock CPT data (generic)
-  static List<Map<String, dynamic>> getMockCptData(String cptName, {int count = 10}) {
-    final lowerName = cptName.toLowerCase();
-    
-    switch (lowerName) {
-      case 'booking':
-        return getMockBookings(count: count);
-      case 'notification':
-        return getMockNotifications(count: count);
-      case 'faq':
-        return getMockFAQs(count: count);
-      case 'invoices':
-      case 'invoice':
-        return getMockInvoices(count: count);
-      case 'service':
-      case 'services':
-        return getMockServices(count: count);
-      case 'event':
-      case 'events':
-        return getMockEvents(count: count);
-      case 'product':
-      case 'products':
-        return getMockProducts(count: count);
-      case 'user':
-      case 'users':
-        return getMockUsers(count: count);
-      case 'post':
-      case 'posts':
-      default:
-        return getMockPosts(count: count);
-    }
-  }
-
   // Get mock user profile
   static Map<String, dynamic> getMockUserProfile() {
     return {
@@ -417,4 +573,8 @@ class MockApiService {
       'serviceType': _services[_random.nextInt(_services.length)],
     });
   }
+}
+
+class _StaticRandom {
+  static final Random random = Random();
 }

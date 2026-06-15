@@ -230,7 +230,7 @@ final appRouter = GoRouter(
       path: '/earnings',
       builder: (context, state) {
         final authState = getIt<AuthCubit>().state;
-        final driverId = authState is Authenticated ? authState.user.id : 'driver_1';
+        final driverId = authState is Authenticated ? authState.user.id : '';
         return BlocProvider<EarningsCubit>(
           create: (_) => EarningsCubit(
             earningsRepository: getIt<EarningsRepository>(),

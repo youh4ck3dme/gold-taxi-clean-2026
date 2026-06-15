@@ -1,5 +1,6 @@
-import 'package:dio/dio.dart';
-import 'package:logger/logger.dart';
+import 'package:dio/dio';
+import 'package:logger/logger';
+import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../constants/app_constants.dart';
 import '../interceptors/auth_interceptor.dart';
@@ -7,7 +8,6 @@ import 'package:gold_taxi/models/booking_model.dart';
 import 'package:gold_taxi/models/faq_model.dart';
 import 'package:gold_taxi/models/notification_model.dart';
 import 'package:gold_taxi/models/invoice_model.dart';
-import 'mock_api_service.dart';
 
 /// Custom API Exception
 class ApiException implements Exception {
@@ -20,15 +20,14 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
-/// API Service using Dio for HTTP requests with Mock Fallback
+/// API Service using Dio for HTTP requests
 class ApiService {
   late Dio _dio;
   final Logger _logger = Logger();
   final AuthInterceptor _authInterceptor;
-  final bool _mockModeEnabled;
 
-  ApiService(this._authInterceptor, {Dio? dio, bool enableMockMode = false})
-      : _mockModeEnabled = enableMockMode {
+  ApiService(this._authInterceptor, {Dio? dio, bool enableMockMode = false}) {
+    assert(!enableMockMode || kDebugMode, 'Mock mode is only allowed in debug/test builds.');
     if (dio != null) {
       _dio = dio;
     } else {
@@ -88,27 +87,22 @@ class ApiService {
     handler.next(error);
   }
 
-  String _normalizeEndpoint(String endpoint) {
+  String normalizeEndpoint(String endpoint) {
     if (endpoint.startsWith('/')) {
       return endpoint.substring(1);
     }
     return endpoint;
   }
 
-  /// Generic GET request with Mock Fallback
+  /// Generic GET request
   Future<dynamic> get(
     String endpoint, {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
   }) async {
-    // If mock mode is enabled, return mock data
-    if (_mockModeEnabled) {
-      return _getMockData(endpoint, queryParameters);
-    }
-
     try {
       final response = await _dio.get(
-        _normalizeEndpoint(endpoint),
+        normalizeEndpoint(endpoint),
         queryParameters: queryParameters,
         options: Options(headers: headers),
       );
@@ -118,19 +112,15 @@ class ApiService {
     }
   }
 
-  /// Generic POST request with Mock Fallback
+  /// Generic POST request
   Future<dynamic> post(
     String endpoint, {
     required Map<String, dynamic> data,
     Map<String, dynamic>? headers,
   }) async {
-    if (_mockModeEnabled) {
-      return _postMockData(endpoint, data);
-    }
-
     try {
       final response = await _dio.post(
-        _normalizeEndpoint(endpoint),
+        normalizeEndpoint(endpoint),
         data: data,
         options: Options(headers: headers),
       );
@@ -140,19 +130,15 @@ class ApiService {
     }
   }
 
-  /// Generic PUT request with Mock Fallback
+  /// Generic PUT request
   Future<dynamic> put(
     String endpoint, {
     required Map<String, dynamic> data,
     Map<String, dynamic>? headers,
   }) async {
-    if (_mockModeEnabled) {
-      return data; // Just return the data for PUT in mock mode
-    }
-
     try {
       final response = await _dio.put(
-        _normalizeEndpoint(endpoint),
+        normalizeEndpoint(endpoint),
         data: data,
         options: Options(headers: headers),
       );
@@ -162,128 +148,20 @@ class ApiService {
     }
   }
 
-  /// Generic DELETE request with Mock Fallback
+  /// Generic DELETE request
   Future<dynamic> delete(
     String endpoint, {
     Map<String, dynamic>? headers,
   }) async {
-    if (_mockModeEnabled) {
-      return {'success': true, 'message': 'Mock delete successful'};
-    }
-
     try {
       final response = await _dio.delete(
-        _normalizeEndpoint(endpoint),
+        normalizeEndpoint(endpoint),
         options: Options(headers: headers),
       );
       return response.data;
     } on DioException catch (e) {
       throw _handleError(e);
     }
-  }
-
-  /// Get mock data based on endpoint
-  dynamic _getMockData(String endpoint, Map<String, dynamic>? queryParameters) {
-    final normEndpoint = _normalizeEndpoint(endpoint).toLowerCase();
-    final perPage = queryParameters?['per_page'] as int? ?? 10;
-
-    _logger.i('🎭 [MOCK] Providing mock data for: $normEndpoint');
-
-    // WordPress posts
-    if (normEndpoint.contains('/wp-json/wp/v2/posts')) {
-      return MockApiService.getMockPosts(count: perPage);
-    }
-    // WordPress users
-    if (normEndpoint.contains('/wp-json/wp/v2/users')) {
-      return MockApiService.getMockUsers(count: perPage);
-    }
-    // WooCommerce products
-    if (normEndpoint.contains('/wp-json/wc/v3/products')) {
-      return MockApiService.getMockProducts(count: perPage);
-    }
-    // Categories
-    if (normEndpoint.contains('/wp-json/wp/v2/categories')) {
-      return [
-        {'id': 1, 'name': 'Taxi Služby', 'slug': 'taxi-sluzby'},
-        {'id': 2, 'name': 'Akcie', 'slug': 'akcie'},
-        {'id': 3, 'name': 'Novinky', 'slug': 'novinky'},
-      ];
-    }
-    // Tags
-    if (normEndpoint.contains('/wp-json/wp/v2/tags')) {
-      return [
-        {'id': 1, 'name': 'Bratislava', 'slug': 'bratislava'},
-        {'id': 2, 'name': 'Košice', 'slug': 'kosice'},
-        {'id': 3, 'name': 'Letisko', 'slug': 'letisko'},
-      ];
-    }
-    // Media
-    if (normEndpoint.contains('/wp-json/wp/v2/media')) {
-      return List.generate(5, (i) => {
-        'id': 100 + i,
-        'source_url': 'https://via.placeholder.com/800x600/FFD700/000000?text=Image+${100 + i}',
-        'alt_text': 'Taxi Image ${100 + i}',
-      });
-    }
-    // JetEngine endpoints
-    if (normEndpoint.contains('/wp-json/jet-engine/v1/')) {
-      final cptName = normEndpoint.split('/').last;
-      return MockApiService.getMockCptData(cptName, count: perPage);
-    }
-    // JWT Auth - Token
-    if (normEndpoint.contains('/wp-json/jwt-auth/v1/token')) {
-      return {
-        'token': 'mock_jwt_token_abc123xyz789',
-        'user_email': 'erik.babcan@example.com',
-        'user_nicename': 'erik.babcan',
-        'user_display_name': 'Erik Babčan',
-        'expires_in': 3600,
-      };
-    }
-    // JWT Auth - Validate
-    if (normEndpoint.contains('/wp-json/jwt-auth/v1/token/validate')) {
-      return {'code': 'jwt_auth_valid_token', 'data': {'status': 200}};
-    }
-
-    // Default fallback
-    return MockApiService.getMockPosts(count: perPage);
-  }
-
-  /// Handle POST requests in mock mode
-  dynamic _postMockData(String endpoint, Map<String, dynamic> data) {
-    final normEndpoint = _normalizeEndpoint(endpoint).toLowerCase();
-
-    _logger.i('🎭 [MOCK POST] $normEndpoint with data: ${data.keys}');
-
-    // Login endpoint
-    if (normEndpoint.contains('/wp-json/jwt-auth/v1/token')) {
-      return {
-        'token': 'mock_jwt_token_abc123xyz789',
-        'user_email': data['username'] ?? 'erik.babcan@example.com',
-        'user_nicename': 'erik.babcan',
-        'user_display_name': 'Erik Babčan',
-        'expires_in': 3600,
-      };
-    }
-    // Bookings
-    if (normEndpoint.contains('booking') || normEndpoint.contains('bookings')) {
-      final booking = MockApiService.getMockBookings(count: 1)[0];
-      return {
-        ...booking,
-        'message': 'Objednávka úspešne vytvorená (MOCK)',
-        'success': true,
-      };
-    }
-    // Reviews
-    if (normEndpoint.contains('review') || normEndpoint.contains('reviews')) {
-      return {
-        'id': 1,
-        'message': 'Hodnotenie úspešne pridané (MOCK)',
-        'success': true,
-      };
-    }
-
-    return {'success': true, 'message': 'Mock POST successful', 'data': data};
   }
 
   /// Error handling
@@ -335,12 +213,7 @@ class ApiService {
 
   /// Verify if endpoint exists by sending a lightweight probe (per_page=1)
   Future<bool> _isEndpointAvailable(String endpoint) async {
-    // In mock mode, always return true
-    if (_mockModeEnabled) {
-      return true;
-    }
-
-    final normPath = _normalizeEndpoint(endpoint);
+    final normPath = normalizeEndpoint(endpoint);
     if (_endpointAvailability.containsKey(normPath)) {
       return _endpointAvailability[normPath]!;
     }
@@ -359,17 +232,12 @@ class ApiService {
     }
   }
 
-  /// Generic CPT fetcher implementing the fallbacks with Mock support
+  /// Generic CPT fetcher implementing the fallbacks
   Future<List<Map<String, dynamic>>> fetchCptData(
     String cptName, {
     int page = 1,
     int perPage = 10,
   }) async {
-    // In mock mode, return mock data immediately
-    if (_mockModeEnabled) {
-      return MockApiService.getMockCptData(cptName, count: perPage);
-    }
-
     final queryParams = {
       'page': page,
       'per_page': perPage,
@@ -412,8 +280,7 @@ class ApiService {
       }
     } catch (e) {
       _logger.e('All fallbacks failed for CPT $cptName: $e');
-      // Return mock data as final fallback
-      return MockApiService.getMockCptData(cptName, count: perPage);
+      throw ApiException('All data fetch methods failed for $cptName');
     }
     return [];
   }
@@ -438,8 +305,6 @@ class ApiService {
     final raw = await fetchCptData('invoices', page: page, perPage: perPage);
     return raw.map((json) => InvoiceModel.fromJson(json)).toList();
   }
-
-
 
   /// Close Dio instance
   void close() {

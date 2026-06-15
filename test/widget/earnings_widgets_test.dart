@@ -17,7 +17,7 @@ void main() {
                   showDialog(
                     context: context,
                     builder: (_) => BankAccountDialog(
-                      driverId: 'driver_123',
+                      driverId: 'driver_test',
                       onSave: (account) {
                         savedAccount = account;
                       },
@@ -77,7 +77,7 @@ void main() {
                   showDialog(
                     context: context,
                     builder: (_) => BankAccountDialog(
-                      driverId: 'driver_123',
+                      driverId: 'driver_test',
                       onSave: (_) {},
                     ),
                   );
@@ -114,7 +114,7 @@ void main() {
                   showDialog(
                     context: context,
                     builder: (_) => BankAccountDialog(
-                      driverId: 'driver_123',
+                      driverId: 'driver_test',
                       onSave: (_) {},
                     ),
                   );

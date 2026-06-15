@@ -75,18 +75,6 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  /// 🔧 DEVELOPER BYPASS — skip auth, go straight to home
-  void developerBypass() {
-    const devUser = UserModel(
-      id: '0',
-      name: 'Developer',
-      email: 'dev@localhost',
-      role: 'administrator',
-      isActive: true,
-    );
-    emit(const Authenticated(devUser));
-  }
-
   /// Logout action
   Future<void> logout() async {
     emit(AuthLoading());

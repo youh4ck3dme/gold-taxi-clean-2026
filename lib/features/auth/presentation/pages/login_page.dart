@@ -208,37 +208,6 @@ class _LoginPageState extends State<LoginPage> {
                                           },
                                   ),
                                 ),
-                                const SizedBox(height: 16),
-                                ElevatedButton.icon(
-                                  icon: const Icon(
-                                    Icons.developer_mode,
-                                    color: Colors.white,
-                                  ),
-                                  label: const Text(
-                                    '🔧 DEVELOPER BYPASS → DOMOV',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.deepOrange,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      side: const BorderSide(
-                                        color: Colors.orange,
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    getIt<AuthCubit>().developerBypass();
-                                  },
-                                ),
                               ],
                             ),
                           );

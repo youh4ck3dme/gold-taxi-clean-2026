@@ -15,6 +15,10 @@ class EarningsCubit extends Cubit<EarningsState> {
 
   /// Load earnings summary and recent earnings
   Future<void> loadEarningsSummary() async {
+    if (driverId.isEmpty) {
+      emit(const EarningsError('Neautorizovaný prístup. ID vodiča chýba.'));
+      return;
+    }
     try {
       emit(EarningsLoading());
       
@@ -48,6 +52,10 @@ class EarningsCubit extends Cubit<EarningsState> {
 
   /// Load payouts history
   Future<void> loadPayouts() async {
+    if (driverId.isEmpty) {
+      emit(const EarningsError('Neautorizovaný prístup. ID vodiča chýba.'));
+      return;
+    }
     try {
       emit(EarningsLoading());
       
@@ -64,6 +72,10 @@ class EarningsCubit extends Cubit<EarningsState> {
 
   /// Load all data (summary, earnings, payouts) with optional date filtering
   Future<void> loadAllData({DateTime? fromDate, DateTime? toDate}) async {
+    if (driverId.isEmpty) {
+      emit(const EarningsError('Neautorizovaný prístup. ID vodiča chýba.'));
+      return;
+    }
     try {
       emit(EarningsLoading());
       
@@ -97,6 +109,10 @@ class EarningsCubit extends Cubit<EarningsState> {
     String? stripeAccountId,
     String? bankAccountLast4,
   }) async {
+    if (driverId.isEmpty) {
+      emit(const EarningsError('Neautorizovaný prístup. ID vodiča chýba.'));
+      return;
+    }
     try {
       emit(EarningsLoading());
       
@@ -118,6 +134,10 @@ class EarningsCubit extends Cubit<EarningsState> {
 
   /// Save or update driver bank account
   Future<void> saveDriverBankAccount(BankAccountModel bankAccount) async {
+    if (driverId.isEmpty) {
+      emit(const EarningsError('Neautorizovaný prístup. ID vodiča chýba.'));
+      return;
+    }
     try {
       emit(EarningsLoading());
       await _earningsRepository.saveDriverBankAccount(bankAccount);
