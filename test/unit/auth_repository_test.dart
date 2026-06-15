@@ -7,8 +7,9 @@ import 'package:gold_taxi/core/services/local_storage_service.dart';
 class MockLocalStorageService extends Mock implements LocalStorageService {}
 class MockSupabaseClient extends Mock implements SupabaseClient {}
 class MockGoTrueClient extends Mock implements GoTrueClient {}
-class MockPostgrestQueryBuilder extends Mock implements PostgrestQueryBuilder {}
-class MockPostgrestFilterBuilder extends Mock implements PostgrestFilterBuilder<Map<String, dynamic>> {}
+class MockSupabaseQueryBuilder extends Mock implements SupabaseQueryBuilder {}
+class MockPostgrestFilterBuilder extends Mock implements PostgrestFilterBuilder<PostgrestList> {}
+class MockPostgrestTransformBuilder extends Mock implements PostgrestTransformBuilder<PostgrestMap> {}
 class MockAuthResponse extends Mock implements AuthResponse {}
 class MockUser extends Mock implements User {}
 class MockSession extends Mock implements Session {}
@@ -94,15 +95,16 @@ void main() {
 
     test('getCurrentUser loads profile from Supabase profiles table', () async {
       final mockUser = MockUser();
-      final mockQueryBuilder = MockPostgrestQueryBuilder();
+      final mockQueryBuilder = MockSupabaseQueryBuilder();
       final mockFilterBuilder = MockPostgrestFilterBuilder();
+      final mockTransformBuilder = MockPostgrestTransformBuilder();
 
       when(() => mockUser.id).thenReturn('user-uuid-123');
       when(() => mockGoTrueClient.currentUser).thenReturn(mockUser);
       when(() => mockSupabaseClient.from('profiles')).thenReturn(mockQueryBuilder);
       when(() => mockQueryBuilder.select()).thenReturn(mockFilterBuilder);
-      when(() => mockFilterBuilder.eq('id', 'user-uuid-123')).thenReturn(mockFilterBuilder);
-      when(() => mockFilterBuilder.single()).thenAnswer((_) async => {
+      when(() => mockFilterBuilder.eq('id', 'user-uuid-123')).thenReturn(mockTransformBuilder);
+      when(() => mockTransformBuilder.single()).thenAnswer((_) async => {
         'id': 'user-uuid-123',
         'email': 'test@example.com',
         'full_name': 'Test User',

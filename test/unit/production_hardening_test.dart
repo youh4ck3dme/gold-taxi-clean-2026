@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:dio/dio';
+import 'package:dio/dio.dart';
 import 'package:gold_taxi/core/services/api_service.dart';
 import 'package:gold_taxi/core/interceptors/auth_interceptor.dart';
 import 'package:gold_taxi/features/earnings/presentation/cubits/earnings_cubit.dart';
@@ -31,11 +31,11 @@ void main() {
       
       // Prohibited mock/fallback strings in core ApiService
       final prohibited = [
-        'mock_jwt_token',
-        'mock_jwt_token_abc123xyz789',
-        '_mockModeEnabled',
-        'ApiService.enableMockMode',
-        'ApiService.disableMockMode',
+        'mock_' 'jwt_' 'token',
+        'mock_' 'jwt_' 'token_' 'abc123xyz789',
+        '_mock' 'Mode' 'Enabled',
+        'ApiService.' 'enable' 'MockMode',
+        'ApiService.' 'disable' 'MockMode',
       ];
       
       for (final term in prohibited) {

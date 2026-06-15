@@ -1,6 +1,6 @@
 import 'dart:math';
-import 'package:dio/dio';
-import 'package:logger/logger';
+import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 import 'package:gold_taxi/core/interceptors/auth_interceptor.dart';
 import 'api_service.dart';
 
