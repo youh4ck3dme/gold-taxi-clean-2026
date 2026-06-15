@@ -7,7 +7,7 @@ import 'api_service.dart';
 /// Mock API Service - Returns realistic mock data for demo purposes
 class MockApiService extends ApiService {
   final Logger _logger = Logger();
-  static const _random = _StaticRandom.random;
+  static final _random = Random();
 
   static final List<String> _firstNames = ['Ján', 'Peter', 'Martin', 'Lucia', 'Eva', 'Marek', 'Zuzana', 'Michal', 'Katarína', 'Jozef'];
   static final List<String> _lastNames = ['Novák', 'Kováč', 'Horváth', 'Varga', 'Tóth', 'Nagy', 'Kzlich', 'Babčán', 'Dudáš', 'Lukáč'];
@@ -575,6 +575,3 @@ class MockApiService extends ApiService {
   }
 }
 
-class _StaticRandom {
-  static final Random random = Random();
-}

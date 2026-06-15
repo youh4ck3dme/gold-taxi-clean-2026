@@ -103,12 +103,16 @@ void main() {
       when(() => mockGoTrueClient.currentUser).thenReturn(mockUser);
       when(() => mockSupabaseClient.from('profiles')).thenReturn(mockQueryBuilder);
       when(() => mockQueryBuilder.select()).thenReturn(mockFilterBuilder);
-      when(() => mockFilterBuilder.eq('id', 'user-uuid-123')).thenReturn(mockTransformBuilder);
-      when(() => mockTransformBuilder.single()).thenAnswer((_) async => {
-        'id': 'user-uuid-123',
-        'email': 'test@example.com',
-        'full_name': 'Test User',
-        'role': 'driver',
+      when(() => mockFilterBuilder.eq('id', 'user-uuid-123')).thenReturn(mockFilterBuilder);
+      when(() => mockFilterBuilder.single()).thenReturn(mockTransformBuilder);
+      when(() => mockTransformBuilder.then(any())).thenAnswer((invocation) {
+        final callback = invocation.positionalArguments[0] as Function;
+        return Future.value(callback({
+          'id': 'user-uuid-123',
+          'email': 'test@example.com',
+          'full_name': 'Test User',
+          'role': 'driver',
+        }));
       });
 
       final result = await authRepository.getCurrentUser();

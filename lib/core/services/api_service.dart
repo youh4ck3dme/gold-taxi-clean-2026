@@ -1,5 +1,5 @@
-import 'package:dio/dio';
-import 'package:logger/logger';
+import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../constants/app_constants.dart';
