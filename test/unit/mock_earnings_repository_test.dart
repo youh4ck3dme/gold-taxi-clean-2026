@@ -12,7 +12,7 @@ void main() {
     });
 
     test('getEarningsSummary returns mocked earnings summary', () async {
-      final summary = await repository.getEarningsSummary('driver_1');
+      final summary = await repository.getEarningsSummary('driver_test');
       expect(summary.today, 45.50);
       expect(summary.thisWeek, 285.75);
       expect(summary.thisMonth, 1245.30);
@@ -29,10 +29,10 @@ void main() {
     });
 
     test('getDriverEarnings returns correct count and data', () async {
-      final earningsList = await repository.getDriverEarnings(driverId: 'driver_1', limit: 5);
+      final earningsList = await repository.getDriverEarnings(driverId: 'driver_test', limit: 5);
       expect(earningsList.length, 5);
       for (final earn in earningsList) {
-        expect(earn.driverId, 'driver_1');
+        expect(earn.driverId, 'driver_test');
         expect(earn.appFee, closeTo(earn.totalAmount * 0.15, 0.01));
         expect(earn.netAmount, closeTo(earn.totalAmount * 0.85, 0.01));
         expect(earn.paymentStatus, PaymentStatus.completed);
@@ -40,10 +40,10 @@ void main() {
     });
 
     test('getDriverPayouts returns list of payouts', () async {
-      final payoutsList = await repository.getDriverPayouts(driverId: 'driver_1', limit: 3);
+      final payoutsList = await repository.getDriverPayouts(driverId: 'driver_test', limit: 3);
       expect(payoutsList.length, 3);
       for (final payout in payoutsList) {
-        expect(payout.driverId, 'driver_1');
+        expect(payout.driverId, 'driver_test');
         expect(payout.bankAccountLast4, '1234');
         expect(payout.amount, greaterThanOrEqualTo(200.0));
       }
@@ -51,11 +51,11 @@ void main() {
 
     test('requestPayout returns successful pending response', () async {
       final response = await repository.requestPayout(
-        driverId: 'driver_1',
+        driverId: 'driver_test',
         amount: 150.0,
         bankAccountLast4: '1234',
       );
-      expect(response.payoutId, startsWith('payout_driver_1_'));
+      expect(response.payoutId, startsWith('payout_driver_test_'));
       expect(response.status, 'pending');
       expect(response.message, contains('created successfully'));
     });

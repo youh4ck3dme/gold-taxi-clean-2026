@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import '../../data/repositories/auth_repository.dart';
 import '../../../../models/user_model.dart';
 import 'auth_state.dart';
@@ -12,33 +12,45 @@ class AuthCubit extends Cubit<AuthState> {
   /// Check token status on startup
   Future<void> checkAuthStatus() async {
     emit(AuthLoading());
-    final hasToken = await _authRepository.isAuthenticated();
-    if (hasToken) {
-      final user = await _authRepository.getCurrentUser();
-      if (user != null) {
-        emit(Authenticated(user));
+    try {
+      final hasToken = await _authRepository.isAuthenticated();
+      if (hasToken) {
+        final user = await _authRepository.getCurrentUser();
+        if (user != null) {
+          emit(Authenticated(user));
+        } else {
+          emit(Unauthenticated());
+        }
       } else {
         emit(Unauthenticated());
       }
-    } else {
+    } catch (_) {
       emit(Unauthenticated());
     }
   }
 
   /// Login action
-  Future<void> login(String username, String password) async {
+  Future<void> login(String email, String password) async {
     emit(AuthLoading());
-    final success = await _authRepository.login(username, password);
-    if (success) {
-      final user = await _authRepository.getCurrentUser();
-      if (user != null) {
-        emit(Authenticated(user));
+    try {
+      final success = await _authRepository.login(email, password);
+      if (success) {
+        final user = await _authRepository.getCurrentUser();
+        if (user != null) {
+          emit(Authenticated(user));
+        } else {
+          emit(const AuthError('Nepodarilo sa načítať profil používateľa.'));
+          emit(Unauthenticated());
+        }
       } else {
-        emit(const AuthError('Failed to load user profile.'));
+        emit(const AuthError('Prihlásenie zlyhalo. Skontrolujte si údaje.'));
         emit(Unauthenticated());
       }
-    } else {
-      emit(const AuthError('Login failed. Please check your credentials.'));
+    } on AuthException catch (e) {
+      emit(AuthError('Prihlásenie zlyhalo: ${e.message}'));
+      emit(Unauthenticated());
+    } catch (e) {
+      emit(AuthError('Prihlásenie zlyhalo: $e'));
       emit(Unauthenticated());
     }
   }
@@ -54,25 +66,13 @@ class AuthCubit extends Cubit<AuthState> {
         emit(const AuthError('Google prihlásenie zlyhalo (Používateľ nebol nájdený).'));
         emit(Unauthenticated());
       }
-    } on FirebaseAuthException catch (e) {
-      emit(AuthError('Google prihlásenie zlyhalo: [${e.code}] ${e.message}'));
+    } on AuthException catch (e) {
+      emit(AuthError('Google prihlásenie zlyhalo: ${e.message}'));
       emit(Unauthenticated());
     } catch (e) {
       emit(AuthError('Google prihlásenie zlyhalo: $e'));
       emit(Unauthenticated());
     }
-  }
-
-  /// 🔧 DEVELOPER BYPASS — skip auth, go straight to home
-  void developerBypass() {
-    const devUser = UserModel(
-      id: '0',
-      name: 'Developer',
-      email: 'dev@localhost',
-      role: 'administrator',
-      isActive: true,
-    );
-    emit(const Authenticated(devUser));
   }
 
   /// Logout action
@@ -82,3 +82,4 @@ class AuthCubit extends Cubit<AuthState> {
     emit(Unauthenticated());
   }
 }
+

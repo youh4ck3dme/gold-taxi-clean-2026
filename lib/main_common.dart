@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,24 +16,23 @@ import 'routes/app_router.dart';
 Future<void> mainCommon(AppConfig config) async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Enforce security check: mock mode must never run in production environment
+  if (config.environment == AppEnvironment.prod && config.enableMockMode) {
+    throw StateError('Security violation: Mock mode cannot be enabled in a production environment.');
+  }
+
   // Initialize Hive for local storage
   await Hive.initFlutter();
 
-  // 1. Load Environment Settings
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    debugPrint('⚠️ Note: .env file not found, using environment defines if available.');
-  }
+
 
   // 2. Setup Service Locator (Dependency Injection)
   final backendMode = config.enableMockMode ? BackendMode.mock : BackendMode.supabase;
   await setupServiceLocator(mode: backendMode);
   debugPrint('🏗️ Service Locator initialized in $backendMode mode.');
 
-  // 3. Enable Mock Mode if requested
+  // 3. Log Mock Mode if enabled
   if (config.enableMockMode) {
-    ApiService.enableMockMode();
     debugPrint('🎭 MOCK MODE ENABLED - Demo mode with mock data');
   }
 

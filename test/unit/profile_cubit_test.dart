@@ -267,7 +267,7 @@ void main() {
       when(() => mockProfileRepository.getUserProfile()).thenAnswer((_) async => testDriver);
       when(() => mockProfileRepository.getOrderHistory(any())).thenAnswer((_) async => []);
       when(() => mockProfileRepository.getBookingHistory(any())).thenAnswer((_) async => []);
-      when(() => mockProfileRepository.getDriverRecord(any())).thenAnswer((_) async => {'id': 'driver_1'});
+      when(() => mockProfileRepository.getDriverRecord(any())).thenAnswer((_) async => {'id': 'driver_test'});
       when(() => mockProfileRepository.getDriverStats(any())).thenAnswer((_) async => {});
       when(() => mockProfileRepository.getDriverDocuments(any())).thenAnswer((_) async => {});
 

@@ -219,7 +219,7 @@ class RideCubit extends Cubit<RideState> {
     // 2. Accept after 2 seconds
     _simulationTimer = Timer(const Duration(seconds: 2), () async {
       final mockDriver = DriverPositionModel(
-        driverId: 'driver_1',
+        driverId: 'sim_driver_id',
         name: 'Ján Kováč',
         lat: 48.7250,
         lng: 21.2500,
@@ -234,7 +234,7 @@ class RideCubit extends Cubit<RideState> {
         lastUpdated: DateTime.now(),
       );
       
-      await _rideRepository.acceptRide(rideId, 'driver_1');
+      await _rideRepository.acceptRide(rideId, 'sim_driver_id');
       emit(state.copyWith(driver: mockDriver));
 
       // 3. Arriving after 4 seconds

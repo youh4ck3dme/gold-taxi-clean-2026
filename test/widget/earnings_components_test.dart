@@ -27,7 +27,7 @@ void main() {
       final json = {
         'id': 'earn_1',
         'ride_id': 'ride_1',
-        'driver_id': 'driver_1',
+        'driver_id': 'driver_test',
         'total_amount': 25.0,
         'app_fee': 3.75,
         'net_amount': 21.25,
@@ -40,7 +40,7 @@ void main() {
 
       expect(earnings.id, 'earn_1');
       expect(earnings.rideId, 'ride_1');
-      expect(earnings.driverId, 'driver_1');
+      expect(earnings.driverId, 'driver_test');
       expect(earnings.totalAmount, 25.0);
       expect(earnings.appFee, 3.75);
       expect(earnings.netAmount, 21.25);
@@ -51,7 +51,7 @@ void main() {
     test('PayoutModel fromJson parses correctly', () {
       final json = {
         'id': 'payout_1',
-        'driver_id': 'driver_1',
+        'driver_id': 'driver_test',
         'amount': 100.0,
         'status': 'paid',
         'stripe_payout_id': 'stripe_123',
@@ -63,7 +63,7 @@ void main() {
       final payout = PayoutModel.fromJson(json);
 
       expect(payout.id, 'payout_1');
-      expect(payout.driverId, 'driver_1');
+      expect(payout.driverId, 'driver_test');
       expect(payout.amount, 100.0);
       expect(payout.status, PayoutStatus.paid);
       expect(payout.stripePayoutId, 'stripe_123');
@@ -87,7 +87,7 @@ void main() {
       final earnings = EarningsModel(
         id: 'earn_1',
         rideId: 'ride_1',
-        driverId: 'driver_1',
+        driverId: 'driver_test',
         totalAmount: 25.0,
         appFee: 3.75,
         netAmount: 21.25,
@@ -333,7 +333,7 @@ void main() {
       final earnings1 = EarningsModel(
         id: 'earn_1',
         rideId: 'ride_1',
-        driverId: 'driver_1',
+        driverId: 'driver_test',
         totalAmount: 25.0,
         appFee: 3.75,
         netAmount: 21.25,
@@ -345,7 +345,7 @@ void main() {
       final earnings2 = EarningsModel(
         id: 'earn_1',
         rideId: 'ride_1',
-        driverId: 'driver_1',
+        driverId: 'driver_test',
         totalAmount: 25.0,
         appFee: 3.75,
         netAmount: 21.25,
@@ -362,7 +362,7 @@ void main() {
 
       final payout1 = PayoutModel(
         id: 'payout_1',
-        driverId: 'driver_1',
+        driverId: 'driver_test',
         amount: 100.0,
         status: PayoutStatus.paid,
         requestedAt: now,
@@ -371,7 +371,7 @@ void main() {
 
       final payout2 = PayoutModel(
         id: 'payout_1',
-        driverId: 'driver_1',
+        driverId: 'driver_test',
         amount: 100.0,
         status: PayoutStatus.paid,
         requestedAt: now,

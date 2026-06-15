@@ -173,23 +173,8 @@ class _LoginPageState extends State<LoginPage> {
                                 const SizedBox(height: 16),
                                 SizedBox(
                                   height: 50,
-                                  child: OutlinedButton.icon(
-                                    icon: const Text(
-                                      'G',
-                                      style: TextStyle(
-                                        color: AppColors.grey800,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                    label: const Text(
-                                      'Pokračovať cez Google',
-                                      style: TextStyle(
-                                        color: AppColors.grey800,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                  width: double.infinity,
+                                  child: OutlinedButton(
                                     style: OutlinedButton.styleFrom(
                                       backgroundColor: Colors.white,
                                       side: const BorderSide(
@@ -206,38 +191,32 @@ class _LoginPageState extends State<LoginPage> {
                                                 .read<AuthCubit>()
                                                 .signInWithGoogle();
                                           },
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton.icon(
-                                  icon: const Icon(
-                                    Icons.developer_mode,
-                                    color: Colors.white,
-                                  ),
-                                  label: const Text(
-                                    '🔧 DEVELOPER BYPASS → DOMOV',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.deepOrange,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      side: const BorderSide(
-                                        color: Colors.orange,
-                                        width: 2,
+                                    child: const FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'G',
+                                            style: TextStyle(
+                                              color: AppColors.grey800,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            'Pokračovať cez Google',
+                                            style: TextStyle(
+                                              color: AppColors.grey800,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                  onPressed: () {
-                                    getIt<AuthCubit>().developerBypass();
-                                  },
                                 ),
                               ],
                             ),

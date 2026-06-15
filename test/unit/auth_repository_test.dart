@@ -1,144 +1,110 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:gold_taxi/core/services/api_service.dart';
 import 'package:gold_taxi/core/services/local_storage_service.dart';
 import 'package:gold_taxi/features/auth/data/repositories/auth_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-// ignore: depend_on_referenced_packages
-import 'package:firebase_core_platform_interface/test.dart';
-
-class MockApiService extends Mock implements ApiService {}
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MockLocalStorageService extends Mock implements LocalStorageService {}
 
-class MockFirebaseAuth extends Mock implements FirebaseAuth {}
+class MockSupabaseClient extends Mock implements SupabaseClient {}
 
-class MockUserCredential extends Mock implements UserCredential {}
+class MockGoTrueClient extends Mock implements GoTrueClient {}
 
-class MockFirebaseUser extends Mock implements User {}
+class MockAuthResponse extends Mock implements AuthResponse {}
 
-class FakeAuthProvider extends Fake implements AuthProvider {}
+class MockSession extends Mock implements Session {}
+
+class MockUser extends Mock implements User {}
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
   late AuthRepository authRepository;
-  late MockApiService mockApiService;
   late MockLocalStorageService mockStorageService;
-  late MockFirebaseAuth mockFirebaseAuth;
+  late MockSupabaseClient mockSupabaseClient;
+  late MockGoTrueClient mockAuth;
 
-  setUpAll(() async {
-    setupFirebaseCoreMocks();
-    registerFallbackValue(FakeAuthProvider());
-    await Firebase.initializeApp();
+  setUpAll(() {
+    registerFallbackValue(OAuthProvider.google);
   });
 
   setUp(() {
-    mockApiService = MockApiService();
     mockStorageService = MockLocalStorageService();
-    mockFirebaseAuth = MockFirebaseAuth();
+    mockSupabaseClient = MockSupabaseClient();
+    mockAuth = MockGoTrueClient();
+    
+    when(() => mockSupabaseClient.auth).thenReturn(mockAuth);
+
     authRepository = AuthRepository(
-      mockApiService,
+      mockSupabaseClient,
       mockStorageService,
-      firebaseAuth: mockFirebaseAuth,
     );
   });
 
   group('AuthRepository Unit Tests', () {
     test('login returns true and saves token on successful API call', () async {
+      final mockResponse = MockAuthResponse();
+      final mockSession = MockSession();
+      
+      when(() => mockResponse.session).thenReturn(mockSession);
+      when(() => mockSession.accessToken).thenReturn('mock_supabase_token');
+      
       when(
-        () => mockApiService.post(
-          '/wp-json/jwt-auth/v1/token',
-          data: {'username': 'testuser', 'password': 'password123'},
+        () => mockAuth.signInWithPassword(
+          email: 'testuser@test.com',
+          password: 'password123',
         ),
-      ).thenAnswer((_) async => {'token': 'jwt_mock_token'});
+      ).thenAnswer((_) async => mockResponse);
 
       when(
-        () => mockStorageService.saveToken('jwt_mock_token'),
+        () => mockStorageService.saveToken('mock_supabase_token'),
       ).thenAnswer((_) async {});
 
-      final result = await authRepository.login('testuser', 'password123');
+      final result = await authRepository.login('testuser@test.com', 'password123');
 
       expect(result, isTrue);
-      verify(() => mockStorageService.saveToken('jwt_mock_token')).called(1);
+      verify(() => mockStorageService.saveToken('mock_supabase_token')).called(1);
     });
 
     test('login returns false when API throws error', () async {
       when(
-        () => mockApiService.post(
-          '/wp-json/jwt-auth/v1/token',
-          data: {'username': 'wronguser', 'password': 'wrongpassword'},
+        () => mockAuth.signInWithPassword(
+          email: 'wronguser@test.com',
+          password: 'wrongpassword',
         ),
-      ).thenThrow(Exception('Unauthorized'));
+      ).thenThrow(const AuthException('Invalid credentials'));
 
-      final result = await authRepository.login('wronguser', 'wrongpassword');
+      final result = await authRepository.login('wronguser@test.com', 'wrongpassword');
 
       expect(result, isFalse);
       verifyNever(() => mockStorageService.saveToken(any()));
     });
 
-    test('logout deletes stored token', () async {
+    test('logout deletes stored token and signs out of Supabase', () async {
       when(() => mockStorageService.deleteToken()).thenAnswer((_) async {});
+      when(() => mockAuth.signOut()).thenAnswer((_) async {});
 
       await authRepository.logout();
 
       verify(() => mockStorageService.deleteToken()).called(1);
+      verify(() => mockAuth.signOut()).called(1);
     });
 
-    test('isAuthenticated returns true when token exists', () async {
-      when(
-        () => mockStorageService.getToken(),
-      ).thenAnswer((_) async => 'some_token');
+    test('isAuthenticated returns true when session exists', () async {
+      final mockSession = MockSession();
+      when(() => mockAuth.currentSession).thenReturn(mockSession);
 
       final result = await authRepository.isAuthenticated();
 
       expect(result, isTrue);
     });
 
-    test('isAuthenticated returns false when token does not exist', () async {
-      when(() => mockStorageService.getToken()).thenAnswer((_) async => null);
+    test('isAuthenticated returns false when session does not exist', () async {
+      when(() => mockAuth.currentSession).thenReturn(null);
 
       final result = await authRepository.isAuthenticated();
 
       expect(result, isFalse);
     });
 
-    test('isAuthenticated returns true when Firebase user exists', () async {
-      final mockUser = MockFirebaseUser();
-      when(() => mockStorageService.getToken()).thenAnswer((_) async => null);
-      when(() => mockFirebaseAuth.currentUser).thenReturn(mockUser);
 
-      final result = await authRepository.isAuthenticated();
-
-      expect(result, isTrue);
-    });
-
-    test('signInWithGoogle returns Firebase user profile on web', () async {
-      final mockCredential = MockUserCredential();
-      final mockUser = MockFirebaseUser();
-      final webAuthRepository = AuthRepository(
-        mockApiService,
-        mockStorageService,
-        firebaseAuth: mockFirebaseAuth,
-        isWeb: true,
-      );
-
-      when(
-        () => mockFirebaseAuth.signInWithPopup(any()),
-      ).thenAnswer((_) async => mockCredential);
-      when(() => mockCredential.user).thenReturn(mockUser);
-      when(() => mockUser.displayName).thenReturn('Google User');
-      when(() => mockUser.email).thenReturn('google@example.com');
-      when(
-        () => mockUser.photoURL,
-      ).thenReturn('https://example.com/avatar.png');
-
-      final result = await webAuthRepository.signInWithGoogle();
-
-      expect(result?.name, 'Google User');
-      expect(result?.email, 'google@example.com');
-      expect(result?.profilePictureUrl, 'https://example.com/avatar.png');
-      verify(() => mockFirebaseAuth.signInWithPopup(any())).called(1);
-    });
   });
 }

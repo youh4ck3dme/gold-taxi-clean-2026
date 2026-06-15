@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gold_taxi/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:gold_taxi/features/auth/presentation/cubits/auth_state.dart';
 import 'package:gold_taxi/features/auth/data/repositories/auth_repository.dart';
@@ -122,7 +123,27 @@ void main() {
       },
     );
 
-    test('7. logout emits [AuthLoading, Unauthenticated]', () async {
+    test(
+      '7. login emits [AuthLoading, AuthError, Unauthenticated] when AuthException is thrown',
+      () async {
+        when(
+          () => mockAuthRepository.login('user', 'wrong'),
+        ).thenThrow(const AuthException('Invalid login credentials'));
+
+        expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<AuthError>(),
+            isA<Unauthenticated>(),
+          ]),
+        );
+
+        await authCubit.login('user', 'wrong');
+      },
+    );
+
+    test('8. logout emits [AuthLoading, Unauthenticated]', () async {
       when(() => mockAuthRepository.logout()).thenAnswer((_) async {});
 
       expectLater(
@@ -134,7 +155,7 @@ void main() {
     });
 
     test(
-      '8. signInWithGoogle emits [AuthLoading, Authenticated] on success',
+      '9. signInWithGoogle emits [AuthLoading, Authenticated] on success',
       () async {
         when(
           () => mockAuthRepository.signInWithGoogle(),
@@ -150,7 +171,7 @@ void main() {
     );
 
     test(
-      '9. signInWithGoogle emits [AuthLoading, AuthError, Unauthenticated] on failure',
+      '10. signInWithGoogle emits [AuthLoading, AuthError, Unauthenticated] on null user',
       () async {
         when(
           () => mockAuthRepository.signInWithGoogle(),
@@ -168,5 +189,26 @@ void main() {
         await authCubit.signInWithGoogle();
       },
     );
+
+    test(
+      '11. signInWithGoogle emits [AuthLoading, AuthError, Unauthenticated] on AuthException',
+      () async {
+        when(
+          () => mockAuthRepository.signInWithGoogle(),
+        ).thenThrow(const AuthException('Google Auth cancelled'));
+
+        expectLater(
+          authCubit.stream,
+          emitsInOrder([
+            isA<AuthLoading>(),
+            isA<AuthError>(),
+            isA<Unauthenticated>(),
+          ]),
+        );
+
+        await authCubit.signInWithGoogle();
+      },
+    );
   });
 }
+

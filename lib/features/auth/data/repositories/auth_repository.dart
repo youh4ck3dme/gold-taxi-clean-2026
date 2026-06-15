@@ -1,48 +1,24 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import '../../../../core/services/api_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/local_storage_service.dart';
 import '../../../../models/user_model.dart';
 
 class AuthRepository {
-  final ApiService _apiService;
+  final SupabaseClient _supabase;
   final LocalStorageService _storage;
-  final FirebaseAuth? _firebaseAuth;
-  final bool _isWeb;
 
-  AuthRepository(
-    this._apiService,
-    this._storage, {
-    FirebaseAuth? firebaseAuth,
-    bool? isWeb,
-  }) : _firebaseAuth =
-           firebaseAuth ??
-           (Firebase.apps.isNotEmpty ? FirebaseAuth.instance : null),
-       _isWeb = isWeb ?? kIsWeb;
+  AuthRepository(this._supabase, this._storage);
 
-  /// Authenticate user with WordPress JWT plugin
+  /// Authenticate user with Supabase Auth
   Future<bool> login(String username, String password) async {
     try {
-      final response = await _apiService.post(
-        '/wp-json/jwt-auth/v1/token',
-        data: {'username': username, 'password': password},
+      final response = await _supabase.auth.signInWithPassword(
+        email: username, // Assuming username is email in Supabase
+        password: password,
       );
 
-      final token = response['token'] as String?;
-      if (token != null) {
-        await _storage.saveToken(token);
-
-        // Optional Firebase Auth Fallback
-        try {
-          await _firebaseAuth?.signInWithEmailAndPassword(
-            email: username, // Assuming username is email
-            password: password,
-          );
-        } catch (e) {
-          // Ignore firebase errors
-        }
-
+      final session = response.session;
+      if (session != null) {
+        await _storage.saveToken(session.accessToken);
         return true;
       }
       return false;
@@ -51,90 +27,54 @@ class AuthRepository {
     }
   }
 
-  /// Authenticate user with Firebase Google Sign-In on Web.
+  /// Authenticate user with Supabase Google OAuth
   Future<UserModel?> signInWithGoogle() async {
-    final firebaseAuth = _firebaseAuth;
-    if (firebaseAuth == null || !_isWeb) {
-      return null;
-    }
-
     try {
-      final provider = GoogleAuthProvider()
-        ..addScope('email')
-        ..addScope('profile');
-      final credential = await firebaseAuth.signInWithPopup(provider);
-      final user = credential.user;
-      if (user == null) {
-        return null;
-      }
-      return _userModelFromFirebaseUser(user);
+      await _supabase.auth.signInWithOAuth(OAuthProvider.google);
+      // For web popups or mobile redirects, the auth state change will be picked up separately,
+      // but we try to return the user if it's already available.
+      return await getCurrentUser();
     } catch (e) {
       rethrow;
     }
   }
 
-  /// Logout user by removing token
+  /// Logout user
   Future<void> logout() async {
     await _storage.deleteToken();
     try {
-      await _firebaseAuth?.signOut();
+      await _supabase.auth.signOut();
     } catch (e) {
-      // Ignore firebase errors
+      // Ignore errors
     }
   }
 
-  /// Check if user has stored token
+  /// Check if user is authenticated
   Future<bool> isAuthenticated() async {
-    final token = await _storage.getToken();
-    if (token != null && token.isNotEmpty && token != 'null') {
-      return true;
-    }
-    return _firebaseAuth?.currentUser != null;
+    return _supabase.auth.currentSession != null;
   }
 
   /// Get current user profile
   Future<UserModel?> getCurrentUser() async {
-    final token = await _storage.getToken();
-    
-    // Skip WordPress call if no token exists (Anonymous/Supabase-only mode)
-    if (token == null || token.isEmpty || token == 'null') {
-      final firebaseUser = _firebaseAuth?.currentUser;
-      if (firebaseUser != null) {
-        return _userModelFromFirebaseUser(firebaseUser);
-      }
+    final user = _supabase.auth.currentUser;
+    if (user == null) {
       return null;
     }
-
-    try {
-      final response = await _apiService.get('/wp-json/wp/v2/users/me');
-      if (response != null && response is Map<String, dynamic>) {
-        return UserModel.fromJson(response);
-      }
-      
-      final firebaseUser = _firebaseAuth?.currentUser;
-      return firebaseUser == null
-          ? null
-          : _userModelFromFirebaseUser(firebaseUser);
-    } catch (e) {
-      // If WordPress returns 401 or fails, clear invalid token and continue
-      if (e.toString().contains('401')) {
-        await _storage.deleteToken();
-      }
-      
-      final firebaseUser = _firebaseAuth?.currentUser;
-      return firebaseUser == null
-          ? null
-          : _userModelFromFirebaseUser(firebaseUser);
-    }
+    return _userModelFromSupabaseUser(user);
   }
 
-  UserModel _userModelFromFirebaseUser(User user) {
+  UserModel _userModelFromSupabaseUser(User user) {
     final email = user.email ?? '';
+    final metadata = user.userMetadata ?? {};
+    
+    final name = metadata['full_name'] ?? metadata['name'] ?? email;
+    final avatarUrl = metadata['avatar_url'] ?? metadata['picture'];
+
     return UserModel(
-      id: '0',
-      name: user.displayName ?? email,
+      id: user.id,
+      name: name,
       email: email,
-      profilePictureUrl: user.photoURL,
+      profilePictureUrl: avatarUrl,
       role: 'customer',
       isActive: true,
     );

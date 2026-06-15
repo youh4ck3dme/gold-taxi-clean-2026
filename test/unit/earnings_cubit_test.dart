@@ -12,7 +12,7 @@ class MockEarningsRepository extends Mock implements EarningsRepository {}
 void main() {
   late EarningsCubit earningsCubit;
   late MockEarningsRepository mockEarningsRepository;
-  const String testDriverId = 'driver_123';
+  const String testDriverId = 'driver_test';
 
   setUp(() {
     mockEarningsRepository = MockEarningsRepository();

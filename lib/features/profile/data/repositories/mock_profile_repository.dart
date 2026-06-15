@@ -15,7 +15,7 @@ class MockProfileRepository implements ProfileRepository {
 
   // Mock driver record in drivers table
   final Map<String, dynamic> _driverRecord = {
-    'id': 'driver_123',
+    'id': 'driver_test',
     'vehicle_type': 'Škoda Superb',
     'vehicle_plate': 'KE-123AB',
     'service_classes': ['standard', 'comfort'],
