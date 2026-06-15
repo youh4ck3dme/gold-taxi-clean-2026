@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:gold_taxi/core/interceptors/auth_interceptor.dart';
 import 'package:gold_taxi/core/services/api_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MockDio extends Mock implements Dio {}
 class MockAuthInterceptor extends Mock implements AuthInterceptor {}
@@ -11,32 +10,90 @@ class MockAuthInterceptor extends Mock implements AuthInterceptor {}
 void main() {
   late ApiService apiService;
   late MockAuthInterceptor mockAuthInterceptor;
-
-  setUpAll(() {
-    dotenv.testLoad(fileInput: 'WP_BASE_URL=http://test.com\nAPI_URL=http://test.com\nAPI_KEY=test');
-  });
+  late MockDio mockDio;
 
   setUp(() {
     mockAuthInterceptor = MockAuthInterceptor();
-    apiService = ApiService(mockAuthInterceptor);
+    mockDio = MockDio();
+    // Pass mockDio to prevent actual network calls, and ensure mockMode is explicitly false
+    apiService = ApiService(mockAuthInterceptor, dio: mockDio, enableMockMode: false);
   });
 
-  group('ApiService Configuration Tests', () {
-    test('ApiService initializes with correct base options', () {
+  group('ApiService Unit Tests (Production Hardened)', () {
+    test('1. ApiService initializes with correct configuration and no Mock JWTs', () {
       expect(apiService, isNotNull);
     });
 
-    test('error handler maps timeout exceptions correctly', () {
-      // Testing internal error handler logic indirectly or via error mapping verification
-      final dioError = DioException(
-        requestOptions: RequestOptions(path: '/test'),
-        type: DioExceptionType.connectionTimeout,
-        error: 'Timeout',
+    test('2. ApiService fails openly on Network Timeout (Fail Closed)', () async {
+      final requestOptions = RequestOptions(path: '/test');
+      when(() => mockDio.get(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      )).thenThrow(
+        DioException(
+          requestOptions: requestOptions,
+          type: DioExceptionType.connectionTimeout,
+          error: 'Connection timeout',
+        ),
       );
-      
-      // We can invoke internal methods or check behaviour if exposed.
-      // Since _handleError is private, we verify that ApiService is robust and doesn't crash on standard error initialization.
-      expect(dioError.type, DioExceptionType.connectionTimeout);
+
+      expect(
+        () => apiService.get('/test'),
+        throwsA(
+          isA<ApiException>().having((e) => e.message, 'message', contains('Connection timeout'))
+        ),
+      );
+    });
+
+    test('3. ApiService fails openly on 401 Unauthorized', () async {
+      final requestOptions = RequestOptions(path: '/test');
+      when(() => mockDio.get(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      )).thenThrow(
+        DioException(
+          requestOptions: requestOptions,
+          response: Response(
+            requestOptions: requestOptions,
+            statusCode: 401,
+          ),
+          type: DioExceptionType.badResponse,
+        ),
+      );
+
+      expect(
+        () => apiService.get('/test'),
+        throwsA(
+          isA<ApiException>().having((e) => e.message, 'message', contains('Unauthorized'))
+        ),
+      );
+    });
+    
+    test('4. ApiService does NOT fallback to Mock data silently on 500 Server Error', () async {
+      final requestOptions = RequestOptions(path: '/test');
+      when(() => mockDio.get(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      )).thenThrow(
+        DioException(
+          requestOptions: requestOptions,
+          response: Response(
+            requestOptions: requestOptions,
+            statusCode: 500,
+          ),
+          type: DioExceptionType.badResponse,
+        ),
+      );
+
+      expect(
+        () => apiService.get('/test'),
+        throwsA(
+          isA<ApiException>().having((e) => e.message, 'message', contains('Server error'))
+        ),
+      );
     });
   });
 }
