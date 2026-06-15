@@ -457,6 +457,14 @@
             <strong>5 veľkých výstupov → STOPKA → diagnostika, testy, bezpečnosť → až potom ďalší batch.</strong>
             Žiadne nekonečné blúdenie lesom. Creeper technického dlhu sa tu vybavuje na vstupe.
           </div>
+          <div class="pill" style="margin-top: 10px;">
+            <span>🔍 Last verified:</span>
+            <span id="lastVerified">2026-06-15 12:00 UTC</span>
+          </div>
+          <div class="pill" style="margin-top: 5px;">
+            <span>📊 Audit source:</span>
+            <span>Live repo + GitHub + Production smoke</span>
+          </div>
         </div>
       </div>
       <div class="toolbar">
@@ -561,6 +569,56 @@
       </aside>
     </section>
 
+    <section class="panel" style="margin-bottom: 18px;">
+      <div class="panel-header">
+        <h2 class="panel-title">🚨 CRITICAL SECURITY ALERT</h2>
+      </div>
+      <div class="panel-body">
+        <div class="gate" style="border-color: var(--red); background: linear-gradient(135deg, rgba(255,102,120,.15), rgba(255,255,255,.02));">
+          <div class="gate-title">
+            <span>⚠️ PRODUCTION IS VULNERABLE</span>
+            <span class="badge red">CRITICAL</span>
+          </div>
+          <div class="gate-sub" style="color: var(--red); margin-top: 10px;">
+            Developer bypass and mock mode auto-fallback are ACTIVE in production. 
+            Anyone can bypass authentication and use fake data.
+          </div>
+          <div class="gate-list" style="margin-top: 14px;">
+            <div class="gate-row">
+              <input type="checkbox" disabled /> 
+              <span><strong>Merge fix/mock-mode-production-kill-switch to main</strong></span>
+            </div>
+            <div class="gate-row">
+              <input type="checkbox" disabled /> 
+              <span><strong>Deploy to production immediately</strong></span>
+            </div>
+            <div class="gate-row">
+              <input type="checkbox" disabled /> 
+              <span>Verify /assets/.env is not accessible in production</span>
+            </div>
+            <div class="gate-row">
+              <input type="checkbox" disabled /> 
+              <span>Verify developer bypass button is removed</span>
+            </div>
+            <div class="gate-row">
+              <input type="checkbox" disabled /> 
+              <span>Verify network errors fail openly (not fall back to mock)</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 16px; color: var(--muted); font-size: 13px; line-height: 1.5;">
+          <strong>📋 Full Diagnostic Report:</strong> 
+          <code style="color: var(--gold);">ops/reports/goldtaxi-diagnostic-20260615.md</code>
+          <br><br>
+          <strong>🔧 Preflight Report:</strong> 
+          <code style="color: var(--gold);">ops/reports/batch1-item2-mock-mode-production-preflight.md</code>
+          <br><br>
+          <strong>✅ Fix Branch:</strong> 
+          <code style="color: var(--green);">fix/mock-mode-production-kill-switch</code> (contains ALL fixes)
+        </div>
+      </div>
+    </section>
+
     <div class="footer">GoldTaxi Core → Future Ops. Najprv fungujúca jazda. Potom robotický dispečer, ktorý sa bude hádať s vodičmi ako normálny dispečer, len bez cigariet.</div>
   </main>
 
@@ -589,7 +647,7 @@
           desc: 'Vyhodiť WordPress JWT ako identity layer, Firebase nepoužívať ako user identity. profiles.id musí sedieť s auth.uid().',
           batch: 1,
           done: false,
-          note: ''
+          note: '⚠️ CRITICAL: Developer bypass REGRESSED in commit 544edb7. Fix exists in fix/mock-mode-production-kill-switch branch. Production is VULNERABLE.'
         },
         {
           id: cryptoId(),
@@ -598,7 +656,7 @@
           desc: 'Žiadny auto-fallback do mocku pri network errore. Mock povolený iba v dev build konfigurácii.',
           batch: 1,
           done: false,
-          note: ''
+          note: '⚠️ CRITICAL: ALL mock mode vulnerabilities ACTIVE in main. Fix exists in fix/mock-mode-production-kill-switch. Auto-fallback, .env in assets, mock JWT, hardcoded IDs all present.'
         },
         {
           id: cryptoId(),
@@ -607,7 +665,7 @@
           desc: 'Uložiť fcm_token k profilu, push na driverov pri requested, push na customer pri accepted. Test na reálnom Androide.',
           batch: 1,
           done: false,
-          note: ''
+          note: '⚠️ NOT VERIFIED: Not tested in current audit.'
         },
         {
           id: cryptoId(),
@@ -616,7 +674,7 @@
           desc: 'Vodič online → lokácia sa bezpečne upsertuje do driver_locations. Žiadne nekonečné inserty do dátového krematória.',
           batch: 1,
           done: false,
-          note: ''
+          note: '⚠️ NOT VERIFIED: Not tested in current audit.'
         },
         {
           id: cryptoId(),
@@ -625,7 +683,7 @@
           desc: 'Customer vytvorí jazdu → driver dostane request → accept → customer vidí drivera → ride completed.',
           batch: 1,
           done: false,
-          note: ''
+          note: '⚠️ BLOCKED: Mock mode auto-fallback prevents real ride flow in production.'
         },
         {
           id: cryptoId(),
