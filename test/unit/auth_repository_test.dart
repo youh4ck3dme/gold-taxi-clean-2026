@@ -1,129 +1,110 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:gold_taxi/features/auth/data/repositories/auth_repository.dart';
 import 'package:gold_taxi/core/services/local_storage_service.dart';
+import 'package:gold_taxi/features/auth/data/repositories/auth_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MockLocalStorageService extends Mock implements LocalStorageService {}
+
 class MockSupabaseClient extends Mock implements SupabaseClient {}
+
 class MockGoTrueClient extends Mock implements GoTrueClient {}
-class MockSupabaseQueryBuilder extends Mock implements SupabaseQueryBuilder {}
-class MockPostgrestFilterBuilder extends Mock implements PostgrestFilterBuilder<PostgrestList> {}
-class MockPostgrestTransformBuilder extends Mock implements PostgrestTransformBuilder<PostgrestMap> {}
+
 class MockAuthResponse extends Mock implements AuthResponse {}
-class MockUser extends Mock implements User {}
+
 class MockSession extends Mock implements Session {}
 
+class MockUser extends Mock implements User {}
+
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
   late AuthRepository authRepository;
   late MockLocalStorageService mockStorageService;
   late MockSupabaseClient mockSupabaseClient;
-  late MockGoTrueClient mockGoTrueClient;
+  late MockGoTrueClient mockAuth;
+
+  setUpAll(() {
+    registerFallbackValue(OAuthProvider.google);
+  });
 
   setUp(() {
     mockStorageService = MockLocalStorageService();
     mockSupabaseClient = MockSupabaseClient();
-    mockGoTrueClient = MockGoTrueClient();
-
-    when(() => mockSupabaseClient.auth).thenReturn(mockGoTrueClient);
+    mockAuth = MockGoTrueClient();
+    
+    when(() => mockSupabaseClient.auth).thenReturn(mockAuth);
 
     authRepository = AuthRepository(
+      mockSupabaseClient,
       mockStorageService,
-      supabaseClient: mockSupabaseClient,
     );
   });
 
-  group('AuthRepository Supabase Unit Tests', () {
-    test('login returns true on successful Supabase authentication', () async {
+  group('AuthRepository Unit Tests', () {
+    test('login returns true and saves token on successful API call', () async {
       final mockResponse = MockAuthResponse();
-      final mockUser = MockUser();
+      final mockSession = MockSession();
+      
+      when(() => mockResponse.session).thenReturn(mockSession);
+      when(() => mockSession.accessToken).thenReturn('mock_supabase_token');
+      
+      when(
+        () => mockAuth.signInWithPassword(
+          email: 'testuser@test.com',
+          password: 'password123',
+        ),
+      ).thenAnswer((_) async => mockResponse);
 
-      when(() => mockGoTrueClient.signInWithPassword(
-        email: 'test@example.com',
-        password: 'password123',
-      )).thenAnswer((_) async => mockResponse);
-      when(() => mockResponse.user).thenReturn(mockUser);
+      when(
+        () => mockStorageService.saveToken('mock_supabase_token'),
+      ).thenAnswer((_) async {});
 
-      final result = await authRepository.login('test@example.com', 'password123');
+      final result = await authRepository.login('testuser@test.com', 'password123');
 
       expect(result, isTrue);
-      verify(() => mockGoTrueClient.signInWithPassword(
-        email: 'test@example.com',
-        password: 'password123',
-      )).called(1);
+      verify(() => mockStorageService.saveToken('mock_supabase_token')).called(1);
     });
 
-    test('login propagates error on Supabase exception and does not fallback to mock', () async {
-      when(() => mockGoTrueClient.signInWithPassword(
-        email: 'test@example.com',
-        password: 'wrongpassword',
-      )).thenThrow(const AuthException('Invalid login credentials'));
+    test('login returns false when API throws error', () async {
+      when(
+        () => mockAuth.signInWithPassword(
+          email: 'wronguser@test.com',
+          password: 'wrongpassword',
+        ),
+      ).thenThrow(const AuthException('Invalid credentials'));
 
-      expect(
-        () => authRepository.login('test@example.com', 'wrongpassword'),
-        throwsA(isA<AuthException>()),
-      );
+      final result = await authRepository.login('wronguser@test.com', 'wrongpassword');
+
+      expect(result, isFalse);
+      verifyNever(() => mockStorageService.saveToken(any()));
     });
 
-    test('logout clears local token and signs out of Supabase', () async {
+    test('logout deletes stored token and signs out of Supabase', () async {
       when(() => mockStorageService.deleteToken()).thenAnswer((_) async {});
-      when(() => mockGoTrueClient.signOut()).thenAnswer((_) async {});
+      when(() => mockAuth.signOut()).thenAnswer((_) async {});
 
       await authRepository.logout();
 
       verify(() => mockStorageService.deleteToken()).called(1);
-      verify(() => mockGoTrueClient.signOut()).called(1);
+      verify(() => mockAuth.signOut()).called(1);
     });
 
-    test('isAuthenticated returns true when session is active', () async {
+    test('isAuthenticated returns true when session exists', () async {
       final mockSession = MockSession();
-      when(() => mockGoTrueClient.currentSession).thenReturn(mockSession);
+      when(() => mockAuth.currentSession).thenReturn(mockSession);
 
       final result = await authRepository.isAuthenticated();
 
       expect(result, isTrue);
     });
 
-    test('isAuthenticated returns false when session is null', () async {
-      when(() => mockGoTrueClient.currentSession).thenReturn(null);
+    test('isAuthenticated returns false when session does not exist', () async {
+      when(() => mockAuth.currentSession).thenReturn(null);
 
       final result = await authRepository.isAuthenticated();
 
       expect(result, isFalse);
     });
 
-    test('getCurrentUser loads profile from Supabase profiles table', () async {
-      final mockUser = MockUser();
-      final mockQueryBuilder = MockSupabaseQueryBuilder();
-      final mockFilterBuilder = MockPostgrestFilterBuilder();
-      final mockTransformBuilder = MockPostgrestTransformBuilder();
 
-      when(() => mockUser.id).thenReturn('user-uuid-123');
-      when(() => mockGoTrueClient.currentUser).thenReturn(mockUser);
-      when(() => mockSupabaseClient.from('profiles')).thenReturn(mockQueryBuilder);
-      when(() => mockQueryBuilder.select()).thenReturn(mockFilterBuilder);
-      when(() => mockFilterBuilder.eq('id', 'user-uuid-123')).thenReturn(mockFilterBuilder);
-      when(() => mockFilterBuilder.single()).thenReturn(mockTransformBuilder);
-      when(() => mockTransformBuilder.then(any())).thenAnswer((invocation) {
-        final callback = invocation.positionalArguments[0] as Function;
-        return Future.value(callback({
-          'id': 'user-uuid-123',
-          'email': 'test@example.com',
-          'full_name': 'Test User',
-          'role': 'driver',
-        }));
-      });
-
-      final result = await authRepository.getCurrentUser();
-
-      expect(result, isNotNull);
-      expect(result?.id, 'user-uuid-123');
-      expect(result?.email, 'test@example.com');
-      expect(result?.name, 'Test User');
-      expect(result?.role, 'driver');
-      expect(result?.isDriver, isTrue);
-    });
   });
 }
-

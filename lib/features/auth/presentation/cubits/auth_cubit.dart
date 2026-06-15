@@ -67,7 +67,7 @@ class AuthCubit extends Cubit<AuthState> {
         emit(Unauthenticated());
       }
     } on AuthException catch (e) {
-      emit(AuthError('Google prihlásenie zlyhalo: [${e.code}] ${e.message}'));
+      emit(AuthError('Google prihlásenie zlyhalo: ${e.message}'));
       emit(Unauthenticated());
     } catch (e) {
       emit(AuthError('Google prihlásenie zlyhalo: $e'));

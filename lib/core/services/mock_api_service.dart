@@ -145,20 +145,7 @@ class MockApiService extends ApiService {
       final cptName = normEndpoint.split('/').last;
       return getMockCptData(cptName, count: perPage);
     }
-    // JWT Auth - Token
-    if (normEndpoint.contains('/wp-json/jwt-auth/v1/token')) {
-      return {
-        'token': 'dev_auth_token_value',
-        'user_email': 'erik.babcan@example.com',
-        'user_nicename': 'erik.babcan',
-        'user_display_name': 'Erik Babčan',
-        'expires_in': 3600,
-      };
-    }
-    // JWT Auth - Validate
-    if (normEndpoint.contains('/wp-json/jwt-auth/v1/token/validate')) {
-      return {'code': 'dev_auth_valid_status', 'data': {'status': 200}};
-    }
+
 
     // Default fallback
     return getMockPosts(count: perPage);
@@ -170,16 +157,7 @@ class MockApiService extends ApiService {
 
     _logger.i('🎭 [MOCK POST] $normEndpoint with data: ${data.keys}');
 
-    // Login endpoint
-    if (normEndpoint.contains('/wp-json/jwt-auth/v1/token')) {
-      return {
-        'token': 'dev_auth_token_value',
-        'user_email': data['username'] ?? 'erik.babcan@example.com',
-        'user_nicename': 'erik.babcan',
-        'user_display_name': 'Erik Babčan',
-        'expires_in': 3600,
-      };
-    }
+
     // Bookings
     if (normEndpoint.contains('booking') || normEndpoint.contains('bookings')) {
       final booking = getMockBookings(count: 1)[0];

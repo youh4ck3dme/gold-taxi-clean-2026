@@ -588,8 +588,8 @@
           type: 'Security',
           desc: 'Vyhodiť WordPress JWT ako identity layer, Firebase nepoužívať ako user identity. profiles.id musí sedieť s auth.uid().',
           batch: 1,
-          done: true,
-          note: 'Verified and completed'
+          done: false,
+          note: ''
         },
         {
           id: cryptoId(),
@@ -597,8 +597,8 @@
           type: 'Security',
           desc: 'Žiadny auto-fallback do mocku pri network errore. Mock povolený iba v dev build konfigurácii.',
           batch: 1,
-          done: true,
-          note: 'Verified and completed'
+          done: false,
+          note: ''
         },
         {
           id: cryptoId(),

@@ -1,82 +1,82 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/local_storage_service.dart';
 import '../../../../models/user_model.dart';
 
 class AuthRepository {
+  final SupabaseClient _supabase;
   final LocalStorageService _storage;
-  final SupabaseClient _supabaseClient;
 
-  AuthRepository(
-    this._storage, {
-    SupabaseClient? supabaseClient,
-  }) : _supabaseClient = supabaseClient ?? Supabase.instance.client;
+  AuthRepository(this._supabase, this._storage);
 
   /// Authenticate user with Supabase Auth
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String username, String password) async {
     try {
-      final response = await _supabaseClient.auth.signInWithPassword(
-        email: email.trim(),
+      final response = await _supabase.auth.signInWithPassword(
+        email: username, // Assuming username is email in Supabase
         password: password,
       );
-      return response.user != null;
+
+      final session = response.session;
+      if (session != null) {
+        await _storage.saveToken(session.accessToken);
+        return true;
+      }
+      return false;
     } catch (e) {
-      rethrow;
+      return false;
     }
   }
 
-  /// Authenticate user with Supabase Google Sign-In
+  /// Authenticate user with Supabase Google OAuth
   Future<UserModel?> signInWithGoogle() async {
     try {
-      final success = await _supabaseClient.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: kIsWeb ? null : 'io.supabase.goldtaxi://login-callback/',
-      );
-      if (!success) {
-        throw Exception('Supabase Google Sign-In initiation failed.');
-      }
-      final user = _supabaseClient.auth.currentUser;
-      if (user != null) {
-        return await getCurrentUser();
-      }
-      return null;
+      await _supabase.auth.signInWithOAuth(OAuthProvider.google);
+      // For web popups or mobile redirects, the auth state change will be picked up separately,
+      // but we try to return the user if it's already available.
+      return await getCurrentUser();
     } catch (e) {
       rethrow;
     }
   }
 
-  /// Logout user from Supabase and clear local storage token
+  /// Logout user
   Future<void> logout() async {
     await _storage.deleteToken();
     try {
-      await _supabaseClient.auth.signOut();
-    } catch (_) {
-      // Ignore errors during logout
+      await _supabase.auth.signOut();
+    } catch (e) {
+      // Ignore errors
     }
   }
 
-  /// Check if user session exists in Supabase
+  /// Check if user is authenticated
   Future<bool> isAuthenticated() async {
-    return _supabaseClient.auth.currentSession != null;
+    return _supabase.auth.currentSession != null;
   }
 
-  /// Get current user profile from Supabase profiles table where id == auth.uid()
+  /// Get current user profile
   Future<UserModel?> getCurrentUser() async {
-    final user = _supabaseClient.auth.currentUser;
+    final user = _supabase.auth.currentUser;
     if (user == null) {
       return null;
     }
+    return _userModelFromSupabaseUser(user);
+  }
 
-    try {
-      final response = await _supabaseClient
-          .from('profiles')
-          .select()
-          .eq('id', user.id)
-          .single();
-      return UserModel.fromJson(response);
-    } catch (e) {
-      rethrow;
-    }
+  UserModel _userModelFromSupabaseUser(User user) {
+    final email = user.email ?? '';
+    final metadata = user.userMetadata ?? {};
+    
+    final name = metadata['full_name'] ?? metadata['name'] ?? email;
+    final avatarUrl = metadata['avatar_url'] ?? metadata['picture'];
+
+    return UserModel(
+      id: user.id,
+      name: name,
+      email: email,
+      profilePictureUrl: avatarUrl,
+      role: 'customer',
+      isActive: true,
+    );
   }
 }
-

@@ -111,7 +111,10 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.supabase}) asyn
   getIt.registerLazySingleton<DriverProfileService>(() => DriverProfileService());
 
   // Register repositories
-  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository(getIt<LocalStorageService>()));
+  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository(
+        Supabase.instance.client,
+        getIt<LocalStorageService>(),
+      ));
   getIt.registerLazySingleton<BlogRepository>(() => BlogRepository(
         getIt<BlogRemoteDataSource>(),
         getIt<BlogLocalDataSource>(),

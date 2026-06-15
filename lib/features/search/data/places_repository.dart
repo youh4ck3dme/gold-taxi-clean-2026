@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gold_taxi/features/search/data/models/place_model.dart';
@@ -44,10 +44,8 @@ class PlacesRepository {
       throw Exception('Rate limit exceeded (500 requests/24h)');
     }
 
-    final apiKey = const String.fromEnvironment('GOOGLE_MAPS_API_KEY').isNotEmpty
-        ? const String.fromEnvironment('GOOGLE_MAPS_API_KEY')
-        : dotenv.env['GOOGLE_MAPS_API_KEY'];
-    if (apiKey == null || apiKey.isEmpty) {
+    const apiKey = String.fromEnvironment('GOOGLE_MAPS_API_KEY');
+    if (apiKey.isEmpty) {
       throw Exception('GOOGLE_MAPS_API_KEY is not configured');
     }
 
@@ -85,10 +83,8 @@ class PlacesRepository {
   }
 
   Future<PlaceModel> getPlaceDetails(String placeId, LatLng? currentLocation) async {
-    final apiKey = const String.fromEnvironment('GOOGLE_MAPS_API_KEY').isNotEmpty
-        ? const String.fromEnvironment('GOOGLE_MAPS_API_KEY')
-        : dotenv.env['GOOGLE_MAPS_API_KEY'];
-    if (apiKey == null || apiKey.isEmpty) {
+    const apiKey = String.fromEnvironment('GOOGLE_MAPS_API_KEY');
+    if (apiKey.isEmpty) {
       throw Exception('GOOGLE_MAPS_API_KEY is not configured');
     }
 
