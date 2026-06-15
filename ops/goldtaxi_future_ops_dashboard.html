@@ -574,35 +574,35 @@
         <h2 class="panel-title">🚨 CRITICAL SECURITY ALERT</h2>
       </div>
       <div class="panel-body">
-        <div class="gate" style="border-color: var(--red); background: linear-gradient(135deg, rgba(255,102,120,.15), rgba(255,255,255,.02));">
+        <div class="gate" style="border-color: var(--orange); background: linear-gradient(135deg, rgba(255,177,93,.15), rgba(255,255,255,.02));">
           <div class="gate-title">
-            <span>⚠️ PRODUCTION IS VULNERABLE</span>
-            <span class="badge red">CRITICAL</span>
+            <span>⚠️ PRODUCTION RESOLUTION IN PROGRESS</span>
+            <span class="badge orange">IN PROGRESS</span>
           </div>
-          <div class="gate-sub" style="color: var(--red); margin-top: 10px;">
-            Developer bypass and mock mode auto-fallback are ACTIVE in production. 
-            Anyone can bypass authentication and use fake data.
+          <div class="gate-sub" style="color: var(--orange); margin-top: 10px;">
+            Developer bypass and mock mode auto-fallback fixes are merged into main locally. 
+            Waiting for deployment push to secure production.
           </div>
           <div class="gate-list" style="margin-top: 14px;">
             <div class="gate-row">
-              <input type="checkbox" disabled /> 
-              <span><strong>Merge fix/mock-mode-production-kill-switch to main</strong></span>
+              <input type="checkbox" checked disabled /> 
+              <span><strong style="text-decoration: line-through; color: var(--muted-2);">Merge fix/mock-mode-production-kill-switch to main</strong></span>
             </div>
             <div class="gate-row">
               <input type="checkbox" disabled /> 
-              <span><strong>Deploy to production immediately</strong></span>
+              <span><strong>Deploy to production immediately (git push origin main)</strong></span>
             </div>
             <div class="gate-row">
               <input type="checkbox" disabled /> 
               <span>Verify /assets/.env is not accessible in production</span>
             </div>
             <div class="gate-row">
-              <input type="checkbox" disabled /> 
-              <span>Verify developer bypass button is removed</span>
+              <input type="checkbox" checked disabled /> 
+              <span><strong style="text-decoration: line-through; color: var(--muted-2);">Verify developer bypass button is removed</strong></span>
             </div>
             <div class="gate-row">
-              <input type="checkbox" disabled /> 
-              <span>Verify network errors fail openly (not fall back to mock)</span>
+              <input type="checkbox" checked disabled /> 
+              <span><strong style="text-decoration: line-through; color: var(--muted-2);">Verify network errors fail openly (not fall back to mock)</strong></span>
             </div>
           </div>
         </div>
@@ -625,7 +625,7 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const STORAGE_KEY = 'goldtaxi.future.ops.dashboard.v1';
+    const STORAGE_KEY = 'goldtaxi.future.ops.dashboard.v2';
 
     const gateTasks = [
       'flutter analyze = 0 errors / 0 warnings',
