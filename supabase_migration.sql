@@ -690,9 +690,9 @@ create policy "Drivers can view own rides" on public.rides
 -- Allow drivers to update their own ride status
 drop policy if exists "Drivers can update own ride status" on public.rides;
 create policy "Drivers can update own ride status" on public.rides
-  for update to status using (
+  for update using (
     driver_id in (select id from public.drivers where user_id = auth.uid())
-    and old.status in ('accepted', 'driver_arriving', 'in_progress')
+    and status in ('accepted', 'driver_arriving', 'in_progress')
   );
 
 -- 3. BANK ACCOUNTS TABLE FOR STRIPE CONNECT
