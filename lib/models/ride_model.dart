@@ -25,6 +25,7 @@ class RideModel extends Equatable {
   final DateTime? completedAt;
   final DateTime? cancelledAt;
   final String? cancellationReason;
+  final String? passengerNote;
   final List<RideStop> stops;
 
   const RideModel({
@@ -48,6 +49,7 @@ class RideModel extends Equatable {
     this.completedAt,
     this.cancelledAt,
     this.cancellationReason,
+    this.passengerNote,
     this.stops = const [],
   });
 
@@ -72,6 +74,7 @@ class RideModel extends Equatable {
     DateTime? completedAt,
     DateTime? cancelledAt,
     String? cancellationReason,
+    String? passengerNote,
     List<RideStop>? stops,
   }) {
     return RideModel(
@@ -95,6 +98,7 @@ class RideModel extends Equatable {
       completedAt: completedAt ?? this.completedAt,
       cancelledAt: cancelledAt ?? this.cancelledAt,
       cancellationReason: cancellationReason ?? this.cancellationReason,
+      passengerNote: passengerNote ?? this.passengerNote,
       stops: stops ?? this.stops,
     );
   }
@@ -115,7 +119,7 @@ class RideModel extends Equatable {
       'estimated_duration_min': estimatedDuration,
       'estimated_price': estimatedPrice,
       'final_price': finalPrice,
-      'status': status.name,
+      'status': status.dbValue,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'accepted_at': acceptedAt?.toIso8601String(),
@@ -123,6 +127,7 @@ class RideModel extends Equatable {
       'completed_at': completedAt?.toIso8601String(),
       'cancelled_at': cancelledAt?.toIso8601String(),
       'cancellation_reason': cancellationReason,
+      'passenger_note': passengerNote,
       'stops': stops.map((s) => s.toJson()).toList(),
     };
   }
@@ -147,7 +152,7 @@ class RideModel extends Equatable {
       estimatedDuration: (json['estimated_duration_min'] ?? json['estimatedDuration'] as num).toDouble(),
       estimatedPrice: (json['estimated_price'] ?? json['estimatedPrice'] as num).toDouble(),
       finalPrice: (json['final_price'] ?? json['finalPrice'] as num?)?.toDouble(),
-      status: RideStatus.values.byName(json['status'] as String),
+      status: RideStatusExtension.fromDbValue(json['status'] as String),
       createdAt: DateTime.parse((json['created_at'] ?? json['createdAt']) as String),
       updatedAt: DateTime.parse((json['updated_at'] ?? json['updatedAt']) as String),
       acceptedAt: (json['accepted_at'] ?? json['acceptedAt']) != null ? DateTime.parse((json['accepted_at'] ?? json['acceptedAt']) as String) : null,
@@ -155,6 +160,7 @@ class RideModel extends Equatable {
       completedAt: (json['completed_at'] ?? json['completedAt']) != null ? DateTime.parse((json['completed_at'] ?? json['completedAt']) as String) : null,
       cancelledAt: (json['cancelled_at'] ?? json['cancelledAt']) != null ? DateTime.parse((json['cancelled_at'] ?? json['cancelledAt']) as String) : null,
       cancellationReason: (json['cancellation_reason'] ?? json['cancellationReason']) as String?,
+      passengerNote: (json['passenger_note'] ?? json['passengerNote']) as String?,
       stops: (json['stops'] as List<dynamic>?)
               ?.map((s) => RideStop.fromJson(s as Map<String, dynamic>))
               .toList() ??
@@ -167,6 +173,6 @@ class RideModel extends Equatable {
         id, customerId, driverId, pickupAddress, pickupLatLng, dropoffAddress,
         dropoffLatLng, serviceType, estimatedDistance, estimatedDuration,
         estimatedPrice, finalPrice, status, createdAt, updatedAt, acceptedAt,
-        startedAt, completedAt, cancelledAt, cancellationReason, stops
+        startedAt, completedAt, cancelledAt, cancellationReason, passengerNote, stops
       ];
 }

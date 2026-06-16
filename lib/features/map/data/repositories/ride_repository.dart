@@ -18,7 +18,10 @@ abstract class RideRepository {
   Stream<List<RideModel>> getActiveRequests();
 
   /// [Driver] Accept a ride request
-  Future<void> acceptRide(String rideId, String driverId);
+  Future<RideModel> acceptRide(String rideId, String driverId);
+
+  /// [Driver] Listen to driver's current active ride
+  Stream<RideModel?> getDriverActiveRide(String driverId);
 
   /// [Driver] Update driver online/offline status
   Future<void> updateDriverStatus(String driverId, bool isOnline);

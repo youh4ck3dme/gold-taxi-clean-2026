@@ -47,7 +47,7 @@ class InsolvencyPredictorService {
     double totalOverdueUnpaid = 0.0;
     for (var inv in relevantInvoices) {
       totalInvoiced += inv.amount;
-      if (inv.status == 'overdue') {
+      if (inv.getStatus(now) == 'overdue') {
         totalOverdueUnpaid += inv.amount;
       }
     }
@@ -61,14 +61,7 @@ class InsolvencyPredictorService {
       if (list.isEmpty) return 0.0;
       double totalDelay = 0.0;
       for (var inv in list) {
-        // Počet dní oneskorenia
-        if (inv.paidDate != null) {
-          if (inv.paidDate!.isAfter(inv.dueDate)) {
-            totalDelay += inv.paidDate!.difference(inv.dueDate).inDays;
-          }
-        } else if (now.isAfter(inv.dueDate)) {
-          totalDelay += now.difference(inv.dueDate).inDays;
-        }
+        totalDelay += inv.getDelayDays(now);
       }
       return totalDelay / list.length;
     }
@@ -109,8 +102,8 @@ class InsolvencyPredictorService {
       riskScore -= 10; // Platby sú rýchlejšie (iba ak je nízky pomer neuhradených)
     }
 
-    // Kritické oneskorenia (viac ako 90 dní po splatnosti)
-    bool hasCriticallyOverdue = invoices.any((inv) => inv.paidDate == null && now.difference(inv.dueDate).inDays > 90);
+    // Kritické oneskorenia (viac ako 90 dní po splatnosti voči evaluationDate)
+    bool hasCriticallyOverdue = invoices.any((inv) => inv.getDelayDays(now) > 90);
     if (hasCriticallyOverdue) {
       riskScore += 10;
     }

@@ -45,7 +45,7 @@ class SupabaseRideRepository implements RideRepository {
     } else {
       await _client.rpc('update_ride_status', params: {
         'p_ride_id': rideId,
-        'p_new_status': status.name,
+        'p_new_status': status.dbValue,
       });
     }
   }
@@ -61,10 +61,29 @@ class SupabaseRideRepository implements RideRepository {
   }
 
   @override
-  Future<void> acceptRide(String rideId, String driverId) async {
-    await _client.rpc('accept_ride', params: {
+  Future<RideModel> acceptRide(String rideId, String driverId) async {
+    final response = await _client.rpc('accept_ride', params: {
       'p_ride_id': rideId,
-    });
+    }).select().single();
+    return RideModel.fromJson(response);
+  }
+
+  @override
+  Stream<RideModel?> getDriverActiveRide(String driverId) {
+    return _client
+        .from('rides')
+        .stream(primaryKey: ['id'])
+        .eq('driver_id', driverId)
+        .map((data) {
+          final activeRides = data
+              .map((json) => RideModel.fromJson(json))
+              .where((ride) =>
+                  ride.status == RideStatus.accepted ||
+                  ride.status == RideStatus.driverArriving ||
+                  ride.status == RideStatus.inProgress)
+              .toList();
+          return activeRides.isEmpty ? null : activeRides.first;
+        });
   }
 
   @override

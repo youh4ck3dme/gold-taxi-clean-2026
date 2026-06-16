@@ -59,17 +59,26 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
+                      if (state.status == RideStatus.requested)
+                        const SizedBox(
+                          width: 12,
+                          height: 12,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.secondary,
+                          ),
+                        )
+                      else
+                        const Icon(
+                          Icons.check_circle,
                           color: AppColors.secondary,
+                          size: 16,
                         ),
-                      ),
                       const SizedBox(width: 12),
                       Text(
-                        state.status.label,
+                        state.status == RideStatus.accepted
+                            ? 'Vodič prijal vašu jazdu'
+                            : state.status.label,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -99,6 +108,28 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if (state.driver == null) ...[
+                        const SizedBox(height: 8),
+                        const SizedBox(
+                          width: 32,
+                          height: 32,
+                          child: CircularProgressIndicator(
+                            color: AppColors.secondary,
+                            strokeWidth: 3,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Hľadáme najbližšieho vodiča...',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Vaša požiadavka bola odoslaná.',
+                          style: TextStyle(color: AppColors.grey600, fontSize: 13),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       if (state.driver != null) ...[
                         Row(
                           children: [

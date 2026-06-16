@@ -12,6 +12,8 @@ import '../../../../core/services/analytics_service.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../data/repositories/ride_repository.dart';
 import '../../data/repositories/promo_repository.dart';
+import '../../data/repositories/mock_ride_repository.dart';
+import '../../data/services/driver_profile_service.dart';
 import 'dart:async';
 
 class RideState {
@@ -196,7 +198,9 @@ class RideCubit extends Cubit<RideState> {
       _subscribeToRide(createdRide.id);
       
       // For demo, we still trigger the simulation if it's a mock repo
-      startRideSimulation(createdRide.id);
+      if (_rideRepository is MockRideRepository) {
+        startRideSimulation(createdRide.id);
+      }
     } catch (e, stack) {
       await getIt<AnalyticsService>().recordError(e, stack, reason: 'Failed to create ride request');
       emit(state.copyWith(errorMessage: e.toString()));
@@ -205,9 +209,27 @@ class RideCubit extends Cubit<RideState> {
 
   void _subscribeToRide(String rideId) {
     _rideSubscription?.cancel();
-    _rideSubscription = _rideRepository.getRide(rideId).listen((ride) {
+    _rideSubscription = _rideRepository.getRide(rideId).listen((ride) async {
       if (ride != null) {
-        emit(state.copyWith(status: ride.status, currentRide: ride));
+        DriverPositionModel? driver;
+        if (ride.driverId != null && _rideRepository is! MockRideRepository) {
+          if (state.driver == null || state.driver!.driverId != ride.driverId) {
+            try {
+              driver = await getIt<DriverProfileService>().getDriverProfile(ride.driverId!);
+            } catch (_) {
+              // Ignore profile fetch failure
+            }
+          } else {
+            driver = state.driver;
+          }
+        } else {
+          driver = state.driver;
+        }
+        emit(state.copyWith(
+          status: ride.status,
+          currentRide: ride,
+          driver: driver,
+        ));
       }
     });
   }

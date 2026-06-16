@@ -33,7 +33,7 @@ void main() {
     
     when(() => mockSupabaseClient.auth).thenReturn(mockAuth);
 
-    authRepository = AuthRepository(
+    authRepository = SupabaseAuthRepository(
       mockSupabaseClient,
       mockStorageService,
     );

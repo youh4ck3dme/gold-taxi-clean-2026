@@ -11,8 +11,6 @@ import '../services/notification_service.dart';
 import '../services/deep_link_service.dart';
 import '../services/analytics_service.dart';
 import '../interceptors/auth_interceptor.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubits/auth_cubit.dart';
@@ -99,7 +97,6 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.supabase}) asyn
   getIt.registerLazySingleton<NotificationService>(() => NotificationService());
   getIt.registerLazySingleton<DeepLinkService>(() => DeepLinkService());
   getIt.registerLazySingleton<AnalyticsService>(() => AnalyticsService(
-        analytics: Firebase.apps.isNotEmpty ? FirebaseAnalytics.instance : null,
         isEnabled: true,
       ));
 
@@ -111,10 +108,16 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.supabase}) asyn
   getIt.registerLazySingleton<DriverProfileService>(() => DriverProfileService());
 
   // Register repositories
-  getIt.registerLazySingleton<AuthRepository>(() => AuthRepository(
-        Supabase.instance.client,
-        getIt<LocalStorageService>(),
-      ));
+  if (mode == BackendMode.supabase) {
+    getIt.registerLazySingleton<AuthRepository>(() => SupabaseAuthRepository(
+          Supabase.instance.client,
+          getIt<LocalStorageService>(),
+        ));
+  } else {
+    getIt.registerLazySingleton<AuthRepository>(() => MockAuthRepository(
+          getIt<LocalStorageService>(),
+        ));
+  }
   getIt.registerLazySingleton<BlogRepository>(() => BlogRepository(
         getIt<BlogRemoteDataSource>(),
         getIt<BlogLocalDataSource>(),

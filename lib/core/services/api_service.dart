@@ -302,7 +302,7 @@ class ApiService {
   }
 
   Future<List<InvoiceModel>> getInvoices({int page = 1, int perPage = 100}) async {
-    final raw = await fetchCptData('invoices', page: page, perPage: perPage);
+    final raw = await fetchCptData('invoice', page: page, perPage: perPage);
     return raw.map((json) => InvoiceModel.fromJson(json)).toList();
   }
 

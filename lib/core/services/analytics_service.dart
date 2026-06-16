@@ -1,43 +1,25 @@
 import 'package:flutter/foundation.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class AnalyticsService {
-  final FirebaseAnalytics? analytics;
   final bool isEnabled;
 
   AnalyticsService({
-    this.analytics,
+    dynamic analytics,
     this.isEnabled = true,
   }) {
     _init();
   }
 
   void _init() {
-    if (isEnabled && analytics != null) {
-      analytics!.setAnalyticsCollectionEnabled(true);
-      debugPrint('📊 Firebase Analytics initialized and enabled.');
-    } else {
-      debugPrint('📊 Firebase Analytics is disabled or Firebase not initialized.');
-    }
+    debugPrint('📊 Analytics initialized (No Firebase).');
   }
 
-  /// Log a custom event to Firebase Analytics with safety checks.
+  /// Log a custom event
   Future<void> logEvent({
     required String name,
     Map<String, Object>? parameters,
   }) async {
-    if (!isEnabled || analytics == null) {
-      debugPrint('📊 [Mock Analytics] Event: $name, Params: $parameters');
-      return;
-    }
-    try {
-      await analytics!.logEvent(name: name, parameters: parameters);
-      debugPrint('📊 [Firebase Analytics] Logged Event: $name');
-    } catch (e, stack) {
-      debugPrint('⚠️ Analytics: Failed to log event $name: $e');
-      await recordError(e, stack, reason: 'Failed to log event $name');
-    }
+    debugPrint('📊 [Analytics] Event: $name, Params: $parameters');
   }
 
   /// Log when a ride request is made.
@@ -76,29 +58,15 @@ class AnalyticsService {
     );
   }
 
-  /// Record error to Firebase Crashlytics or debug console if disabled.
+  /// Record error to debug console.
   Future<void> recordError(
     dynamic exception,
     StackTrace? stack, {
     dynamic reason,
     bool fatal = false,
   }) async {
-    if (kDebugMode) {
-      debugPrint('🔴 [Crashlytics Error] Exception: $exception');
-      if (stack != null) debugPrint(stack.toString());
-    }
-
-    try {
-      if (FirebaseCrashlytics.instance.isCrashlyticsCollectionEnabled) {
-        await FirebaseCrashlytics.instance.recordError(
-          exception,
-          stack,
-          reason: reason,
-          fatal: fatal,
-        );
-      }
-    } catch (e) {
-      debugPrint('⚠️ Crashlytics error submission failed: $e');
-    }
+    debugPrint('🔴 [Error Record] Exception: $exception');
+    if (reason != null) debugPrint('Reason: $reason');
+    if (stack != null) debugPrint(stack.toString());
   }
 }

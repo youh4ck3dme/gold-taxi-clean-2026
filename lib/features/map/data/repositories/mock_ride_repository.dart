@@ -12,17 +12,19 @@ class MockRideRepository implements RideRepository {
   }
 
   @override
-  Stream<List<RideModel>> getCustomerRides(String customerId) {
-    return _ridesController.stream.map(
-      (rides) => rides.where((r) => r.customerId == customerId).toList(),
-    );
+  Stream<List<RideModel>> getCustomerRides(String customerId) async* {
+    yield _mockRides.where((r) => r.customerId == customerId).toList();
+    await for (final rides in _ridesController.stream) {
+      yield rides.where((r) => r.customerId == customerId).toList();
+    }
   }
 
   @override
-  Stream<RideModel?> getRide(String rideId) {
-    return _ridesController.stream.map(
-      (rides) => rides.where((r) => r.id == rideId).firstOrNull,
-    );
+  Stream<RideModel?> getRide(String rideId) async* {
+    yield _mockRides.where((r) => r.id == rideId).firstOrNull;
+    await for (final rides in _ridesController.stream) {
+      yield rides.where((r) => r.id == rideId).firstOrNull;
+    }
   }
 
   @override
@@ -52,25 +54,50 @@ class MockRideRepository implements RideRepository {
   }
 
   @override
-  Stream<List<RideModel>> getActiveRequests() {
-    return _ridesController.stream.map(
-      (rides) => rides.where((r) => r.status == RideStatus.requested).toList(),
-    );
+  Stream<List<RideModel>> getActiveRequests() async* {
+    yield _mockRides.where((r) => r.status == RideStatus.requested).toList();
+    await for (final rides in _ridesController.stream) {
+      yield rides.where((r) => r.status == RideStatus.requested).toList();
+    }
   }
 
   @override
-  Future<void> acceptRide(String rideId, String driverId) async {
+  Future<RideModel> acceptRide(String rideId, String driverId) async {
     await Future.delayed(const Duration(milliseconds: 500));
     final index = _mockRides.indexWhere((r) => r.id == rideId);
     if (index != -1) {
       final oldRide = _mockRides[index];
-      _mockRides[index] = oldRide.copyWith(
+      if (oldRide.driverId != null) {
+        throw Exception('Ride is no longer available');
+      }
+      final updatedRide = oldRide.copyWith(
         status: RideStatus.accepted,
         driverId: driverId,
         acceptedAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
+      _mockRides[index] = updatedRide;
       _ridesController.add(List.from(_mockRides));
+      return updatedRide;
+    }
+    throw Exception('Ride not found');
+  }
+
+  @override
+  Stream<RideModel?> getDriverActiveRide(String driverId) async* {
+    yield _mockRides.where((r) =>
+        r.driverId == driverId &&
+        (r.status == RideStatus.accepted ||
+         r.status == RideStatus.driverArriving ||
+         r.status == RideStatus.inProgress)
+    ).firstOrNull;
+    await for (final rides in _ridesController.stream) {
+      yield rides.where((r) =>
+          r.driverId == driverId &&
+          (r.status == RideStatus.accepted ||
+           r.status == RideStatus.driverArriving ||
+           r.status == RideStatus.inProgress)
+      ).firstOrNull;
     }
   }
 
@@ -80,8 +107,11 @@ class MockRideRepository implements RideRepository {
   }
 
   @override
-  Stream<List<RideModel>> getAllRides() {
-    return _ridesController.stream;
+  Stream<List<RideModel>> getAllRides() async* {
+    yield List.from(_mockRides);
+    await for (final rides in _ridesController.stream) {
+      yield rides;
+    }
   }
 
   @override

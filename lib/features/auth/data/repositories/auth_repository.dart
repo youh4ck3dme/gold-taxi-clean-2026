@@ -2,13 +2,21 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/local_storage_service.dart';
 import '../../../../models/user_model.dart';
 
-class AuthRepository {
+abstract class AuthRepository {
+  Future<bool> login(String username, String password);
+  Future<UserModel?> signInWithGoogle();
+  Future<void> logout();
+  Future<bool> isAuthenticated();
+  Future<UserModel?> getCurrentUser();
+}
+
+class SupabaseAuthRepository implements AuthRepository {
   final SupabaseClient _supabase;
   final LocalStorageService _storage;
 
-  AuthRepository(this._supabase, this._storage);
+  SupabaseAuthRepository(this._supabase, this._storage);
 
-  /// Authenticate user with Supabase Auth
+  @override
   Future<bool> login(String username, String password) async {
     try {
       final response = await _supabase.auth.signInWithPassword(
@@ -27,7 +35,7 @@ class AuthRepository {
     }
   }
 
-  /// Authenticate user with Supabase Google OAuth
+  @override
   Future<UserModel?> signInWithGoogle() async {
     try {
       await _supabase.auth.signInWithOAuth(OAuthProvider.google);
@@ -39,7 +47,7 @@ class AuthRepository {
     }
   }
 
-  /// Logout user
+  @override
   Future<void> logout() async {
     await _storage.deleteToken();
     try {
@@ -49,12 +57,12 @@ class AuthRepository {
     }
   }
 
-  /// Check if user is authenticated
+  @override
   Future<bool> isAuthenticated() async {
     return _supabase.auth.currentSession != null;
   }
 
-  /// Get current user profile
+  @override
   Future<UserModel?> getCurrentUser() async {
     final user = _supabase.auth.currentUser;
     if (user == null) {
@@ -76,6 +84,51 @@ class AuthRepository {
       email: email,
       profilePictureUrl: avatarUrl,
       role: 'customer',
+      isActive: true,
+    );
+  }
+}
+
+class MockAuthRepository implements AuthRepository {
+  final LocalStorageService _storage;
+
+  MockAuthRepository(this._storage);
+
+  @override
+  Future<bool> login(String username, String password) async {
+    await _storage.saveToken("mock_token_value");
+    return true;
+  }
+
+  @override
+  Future<UserModel?> signInWithGoogle() async {
+    await _storage.saveToken("mock_google_token_value");
+    return getCurrentUser();
+  }
+
+  @override
+  Future<void> logout() async {
+    await _storage.deleteToken();
+  }
+
+  @override
+  Future<bool> isAuthenticated() async {
+    final token = await _storage.getToken();
+    return token != null;
+  }
+
+  @override
+  Future<UserModel?> getCurrentUser() async {
+    final token = await _storage.getToken();
+    if (token == null) {
+      return null;
+    }
+    return const UserModel(
+      id: "mock-user-id",
+      name: "Mock Taxi Admin",
+      email: "admin@goldtaxi.sk",
+      profilePictureUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150",
+      role: "admin",
       isActive: true,
     );
   }

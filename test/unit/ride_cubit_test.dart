@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -129,6 +130,55 @@ void main() {
 
       await untilCalled(() => mockRideRepository.createRide(any()));
       verify(() => mockRideRepository.createRide(any())).called(1);
+    });
+
+    test('RideCubit subscribes to getRide and emits updated states on status change (realtime)', () async {
+      final rideStreamController = StreamController<RideModel?>.broadcast();
+      when(() => mockRideRepository.getRide(any())).thenAnswer((_) => rideStreamController.stream);
+
+      final mockRide = RideModel(
+        id: 'ride_123',
+        customerId: 'customer_1',
+        pickupAddress: 'Kosice',
+        pickupLatLng: const LatLng(48.7219, 21.2575),
+        dropoffAddress: 'Presov',
+        dropoffLatLng: const LatLng(48.9981, 21.2393),
+        serviceType: ServiceType.standard,
+        estimatedDistance: 35.0,
+        estimatedDuration: 70.0,
+        estimatedPrice: 35.0,
+        status: RideStatus.requested,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      when(() => mockRideRepository.createRide(any())).thenAnswer((_) async => mockRide);
+
+      expectLater(
+        rideCubit.stream,
+        emitsInOrder([
+          predicate<RideState>((state) => state.status == RideStatus.requested && state.currentRide?.id == 'ride_123'),
+          predicate<RideState>((state) => state.status == RideStatus.accepted && state.currentRide?.status == RideStatus.accepted),
+          predicate<RideState>((state) => state.status == RideStatus.inProgress && state.currentRide?.status == RideStatus.inProgress),
+        ]),
+      );
+
+      await rideCubit.requestRide(
+        customerId: 'customer_1',
+        pickupAddress: 'Kosice',
+        pickupLatLng: const LatLng(48.7219, 21.2575),
+        dropoffAddress: 'Presov',
+        dropoffLatLng: const LatLng(48.9981, 21.2393),
+        serviceType: ServiceType.standard,
+        distance: 35.0,
+        estimate: 35.0,
+      );
+
+      rideStreamController.add(mockRide.copyWith(status: RideStatus.accepted));
+      rideStreamController.add(mockRide.copyWith(status: RideStatus.inProgress));
+
+      await Future.delayed(const Duration(milliseconds: 100));
+      await rideStreamController.close();
     });
   });
 }

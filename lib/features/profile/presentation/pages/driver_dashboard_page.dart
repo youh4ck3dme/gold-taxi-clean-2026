@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../auth/presentation/cubits/auth_cubit.dart';
 import '../../../auth/presentation/cubits/auth_state.dart';
 import '../../../../features/map/data/repositories/ride_repository.dart';
+import '../../../../features/map/data/repositories/mock_ride_repository.dart';
 import '../../../../models/ride_model.dart';
+import '../../../../models/ride_status.dart';
 import '../bloc/profile_cubit.dart';
 import '../bloc/profile_state.dart';
 import 'driver_verification_status_page.dart';
@@ -21,12 +24,47 @@ class DriverDashboardPage extends StatefulWidget {
 
 class _DriverDashboardPageState extends State<DriverDashboardPage> {
   bool _isOnline = false;
+  bool _isAcceptingRide = false;
+  bool _isUpdatingStatus = false;
   late final RideRepository _rideRepository;
 
   @override
   void initState() {
     super.initState();
     _rideRepository = getIt<RideRepository>();
+  }
+
+  void _updateStatus(String rideId, RideStatus status, {String? cancellationReason}) async {
+    setState(() => _isUpdatingStatus = true);
+    try {
+      await _rideRepository.updateRideStatus(rideId, status, cancellationReason: cancellationReason);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Nepodarilo sa aktualizovať stav: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUpdatingStatus = false);
+      }
+    }
+  }
+
+  Future<String> _fetchPassengerName(String customerId) async {
+    if (_rideRepository is MockRideRepository) {
+      return 'Mock Zákazník';
+    }
+    try {
+      final response = await Supabase.instance.client
+          .from('profiles')
+          .select('full_name')
+          .eq('id', customerId)
+          .single();
+      return response['full_name'] as String? ?? 'Zákazník';
+    } catch (_) {
+      return 'Zákazník';
+    }
   }
 
   void _toggleOnline(bool value) async {
@@ -48,6 +86,7 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
         }
 
         if (state is ProfileLoaded) {
+          final driverId = state.user.id;
           final verificationStatus = state.driverRecord?['verification_status'] as String? ?? 'pending_verification';
           final hasDocs = state.driverDocs != null &&
               state.driverDocs!['profile_photo_url'] != null &&
@@ -130,42 +169,52 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                 ),
               ],
             ),
-            body: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildStatusCard(),
-                  const SizedBox(height: 16),
-                  _buildEarningsButton(context),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Prichádzajúce požiadavky',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            body: StreamBuilder<RideModel?>(
+              stream: _rideRepository.getDriverActiveRide(driverId),
+              builder: (context, activeRideSnapshot) {
+                final activeRide = activeRideSnapshot.data;
+                if (activeRide != null) {
+                  return _buildActiveRidePanel(context, activeRide);
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildStatusCard(),
+                      const SizedBox(height: 16),
+                      _buildEarningsButton(context),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Prichádzajúce požiadavky',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: _isOnline
+                            ? StreamBuilder<List<RideModel>>(
+                                stream: _rideRepository.getActiveRequests(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const Center(child: CircularProgressIndicator());
+                                  }
+                                  final rides = snapshot.data ?? [];
+                                  if (rides.isEmpty) {
+                                    return const Center(child: Text('Momentálne žiadne nové požiadavky.'));
+                                  }
+                                  return ListView.builder(
+                                    itemCount: rides.length,
+                                    itemBuilder: (context, index) => _buildRideRequestCard(rides[index]),
+                                  );
+                                },
+                              )
+                            : const Center(child: Text('Ste offline. Pre príjem jázd sa zapnite.')),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: _isOnline
-                        ? StreamBuilder<List<RideModel>>(
-                            stream: _rideRepository.getActiveRequests(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const Center(child: CircularProgressIndicator());
-                              }
-                              final rides = snapshot.data ?? [];
-                              if (rides.isEmpty) {
-                                return const Center(child: Text('Momentálne žiadne nové požiadavky.'));
-                              }
-                              return ListView.builder(
-                                itemCount: rides.length,
-                                itemBuilder: (context, index) => _buildRideRequestCard(rides[index]),
-                              );
-                            },
-                          )
-                        : const Center(child: Text('Ste offline. Pre príjem jázd sa zapnite.')),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           );
         }
@@ -178,38 +227,71 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
   }
 
   Widget _buildRideRequestCard(RideModel ride) {
+    final timeStr = '${ride.createdAt.hour.toString().padLeft(2, '0')}:${ride.createdAt.minute.toString().padLeft(2, '0')}';
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.location_on, color: Colors.green),
+                Text(
+                  'Žiadosť o jazdu • $timeStr',
+                  style: const TextStyle(color: AppColors.grey500, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${ride.estimatedDistance} km',
+                  style: const TextStyle(color: AppColors.grey500, fontSize: 12),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Icon(Icons.location_on, color: Colors.green, size: 20),
                 const SizedBox(width: 12),
                 Expanded(child: Text(ride.pickupAddress, style: const TextStyle(fontWeight: FontWeight.bold))),
               ],
             ),
             const Padding(
-              padding: EdgeInsets.only(left: 11, top: 4, bottom: 4),
-              child: Align(alignment: Alignment.centerLeft, child: Icon(Icons.more_vert, size: 16, color: Colors.grey)),
+              padding: EdgeInsets.only(left: 2, top: 4, bottom: 4),
+              child: Icon(Icons.more_vert, size: 16, color: Colors.grey),
             ),
             Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.red),
+                const Icon(Icons.location_on, color: Colors.red, size: 20),
                 const SizedBox(width: 12),
                 Expanded(child: Text(ride.dropoffAddress, style: const TextStyle(fontWeight: FontWeight.bold))),
               ],
             ),
+            if (ride.passengerNote != null && ride.passengerNote!.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isDarkMode ? AppColors.grey800 : AppColors.grey100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Poznámka: ${ride.passengerNote}',
+                  style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                ),
+              ),
+            ],
             const Divider(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('${ride.estimatedPrice.toStringAsFixed(2)} €',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.secondary)),
-                Text('${ride.estimatedDistance} km', style: const TextStyle(color: Colors.grey)),
+                const SizedBox.shrink(),
               ],
             ),
             const SizedBox(height: 16),
@@ -225,7 +307,7 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                    onPressed: () => _acceptRide(ride),
+                    onPressed: _isAcceptingRide ? null : () => _acceptRide(ride),
                     child: const Text('Prijať'),
                   ),
                 ),
@@ -240,13 +322,256 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
   void _acceptRide(RideModel ride) async {
     final authState = context.read<AuthCubit>().state;
     if (authState is Authenticated) {
-      await _rideRepository.acceptRide(ride.id, authState.user.id.toString());
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Jazda prijatá!')),
-        );
+      setState(() => _isAcceptingRide = true);
+      try {
+        await _rideRepository.acceptRide(ride.id, authState.user.id.toString());
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Jazda prijatá!')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          final isTaken = e.toString().contains('no longer available') || e.toString().contains('already taken') || e.toString().contains('not found');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(isTaken ? 'Jazda už nie je k dispozícii' : 'Chyba: $e')),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isAcceptingRide = false);
+        }
       }
     }
+  }
+
+  Widget _buildActiveRidePanel(BuildContext context, RideModel ride) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.secondary, width: 1.5),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.directions_car, color: AppColors.secondary, size: 40),
+                const SizedBox(height: 8),
+                const Text(
+                  'AKTÍVNA JAZDA',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  ride.status.label,
+                  style: const TextStyle(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Passenger Info Card
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Zákazník',
+                    style: TextStyle(color: AppColors.grey500, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  FutureBuilder<String>(
+                    future: _fetchPassengerName(ride.customerId),
+                    builder: (context, snapshot) {
+                      final name = snapshot.data ?? 'Načítavam...';
+                      return Text(
+                        name,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      );
+                    },
+                  ),
+                  if (ride.passengerNote != null && ride.passengerNote!.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Poznámka k jazde',
+                      style: TextStyle(color: AppColors.grey500, fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? AppColors.grey800 : AppColors.grey100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        ride.passengerNote!,
+                        style: const TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Route Card
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.my_location, color: Colors.green, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Miesto vyzdvihnutia', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                            Text(ride.pickupAddress, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4),
+                    child: Divider(indent: 32),
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, color: Colors.red, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Cieľová adresa', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                            Text(ride.dropoffAddress, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Status Control Actions
+          if (_isUpdatingStatus)
+            const Center(child: CircularProgressIndicator(color: AppColors.secondary))
+          else ...[
+            if (ride.status == RideStatus.accepted)
+              ElevatedButton.icon(
+                icon: const Icon(Icons.directions_run),
+                label: const Text('Smerujem k zákazníkovi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondary,
+                  foregroundColor: Colors.black,
+                  minimumSize: const Size(double.infinity, 54),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                onPressed: () => _updateStatus(ride.id, RideStatus.driverArriving),
+              ),
+            if (ride.status == RideStatus.driverArriving)
+              ElevatedButton.icon(
+                icon: const Icon(Icons.play_arrow),
+                label: const Text('Začať jazdu'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 54),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                onPressed: () => _updateStatus(ride.id, RideStatus.inProgress),
+              ),
+            if (ride.status == RideStatus.inProgress)
+              ElevatedButton.icon(
+                icon: const Icon(Icons.check),
+                label: const Text('Dokončiť jazdu'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: AppColors.secondary,
+                  minimumSize: const Size(double.infinity, 54),
+                  side: const BorderSide(color: AppColors.secondary, width: 2),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                onPressed: () => _updateStatus(ride.id, RideStatus.completed),
+              ),
+            if (ride.status == RideStatus.accepted || ride.status == RideStatus.driverArriving) ...[
+              const SizedBox(height: 12),
+              TextButton(
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                onPressed: () => _showCancellationDialog(context, ride.id),
+                child: const Text('Zrušiť jazdu', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _showCancellationDialog(BuildContext context, String rideId) {
+    final reasonController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Zrušiť jazdu?'),
+        content: TextField(
+          controller: reasonController,
+          decoration: const InputDecoration(
+            labelText: 'Dôvod zrušenia',
+            hintText: 'Napr. zákazník nenastúpil',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Späť'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () {
+              final reason = reasonController.text.trim();
+              Navigator.pop(context);
+              _updateStatus(rideId, RideStatus.cancelled, cancellationReason: reason.isNotEmpty ? reason : 'Zrušené vodičom');
+            },
+            child: const Text('Zrušiť jazdu'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildStatusCard() {

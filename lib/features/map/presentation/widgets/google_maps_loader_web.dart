@@ -48,7 +48,6 @@ Future<bool> ensureGoogleMapsInitialized() async {
       '/maps/api/js',
       {
         'key': _googleMapsApiKey,
-        'loading': 'async',
       },
     ).toString();
 

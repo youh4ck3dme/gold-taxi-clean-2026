@@ -8,6 +8,42 @@ enum RideStatus {
 }
 
 extension RideStatusExtension on RideStatus {
+  String get dbValue {
+    switch (this) {
+      case RideStatus.requested:
+        return 'requested';
+      case RideStatus.accepted:
+        return 'accepted';
+      case RideStatus.driverArriving:
+        return 'driver_arriving';
+      case RideStatus.inProgress:
+        return 'in_progress';
+      case RideStatus.completed:
+        return 'completed';
+      case RideStatus.cancelled:
+        return 'cancelled';
+    }
+  }
+
+  static RideStatus fromDbValue(String value) {
+    switch (value) {
+      case 'requested':
+        return RideStatus.requested;
+      case 'accepted':
+        return RideStatus.accepted;
+      case 'driver_arriving':
+        return RideStatus.driverArriving;
+      case 'in_progress':
+        return RideStatus.inProgress;
+      case 'completed':
+        return RideStatus.completed;
+      case 'cancelled':
+        return RideStatus.cancelled;
+      default:
+        return RideStatus.requested;
+    }
+  }
+
   String get label {
     switch (this) {
       case RideStatus.requested:

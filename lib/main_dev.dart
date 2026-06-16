@@ -5,11 +5,11 @@ void main() {
   final devConfig = AppConfig(
     environment: AppEnvironment.dev,
     supabaseUrl: const String.fromEnvironment(
-      'SUPABASE_URL_DEV',
+      'SUPABASE_URL',
       defaultValue: 'https://dev-supabase.supabase.co',
     ),
     supabaseAnonKey: const String.fromEnvironment(
-      'SUPABASE_ANON_KEY_DEV',
+      'SUPABASE_ANON_KEY',
       defaultValue: 'dev-supabase-anon-key',
     ),
     stripePublishableKey: const String.fromEnvironment(
