@@ -83,7 +83,7 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProvid
   Future<void> _loadCustomCarIcon() async {
     try {
       if (kIsWeb) {
-        _carIcon = gmaps.BitmapDescriptor.defaultMarker;
+        _carIcon = null;
       } else {
         _carIcon = await gmaps.BitmapDescriptor.asset(
           const ImageConfiguration(size: Size(48, 48)),
@@ -93,7 +93,7 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProvid
       if (mounted) setState(() {});
     } catch (e) {
       debugPrint('Failed to load custom car icon: $e');
-      _carIcon = gmaps.BitmapDescriptor.defaultMarker;
+      _carIcon = null;
     }
   }
 
@@ -203,11 +203,8 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProvid
 
   /// Get taxi icon for Google Maps based on availability status
   gmaps.BitmapDescriptor _getTaxiIcon(bool isAvailable) {
-    if (kIsWeb) {
-      return gmaps.BitmapDescriptor.defaultMarker;
-    }
     return gmaps.BitmapDescriptor.defaultMarkerWithHue(
-      isAvailable ? gmaps.BitmapDescriptor.hueOrange : gmaps.BitmapDescriptor.hueViolet,
+      isAvailable ? gmaps.BitmapDescriptor.hueGreen : gmaps.BitmapDescriptor.hueRed,
     );
   }
 

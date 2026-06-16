@@ -183,7 +183,18 @@ class _MapPageState extends State<MapPage> {
                   snippet: '${driver.carModel} • ${driver.carPlate}',
                   isAvailable: driver.isAvailable,
                   rotation: driver.bearing,
-                  onTap: () => _mapCubit.selectDriver(driver.driverId),
+                  onTap: () {
+                    if (!driver.isAvailable) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Vodič je momentálne offline.'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    } else {
+                      _mapCubit.selectDriver(driver.driverId);
+                    }
+                  },
                 );
               }).toSet();
 
@@ -410,10 +421,19 @@ class _DriverInfoCard extends StatelessWidget {
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.navigation, size: 16),
                           label: const Text('Objednať'),
-                          onPressed: () => _bookDriver(driver, context),
+                          onPressed: driver.isAvailable
+                              ? () => _bookDriver(driver, context)
+                              : () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Vodič je momentálne offline.'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 10),
-                            backgroundColor: Colors.green,
+                            backgroundColor: driver.isAvailable ? Colors.green : Colors.grey,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -466,10 +486,7 @@ class _DriverInfoCard extends StatelessWidget {
     );
     context.push('/booking', extra: service);
   }
-}
-
-/// Driver List Card (when no driver selected)
-class _DriverListCard extends StatelessWidget {
+}class _DriverListCard extends StatelessWidget {
   final List<DriverPositionModel> drivers;
 
   const _DriverListCard({required this.drivers});
@@ -518,48 +535,80 @@ class _DriverListCard extends StatelessWidget {
                 height: 120,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: availableDrivers.length,
+                  itemCount: drivers.length,
                   itemBuilder: (context, index) {
-                    final driver = availableDrivers[index];
+                    final driver = drivers[index];
+                    final isOnline = driver.isAvailable;
                     return GestureDetector(
-                      onTap: () => context.read<MapCubit>().selectDriver(driver.driverId),
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 12),
-                        width: 100,
-                        child: Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 28,
-                              backgroundImage: NetworkImage(driver.avatar),
-                              backgroundColor: Colors.grey[200],
+                      onTap: () {
+                        if (!isOnline) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Vodič je momentálne offline.'),
+                              duration: Duration(seconds: 2),
                             ),
-                            const SizedBox(height: 6),
-                            Text(
-                              driver.name.split(' ').first,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                          );
+                        } else {
+                          context.read<MapCubit>().selectDriver(driver.driverId);
+                        }
+                      },
+                      child: Opacity(
+                        opacity: isOnline ? 1.0 : 0.5,
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 12),
+                          width: 100,
+                          child: Column(
+                            children: [
+                              Stack(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 28,
+                                    backgroundImage: NetworkImage(driver.avatar),
+                                    backgroundColor: Colors.grey[200],
+                                  ),
+                                  Positioned(
+                                    right: 0,
+                                    bottom: 0,
+                                    child: Container(
+                                      width: 14,
+                                      height: 14,
+                                      decoration: BoxDecoration(
+                                        color: isOnline ? Colors.green : Colors.red,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.white, width: 2),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 12,
+                              const SizedBox(height: 6),
+                              Text(
+                                driver.name.split(' ').first,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  '${driver.rating}',
-                                  style: const TextStyle(fontSize: 11),
-                                ),
-                              ],
-                            ),
-                          ],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                    size: 12,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    '${driver.rating}',
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

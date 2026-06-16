@@ -43,9 +43,9 @@ class DriverPositionRepository {
       lastUpdated: DateTime.now(),
     ),
     DriverPositionModel(
-      driverId: 'driver_3',
-      name: 'Martin Horváth',
-      avatar: 'https://i.pravatar.cc/150?u=3',
+      driverId: 'demo_driver_peter_horvath',
+      name: 'Peter Horváth',
+      avatar: 'https://i.pravatar.cc/150?u=peter_horvath',
       lat: 48.1450,
       lng: 17.1050,
       bearing: 225.0,
@@ -92,14 +92,16 @@ class DriverPositionRepository {
   }
 
   /// Stream of all driver positions (realtime-like updates).
-  Stream<List<DriverPositionModel>> getDriverPositionsStream() {
+  Stream<List<DriverPositionModel>> getDriverPositionsStream() async* {
     _logger.i('📡 Listening to driver positions (mock)…');
-    return _allController.stream;
+    yield List.from(_mockDrivers);
+    yield* _allController.stream;
   }
 
   /// Stream of available drivers only.
-  Stream<List<DriverPositionModel>> getAvailableDriversStream() {
-    return _availableController.stream;
+  Stream<List<DriverPositionModel>> getAvailableDriversStream() async* {
+    yield _availableDrivers;
+    yield* _availableController.stream;
   }
 
   /// Update a driver's position in the local store.

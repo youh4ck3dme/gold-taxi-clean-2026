@@ -31,7 +31,7 @@ class SupabaseRideRepository implements RideRepository {
 
   @override
   Future<RideModel> createRide(RideModel ride) async {
-    final response = await _client.from('rides').insert(ride.toJson()).select().single();
+    final response = await _client.from('rides').insert(ride.toDbJson()).select().single();
     return RideModel.fromJson(response);
   }
 

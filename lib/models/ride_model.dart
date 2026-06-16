@@ -132,6 +132,22 @@ class RideModel extends Equatable {
     };
   }
 
+  Map<String, dynamic> toDbJson() {
+    final json = toJson();
+    json.remove('stops');
+    
+    final driverIdVal = json['driver_id'] as String?;
+    if (driverIdVal != null) {
+      final isValidUuid = RegExp(
+        r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+      ).hasMatch(driverIdVal);
+      if (!isValidUuid) {
+        json['driver_id'] = null;
+      }
+    }
+    return json;
+  }
+
   factory RideModel.fromJson(Map<String, dynamic> json) {
     return RideModel(
       id: json['id'] as String,

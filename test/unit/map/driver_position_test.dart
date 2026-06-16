@@ -153,5 +153,17 @@ void main() {
       expect(janNovak.lat, 48.1486);
       expect(janNovak.lng, 17.1077);
     });
+
+    test('Repository streams both Ján Novák (online) and Peter Horváth (offline)', () async {
+      final allDrivers = await repository.getDriverPositionsStream().first;
+      
+      final jan = allDrivers.firstWhere((d) => d.driverId == 'demo_driver_jan_novak');
+      expect(jan.isAvailable, isTrue);
+      expect(jan.name, 'Ján Novák');
+
+      final peter = allDrivers.firstWhere((d) => d.driverId == 'demo_driver_peter_horvath');
+      expect(peter.isAvailable, isFalse);
+      expect(peter.name, 'Peter Horváth');
+    });
   });
 }

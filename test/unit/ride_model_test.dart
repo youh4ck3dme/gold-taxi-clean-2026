@@ -35,5 +35,19 @@ void main() {
       expect(json['status'], 'requested');
       expect(json['estimated_distance_km'], 10.5);
     });
+
+    test('toDbJson should remove stops and sanitize driver_id', () {
+      final dbJson = mockRide.toDbJson();
+      expect(dbJson.containsKey('stops'), isFalse);
+
+      final rideWithMockDriver = mockRide.copyWith(driverId: 'demo_driver_jan_novak');
+      final dbJsonMockDriver = rideWithMockDriver.toDbJson();
+      expect(dbJsonMockDriver['driver_id'], isNull);
+
+      const validUuid = 'd3b07384-d113-49c3-a55e-2e0e5a6f272a';
+      final rideWithRealDriver = mockRide.copyWith(driverId: validUuid);
+      final dbJsonRealDriver = rideWithRealDriver.toDbJson();
+      expect(dbJsonRealDriver['driver_id'], validUuid);
+    });
   });
 }
