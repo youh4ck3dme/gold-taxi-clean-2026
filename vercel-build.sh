@@ -57,6 +57,7 @@ flutter pub run build_runner build --delete-conflicting-outputs
 # 7. Compile the Web app in release mode with injected credentials
 echo "Compiling Flutter Web application with Production Credentials..."
 flutter build web --release --no-tree-shake-icons \
+  -t lib/main_prod.dart \
   --dart-define=BACKEND_MODE=supabase \
   --dart-define=SUPABASE_URL=${SUPABASE_URL} \
   --dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY} \
