@@ -11,11 +11,7 @@ import 'package:gold_taxi/features/profile/data/repositories/profile_repository.
 import 'package:gold_taxi/features/profile/data/repositories/supabase_profile_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// To avoid Supabase initialization errors in tests, we mock Supabase.instance
-class MockSupabase extends Supabase {
-  // We cannot easily mock the singleton without some hacks, 
-  // but GetIt lazy initialization means it won't be evaluated until called.
-}
+// Supabase instance is lazily loaded via GetIt so we do not need to mock it directly to verify registrations.
 
 void main() {
   setUp(() async {
