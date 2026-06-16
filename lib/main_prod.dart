@@ -11,11 +11,11 @@ void main() {
   final prodConfig = AppConfig(
     environment: AppEnvironment.prod,
     supabaseUrl: const String.fromEnvironment(
-      'SUPABASE_URL_PROD',
+      'SUPABASE_URL',
       defaultValue: 'https://gold-taxi.supabase.co',
     ),
     supabaseAnonKey: const String.fromEnvironment(
-      'SUPABASE_ANON_KEY_PROD',
+      'SUPABASE_ANON_KEY',
       defaultValue: 'prod-supabase-anon-key',
     ),
     stripePublishableKey: const String.fromEnvironment(
