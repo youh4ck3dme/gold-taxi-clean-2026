@@ -27,6 +27,7 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
   bool _isAcceptingRide = false;
   bool _isUpdatingStatus = false;
   late final RideRepository _rideRepository;
+  final Map<String, Future<String>> _passengerNameCache = {};
 
   @override
   void initState() {
@@ -49,6 +50,13 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
         setState(() => _isUpdatingStatus = false);
       }
     }
+  }
+
+  Future<String> _getPassengerName(String customerId) {
+    return _passengerNameCache.putIfAbsent(
+      customerId,
+      () => _fetchPassengerName(customerId),
+    );
   }
 
   Future<String> _fetchPassengerName(String customerId) async {
@@ -182,9 +190,9 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildStatusCard(),
+                      _StatusCard(isOnline: _isOnline),
                       const SizedBox(height: 16),
-                      _buildEarningsButton(context),
+                      const _EarningsButton(),
                       const SizedBox(height: 16),
                       const Text(
                         'Prichádzajúce požiadavky',
@@ -192,24 +200,11 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                       ),
                       const SizedBox(height: 12),
                       Expanded(
-                        child: _isOnline
-                            ? StreamBuilder<List<RideModel>>(
-                                stream: _rideRepository.getActiveRequests(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
-                                    return const Center(child: CircularProgressIndicator());
-                                  }
-                                  final rides = snapshot.data ?? [];
-                                  if (rides.isEmpty) {
-                                    return const Center(child: Text('Momentálne žiadne nové požiadavky.'));
-                                  }
-                                  return ListView.builder(
-                                    itemCount: rides.length,
-                                    itemBuilder: (context, index) => _buildRideRequestCard(rides[index]),
-                                  );
-                                },
-                              )
-                            : const Center(child: Text('Ste offline. Pre príjem jázd sa zapnite.')),
+                        child: _IncomingRequestsList(
+                          rideRepository: _rideRepository,
+                          isOnline: _isOnline,
+                          buildRideCard: _buildRideRequestCard,
+                        ),
                       ),
                     ],
                   ),
@@ -402,7 +397,7 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                   ),
                   const SizedBox(height: 6),
                   FutureBuilder<String>(
-                    future: _fetchPassengerName(ride.customerId),
+                    future: _getPassengerName(ride.customerId),
                     builder: (context, snapshot) {
                       final name = snapshot.data ?? 'Načítavam...';
                       return Text(
@@ -543,49 +538,133 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
   }
 
   void _showCancellationDialog(BuildContext context, String rideId) {
-    final reasonController = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Zrušiť jazdu?'),
-        content: TextField(
-          controller: reasonController,
-          decoration: const InputDecoration(
-            labelText: 'Dôvod zrušenia',
-            hintText: 'Napr. zákazník nenastúpil',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Späť'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () {
-              final reason = reasonController.text.trim();
-              Navigator.pop(context);
-              _updateStatus(rideId, RideStatus.cancelled, cancellationReason: reason.isNotEmpty ? reason : 'Zrušené vodičom');
-            },
-            child: const Text('Zrušiť jazdu'),
-          ),
-        ],
+      builder: (context) => _CancellationDialog(
+        rideId: rideId,
+        onConfirm: (reason) {
+          _updateStatus(rideId, RideStatus.cancelled, cancellationReason: reason);
+        },
       ),
     );
   }
+}
 
-  Widget _buildStatusCard() {
+class _CancellationDialog extends StatefulWidget {
+  final String rideId;
+  final Function(String reason) onConfirm;
+
+  const _CancellationDialog({
+    required this.rideId,
+    required this.onConfirm,
+  });
+
+  @override
+  State<_CancellationDialog> createState() => _CancellationDialogState();
+}
+
+class _CancellationDialogState extends State<_CancellationDialog> {
+  late final TextEditingController _reasonController;
+
+  @override
+  void initState() {
+    super.initState();
+    _reasonController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Zrušiť jazdu?'),
+      content: TextField(
+        controller: _reasonController,
+        decoration: const InputDecoration(
+          labelText: 'Dôvod zrušenia',
+          hintText: 'Napr. zákazník nenastúpil',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Späť'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+          ),
+          onPressed: () {
+            final reason = _reasonController.text.trim();
+            Navigator.pop(context);
+            widget.onConfirm(reason.isNotEmpty ? reason : 'Zrušené vodičom');
+          },
+          child: const Text('Zrušiť jazdu'),
+        ),
+      ],
+    );
+  }
+}
+
+class _IncomingRequestsList extends StatelessWidget {
+  final RideRepository rideRepository;
+  final bool isOnline;
+  final Widget Function(RideModel) buildRideCard;
+
+  const _IncomingRequestsList({
+    required this.rideRepository,
+    required this.isOnline,
+    required this.buildRideCard,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isOnline) {
+      return const Center(child: Text('Ste offline. Pre príjem jázd sa zapnite.'));
+    }
+
+    return StreamBuilder<List<RideModel>>(
+      stream: rideRepository.getActiveRequests(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final rides = snapshot.data ?? [];
+        if (rides.isEmpty) {
+          return const Center(child: Text('Momentálne žiadne nové požiadavky.'));
+        }
+        return ListView.builder(
+          itemCount: rides.length,
+          itemBuilder: (context, index) => buildRideCard(rides[index]),
+        );
+      },
+    );
+  }
+}
+
+class _StatusCard extends StatelessWidget {
+  final bool isOnline;
+
+  const _StatusCard({required this.isOnline});
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Text(
-              _isOnline ? 'ONLINE' : 'OFFLINE',
+              isOnline ? 'ONLINE' : 'OFFLINE',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: _isOnline ? Colors.green : Colors.grey,
+                color: isOnline ? Colors.green : Colors.grey,
               ),
             ),
             const Text('Váš aktuálny stav'),
@@ -594,8 +673,13 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
       ),
     );
   }
+}
 
-  Widget _buildEarningsButton(BuildContext context) {
+class _EarningsButton extends StatelessWidget {
+  const _EarningsButton();
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       child: InkWell(
         onTap: () => context.go('/earnings'),
