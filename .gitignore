@@ -85,3 +85,9 @@ ios/Runner/GoogleService-Info.plist
 # Local flutter clone for vercel build
 /flutter/
 .vercel
+.env
+
+# Local Supabase/test helper files
+create_test_user.sql
+missing_tests.txt
+

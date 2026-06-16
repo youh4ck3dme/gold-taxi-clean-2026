@@ -228,21 +228,26 @@ $$ language plpgsql security definer;
 -- Realtime enablement
 do $$
 begin
-  alter publication supabase_realtime add table public.rides;
-exception
-  when others then null;
-end $$;
-do $$
-begin
-  alter publication supabase_realtime add table public.drivers;
-exception
-  when others then null;
-end $$;
-do $$
-begin
-  alter publication supabase_realtime add table public.driver_locations;
-exception
-  when others then null;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'rides'
+  ) then
+    alter publication supabase_realtime add table public.rides;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'drivers'
+  ) then
+    alter publication supabase_realtime add table public.drivers;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'driver_locations'
+  ) then
+    alter publication supabase_realtime add table public.driver_locations;
+  end if;
 end $$;
 
 -- 6. MESSAGES Table
@@ -287,9 +292,12 @@ create policy "Anyone involved in the ride can insert messages" on public.messag
 
 do $$
 begin
-  alter publication supabase_realtime add table public.messages;
-exception
-  when others then null;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'messages'
+  ) then
+    alter publication supabase_realtime add table public.messages;
+  end if;
 end $$;
 
 -- Enable PostGIS extension
@@ -511,15 +519,19 @@ create policy "Drivers can create own payouts" on public.payouts
 -- Enable Realtime for earnings and payouts
 do $$
 begin
-  alter publication supabase_realtime add table public.driver_earnings;
-exception
-  when others then null;
-end $$;
-do $$
-begin
-  alter publication supabase_realtime add table public.payouts;
-exception
-  when others then null;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'driver_earnings'
+  ) then
+    alter publication supabase_realtime add table public.driver_earnings;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'payouts'
+  ) then
+    alter publication supabase_realtime add table public.payouts;
+  end if;
 end $$;
 
 -- RPC Function: Get driver earnings summary (today, week, month)
@@ -738,9 +750,12 @@ create policy "Drivers can update own bank account" on public.driver_bank_accoun
 -- Enable Realtime for bank accounts
 do $$
 begin
-  alter publication supabase_realtime add table public.driver_bank_accounts;
-exception
-  when others then null;
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'driver_bank_accounts'
+  ) then
+    alter publication supabase_realtime add table public.driver_bank_accounts;
+  end if;
 end $$;
 
 -- Indexes for driver_bank_accounts
