@@ -9,8 +9,10 @@ import 'core/di/service_locator.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/api_service.dart';
 import 'routes/app_router.dart';
+import 'core/utils/url_strategy.dart';
 
 Future<void> mainCommon(AppConfig config) async {
+  configureUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
 
   // Enforce security check: mock mode must never run in production environment
