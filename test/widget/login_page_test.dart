@@ -36,7 +36,7 @@ void main() {
 
     expect(find.text('Používateľské meno / E-mail'), findsOneWidget);
     expect(find.text('Heslo'), findsOneWidget);
-    expect(find.text('Prihlásiť sa'), findsOneWidget);
+    expect(find.text('PRIHLÁSIŤ SA'), findsOneWidget);
     expect(find.text('Pokračovať cez Google'), findsOneWidget);
   });
 }
