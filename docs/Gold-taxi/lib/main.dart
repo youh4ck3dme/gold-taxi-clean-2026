@@ -19,20 +19,32 @@ Future<void> main() async {
   await Hive.initFlutter();
 
   // 1. Load Environment Settings
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    debugPrint('⚠️ Note: .env file not found, using environment defines if available.');
+  var envLoaded = false;
+  if (kIsWeb) {
+    debugPrint(
+      '🌐 Web environment detected, using compile-time environment defines.',
+    );
+  } else {
+    try {
+      await dotenv.load(fileName: ".env");
+      envLoaded = true;
+    } catch (e) {
+      debugPrint(
+        '⚠️ Note: .env file not found, using environment defines if available.',
+      );
+    }
   }
 
   // 2. Setup Service Locator (Dependency Injection)
   // Check Dart defines first, then .env, then default
-  final backendModeStr = const String.fromEnvironment('BACKEND_MODE').isNotEmpty 
-      ? const String.fromEnvironment('BACKEND_MODE') 
-      : (dotenv.env['BACKEND_MODE'] ?? 'mock');
-      
-  final backendMode = backendModeStr.toLowerCase() == 'supabase' ? BackendMode.supabase : BackendMode.mock;
-  
+  final backendModeStr = const String.fromEnvironment('BACKEND_MODE').isNotEmpty
+      ? const String.fromEnvironment('BACKEND_MODE')
+      : (envLoaded ? dotenv.env['BACKEND_MODE'] : null) ?? 'mock';
+
+  final backendMode = backendModeStr.toLowerCase() == 'supabase'
+      ? BackendMode.supabase
+      : BackendMode.mock;
+
   await setupServiceLocator(mode: backendMode);
   debugPrint('🏗️ Service Locator initialized in $backendMode mode.');
 
@@ -63,17 +75,27 @@ Future<void> main() async {
   try {
     final supabaseUrl = const String.fromEnvironment('SUPABASE_URL').isNotEmpty
         ? const String.fromEnvironment('SUPABASE_URL')
-        : (dotenv.env['SUPABASE_URL'] ?? 'https://your-supabase-url.supabase.co');
+        : (envLoaded ? dotenv.env['SUPABASE_URL'] : null);
 
-    final supabaseAnonKey = const String.fromEnvironment('SUPABASE_ANON_KEY').isNotEmpty
+    final supabaseAnonKey =
+        const String.fromEnvironment('SUPABASE_ANON_KEY').isNotEmpty
         ? const String.fromEnvironment('SUPABASE_ANON_KEY')
-        : (dotenv.env['SUPABASE_ANON_KEY'] ?? 'your-supabase-anon-key');
+        : (envLoaded ? dotenv.env['SUPABASE_ANON_KEY'] : null);
 
-    await Supabase.initialize(
-      url: supabaseUrl,
-      publishableKey: supabaseAnonKey,
-    );
-    debugPrint('⚡ Supabase Client initialized successfully.');
+    if (supabaseUrl == null ||
+        supabaseUrl.isEmpty ||
+        supabaseAnonKey == null ||
+        supabaseAnonKey.isEmpty) {
+      debugPrint(
+        '⚠️ Supabase skipped: SUPABASE_URL or SUPABASE_ANON_KEY is not configured.',
+      );
+    } else {
+      await Supabase.initialize(
+        url: supabaseUrl,
+        publishableKey: supabaseAnonKey,
+      );
+      debugPrint('⚡ Supabase Client initialized successfully.');
+    }
   } catch (e) {
     debugPrint('🔴 Error: Supabase initialization failed: $e');
   }

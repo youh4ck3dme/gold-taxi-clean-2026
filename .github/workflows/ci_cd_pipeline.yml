@@ -46,4 +46,8 @@ jobs:
         run: flutter test --dart-define-from-file=.env --machine > test-results.json
 
       - name: Run Integration Tests (Headless)
-        run: xvfb-run -a flutter test -d linux integration_test/app_integration_test.dart --dart-define-from-file=.env
+        timeout-minutes: 5
+        run: |
+          xvfb-run -a flutter test -d linux integration_test/app_integration_test.dart \
+            --dart-define-from-file=.env \
+            --dart-define=BACKEND_MODE=mock

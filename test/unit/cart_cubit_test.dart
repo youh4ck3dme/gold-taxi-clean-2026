@@ -20,8 +20,12 @@ void main() {
       await Hive.box('cart_items_box').clear();
     }
     cartCubit = CartCubit();
-    // Wait for the asynchronous loadCart called in constructor to finish
-    await Future.delayed(const Duration(milliseconds: 50));
+    // Wait deterministically for the asynchronous loadCart called in constructor.
+    if (cartCubit.state is! CartLoaded) {
+      await cartCubit.stream
+          .firstWhere((state) => state is CartLoaded)
+          .timeout(const Duration(seconds: 3));
+    }
   });
 
   tearDown(() async {

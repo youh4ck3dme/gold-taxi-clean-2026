@@ -17,10 +17,15 @@ class CartCubit extends Cubit<CartState> {
     final itemsJson = box.get('items') as List?;
     if (itemsJson != null) {
       final items = itemsJson
-          .map((json) => CartItemModel.fromJson(Map<String, dynamic>.from(json as Map)))
+          .map(
+            (json) =>
+                CartItemModel.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
+      if (isClosed) return;
       emit(CartLoaded(items: items));
     } else {
+      if (isClosed) return;
       emit(const CartLoaded(items: []));
     }
   }
@@ -30,11 +35,15 @@ class CartCubit extends Cubit<CartState> {
     final currentState = state;
     if (currentState is CartLoaded) {
       final updatedItems = List<CartItemModel>.from(currentState.items);
-      final index = updatedItems.indexWhere((item) => item.product.id == product.id);
+      final index = updatedItems.indexWhere(
+        (item) => item.product.id == product.id,
+      );
 
       if (index >= 0) {
         final existingItem = updatedItems[index];
-        updatedItems[index] = existingItem.copyWith(quantity: existingItem.quantity + quantity);
+        updatedItems[index] = existingItem.copyWith(
+          quantity: existingItem.quantity + quantity,
+        );
       } else {
         updatedItems.add(CartItemModel(product: product, quantity: quantity));
       }
@@ -48,7 +57,9 @@ class CartCubit extends Cubit<CartState> {
   Future<void> removeProduct(int productId) async {
     final currentState = state;
     if (currentState is CartLoaded) {
-      final updatedItems = currentState.items.where((item) => item.product.id != productId).toList();
+      final updatedItems = currentState.items
+          .where((item) => item.product.id != productId)
+          .toList();
       emit(CartLoaded(items: updatedItems));
       await _persistItems(updatedItems);
     }

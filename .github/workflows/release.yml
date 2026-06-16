@@ -31,8 +31,13 @@ jobs:
       - name: Run Linting Linter
         run: flutter linter || flutter analyze
 
+      - name: Create Dummy Env File
+        run: |
+          echo "SUPABASE_URL=https://dummy.supabase.co" > .env
+          echo "SUPABASE_ANON_KEY=dummykey_longer_than_10_chars" >> .env
+
       - name: Run Unit Tests
-        run: flutter test
+        run: flutter test --dart-define-from-file=.env
 
   build_android:
     name: Build Android (Prod Flavor)

@@ -39,12 +39,14 @@ jobs:
       - name: Build web (mock mode - always runs)
         run: |
           flutter build web --release --no-tree-shake-icons \
+            -t lib/main_dev.dart \
             --dart-define=BACKEND_MODE=mock
 
       - name: Build web (production mode - conditional)
         if: env.SUPABASE_URL != '' && env.SUPABASE_ANON_KEY != ''
         run: |
           flutter build web --release --no-tree-shake-icons \
+            -t lib/main_prod.dart \
             --dart-define=BACKEND_MODE=supabase \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}

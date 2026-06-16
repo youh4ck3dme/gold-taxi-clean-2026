@@ -36,12 +36,16 @@ class SupabaseRideRepository implements RideRepository {
   }
 
   @override
-  Future<void> updateRideStatus(String rideId, RideStatus status, {String? cancellationReason}) async {
+  Future<void> updateRideStatus(
+    String rideId,
+    RideStatus status, {
+    String? cancellationReason,
+  }) async {
     if (status == RideStatus.cancelled) {
-      await _client.rpc('cancel_ride', params: {
-        'p_ride_id': rideId,
-        'p_reason': cancellationReason,
-      });
+      await _client.rpc(
+        'cancel_ride',
+        params: {'p_ride_id': rideId, 'p_reason': cancellationReason},
+      );
     } else {
       await _client.rpc('update_ride_status', params: {
         'p_ride_id': rideId,
@@ -88,7 +92,15 @@ class SupabaseRideRepository implements RideRepository {
 
   @override
   Future<void> updateDriverStatus(String driverId, bool isOnline) async {
-    await _client.from('drivers').update({'is_online': isOnline}).eq('user_id', _client.auth.currentUser!.id);
+    final normalizedDriverId = driverId.trim();
+    if (normalizedDriverId.isEmpty) {
+      throw StateError('Cannot update driver status without a driver id.');
+    }
+
+    await _client
+        .from('drivers')
+        .update({'is_online': isOnline})
+        .eq('user_id', normalizedDriverId);
   }
 
   @override
@@ -111,18 +123,23 @@ class SupabaseRideRepository implements RideRepository {
   }
 
   @override
-  Future<void> updateDriverLocation(String driverId, double lat, double lng, {double? heading}) async {
+  Future<void> updateDriverLocation(
+    String driverId,
+    double lat,
+    double lng, {
+    double? heading,
+  }) async {
     await _client.from('driver_locations').insert({
       'driver_id': driverId,
       'lat': lat,
       'lng': lng,
       'heading': heading,
     });
-    
-    await _client.from('drivers').update({
-      'current_lat': lat,
-      'current_lng': lng,
-    }).eq('id', driverId);
+
+    await _client
+        .from('drivers')
+        .update({'current_lat': lat, 'current_lng': lng})
+        .eq('id', driverId);
   }
 
   @override

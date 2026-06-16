@@ -12,17 +12,21 @@ class ApiConstants {
   // Endpoints
   static String get postsEndpoint => '$wordpressApi/posts';
   static String get productsEndpoint => '$wooCommerceApi/products';
-  static String get servicesEndpoint => '$wordpressApi/posts'; // Fallback to standard WP posts
-  static String get eventsEndpoint => '$wordpressApi/posts'; // Fallback to standard WP posts
+  static String get servicesEndpoint =>
+      '$wordpressApi/posts'; // Fallback to standard WP posts
+  static String get eventsEndpoint =>
+      '$wordpressApi/posts'; // Fallback to standard WP posts
   static String get usersEndpoint => '$wordpressApi/users';
   static String get categoriesEndpoint => '$wordpressApi/categories';
   static String get tagsEndpoint => '$wordpressApi/tags';
-  static String get reviewsEndpoint => '$wordpressApi/posts'; // Graceful fallback
-  static String get bookingsEndpoint => '$wordpressApi/posts'; // Graceful fallback
+  static String get reviewsEndpoint =>
+      '$wordpressApi/posts'; // Graceful fallback
+  static String get bookingsEndpoint =>
+      '$wordpressApi/posts'; // Graceful fallback
   static String get ordersEndpoint => '$wooCommerceApi/orders';
-  static String get notificationsEndpoint => '$wordpressApi/posts'; // Graceful fallback
+  static String get notificationsEndpoint =>
+      '$wordpressApi/posts'; // Graceful fallback
   static String get faqEndpoint => '$wordpressApi/posts'; // Graceful fallback
-
 
   // Firebase
   static String get firebaseProjectId => const String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: 'your-firebase-project-id');

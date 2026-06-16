@@ -47,6 +47,7 @@ import '../models/post_model.dart';
 import '../models/product_model.dart';
 import '../models/service_model.dart';
 import '../models/event_model.dart';
+import '../features/welcome/presentation/pages/welcome_page.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
   late final StreamSubscription<dynamic> _subscription;
@@ -71,6 +72,7 @@ final appRouter = GoRouter(
   redirect: (context, state) {
     final authState = getIt<AuthCubit>().state;
     final isLoggingIn = state.matchedLocation == '/login';
+    final isWelcome = state.matchedLocation == '/welcome';
 
     // Feature Flags Check
     if (state.matchedLocation.startsWith('/blog') && !FeatureFlags.blogEnabled) return '/';
@@ -93,11 +95,11 @@ final appRouter = GoRouter(
       return null;
     }
 
-    if (authState is Unauthenticated && !isLoggingIn) {
-      return '/login';
+    if (authState is Unauthenticated && !isLoggingIn && !isWelcome) {
+      return '/welcome';
     }
 
-    if (authState is Authenticated && isLoggingIn) {
+    if (authState is Authenticated && (isLoggingIn || isWelcome)) {
       return '/';
     }
 
@@ -125,6 +127,7 @@ final appRouter = GoRouter(
     ),
     // Auth routes
     GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+    GoRoute(path: '/welcome', builder: (context, state) => const WelcomePage()),
     // Feature detail routes (outside ShellRoute for full-screen overlay)
     GoRoute(
       path: '/blog/detail',
