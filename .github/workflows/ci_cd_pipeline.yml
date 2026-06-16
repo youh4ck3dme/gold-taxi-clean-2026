@@ -18,7 +18,9 @@ jobs:
           fetch-depth: 0
 
       - name: Create Dummy Env File
-        run: touch .env
+        run: |
+          echo "SUPABASE_URL=https://dummy.supabase.co" > .env
+          echo "SUPABASE_ANON_KEY=dummykey_longer_than_10_chars" >> .env
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -41,7 +43,7 @@ jobs:
         run: flutter analyze
 
       - name: Run Unit & Widget Tests
-        run: flutter test --machine > test-results.json
+        run: flutter test --dart-define-from-file=.env --machine > test-results.json
 
       - name: Run Integration Tests (Headless)
-        run: xvfb-run -a flutter test -d linux integration_test/app_integration_test.dart
+        run: xvfb-run -a flutter test -d linux integration_test/app_integration_test.dart --dart-define-from-file=.env
