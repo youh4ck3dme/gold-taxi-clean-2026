@@ -174,8 +174,8 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: LoginPage()));
         await pumpStableFrame(tester);
 
-        expect(find.text('Vitajte v Gold-Taxi'), findsOneWidget);
-        expect(find.text('Prihlásiť sa'), findsOneWidget);
+        expect(find.text('EXECUTIVE TAXI'), findsOneWidget);
+        expect(find.text('PRIHLÁSIŤ SA'), findsOneWidget);
         expect(find.text('🔧 DEVELOPER BYPASS → DOMOV'), findsNothing);
       },
     );
@@ -448,16 +448,16 @@ void main() {
         await pumpStableFrame(tester);
       }
 
-      final loginWelcomeText = find.text('Vitajte v Gold-Taxi');
+      final loginWelcomeText = find.text('EXECUTIVE TAXI');
       if (loginWelcomeText.evaluate().isEmpty) {
         // Možno sme už prihlásení na HomePage? (napr. z cached session)
       } else {
         expect(loginWelcomeText, findsOneWidget);
 
         // 3. Nájdeme textové polia pre E-mail a Heslo
-        // V LoginPage používame vlastný widget AppTextField
-        final emailField = find.byType(AppTextField).first;
-        final passwordField = find.byType(AppTextField).last;
+        // V LoginPage používame vlastný widget GoldTextField
+        final emailField = find.byType(GoldTextField).first;
+        final passwordField = find.byType(GoldTextField).last;
 
         // 4. Zadáme prihlasovacie údaje
         await tester.enterText(emailField, testEmail);
@@ -469,8 +469,8 @@ void main() {
         FocusManager.instance.primaryFocus?.unfocus();
         await pumpStableFrame(tester);
 
-        // 5. Nájdeme a stlačíme tlačidlo "Prihlásiť sa" (PrimaryButton)
-        final loginBtn = find.widgetWithText(PrimaryButton, 'Prihlásiť sa');
+        // 5. Nájdeme a stlačíme tlačidlo "Prihlásiť sa" (GoldButton)
+        final loginBtn = find.widgetWithText(GoldButton, 'PRIHLÁSIŤ SA');
         expect(loginBtn, findsOneWidget);
         
         await tester.tap(loginBtn);
