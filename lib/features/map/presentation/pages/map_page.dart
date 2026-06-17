@@ -12,7 +12,7 @@ import 'package:gold_taxi/features/map/presentation/cubits/map_cubit.dart';
 import 'package:gold_taxi/features/map/presentation/widgets/platform_map_widget.dart';
 import 'package:gold_taxi/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:gold_taxi/features/search/presentation/widgets/search_bottom_sheet.dart';
-// ignore: unused_import
+import '../../../../core/constants/app_colors.dart';
 import '../../../../models/driver_position_model.dart';
 import '../../../../models/service_model.dart';
 
@@ -127,21 +127,21 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mapa vodičov'),
-        backgroundColor: Colors.black87,
+        backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.luxuryGold),
             onPressed: () => _getCurrentPosition(),
             tooltip: 'Obnoviť polohu',
           ),
           IconButton(
-            icon: const Icon(Icons.people),
+            icon: const Icon(Icons.people_alt_rounded, color: AppColors.luxuryGold),
             onPressed: () => _mapCubit.centerOnAllDrivers(),
             tooltip: 'Zobraziť všetkých vodičov',
           ),
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout_rounded, color: Colors.white24),
             onPressed: () => context.read<AuthCubit>().logout(),
             tooltip: 'Odhlásiť sa',
           ),
@@ -255,21 +255,31 @@ class _MapPageState extends State<MapPage> {
                 }
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                  color: const Color(0xFF111111),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.luxuryGold.withOpacity(0.3), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
                   ],
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.search, color: Colors.grey[600]),
-                    const SizedBox(width: 12),
-                    Text(
+                    const Icon(Icons.search_rounded, color: AppColors.luxuryGold, size: 24),
+                    const SizedBox(width: 16),
+                    const Text(
                       'Kam to bude?',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 16, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: Color(0xFFB8BEC9), 
+                        fontSize: 18, 
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                      ),
                     ),
                   ],
                 ),
@@ -284,12 +294,16 @@ class _MapPageState extends State<MapPage> {
               right: 20,
               child: FloatingActionButton(
                 heroTag: 'currentLocation',
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.blue,
+                backgroundColor: const Color(0xFF111111),
+                foregroundColor: AppColors.luxuryGold,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: AppColors.luxuryGold.withOpacity(0.3)),
+                ),
                 onPressed: _getCurrentPosition,
                 child: _isLoadingLocation
-                    ? const CircularProgressIndicator(color: Colors.blue)
-                    : const Icon(Icons.my_location, size: 28),
+                    ? const CircularProgressIndicator(color: AppColors.luxuryGold)
+                    : const Icon(Icons.my_location_rounded, size: 24),
               ),
             ),
           ],
@@ -333,17 +347,32 @@ class _DriverInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            // Avatar
-            CircleAvatar(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111111),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: AppColors.luxuryGold.withOpacity(0.3), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            padding: const EdgeInsets.all(3),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(colors: [AppColors.luxuryGold, Color(0xFFFFD700)]),
+            ),
+            child: CircleAvatar(
               radius: 35,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: AppColors.deepBlack,
               foregroundImage: (driver.avatar.isNotEmpty)
                   ? NetworkImage(driver.avatar)
                   : null,
@@ -352,107 +381,107 @@ class _DriverInfoCard extends StatelessWidget {
                       debugPrint('Error loading map driver card avatar: $exception');
                     }
                   : null,
-              child: const Icon(Icons.person, size: 35),
+              child: const Icon(Icons.person, size: 35, color: AppColors.luxuryGold),
             ),
-            const SizedBox(width: 16),
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    driver.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+          ),
+          const SizedBox(width: 20),
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  driver.name.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded, color: AppColors.luxuryGold, size: 18),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${driver.rating}',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Text('${driver.rating}'),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: driver.isAvailable
-                              ? Colors.green.withValues(alpha: 0.1)
-                              : Colors.red.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          driver.isAvailable ? 'Dostupný' : 'Zaneprazdnený',
-                          style: TextStyle(
-                            color: driver.isAvailable ? Colors.green : Colors.red,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: driver.isAvailable
+                            ? Colors.greenAccent.withOpacity(0.1)
+                            : Colors.redAccent.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: driver.isAvailable ? Colors.greenAccent.withOpacity(0.3) : Colors.redAccent.withOpacity(0.3),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${driver.serviceType} • ${driver.carModel} • ${driver.carPlate}',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
+                      child: Text(
+                        driver.isAvailable ? 'AVAILABLE' : 'BUSY',
+                        style: TextStyle(
+                          color: driver.isAvailable ? Colors.greenAccent : Colors.redAccent,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '${driver.serviceType.toUpperCase()} • ${driver.carModel}',
+                  style: const TextStyle(
+                    color: Color(0xFFB8BEC9),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
                   ),
-                  const SizedBox(height: 12),
-                  // Action buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.call, size: 16),
-                          label: const Text('Zavolať'),
-                          onPressed: () => _makePhoneCall(driver.phone, context),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            backgroundColor: Colors.blue,
-                            foregroundColor: Colors.white,
-                          ),
+                ),
+                const SizedBox(height: 16),
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.call_rounded, size: 18),
+                        label: const Text('CALL'),
+                        onPressed: () => _makePhoneCall(driver.phone, context),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          backgroundColor: Colors.white.withOpacity(0.05),
+                          foregroundColor: Colors.white,
+                          side: BorderSide(color: Colors.white.withOpacity(0.1)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.navigation, size: 16),
-                          label: const Text('Objednať'),
-                          onPressed: driver.isAvailable
-                              ? () => _bookDriver(driver, context)
-                              : () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Vodič je momentálne offline.'),
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            backgroundColor: driver.isAvailable ? Colors.green : Colors.grey,
-                            foregroundColor: Colors.white,
-                          ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+                        label: const Text('BOOK'),
+                        onPressed: driver.isAvailable
+                            ? () => _bookDriver(driver, context)
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          backgroundColor: AppColors.luxuryGold,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -494,7 +523,9 @@ class _DriverInfoCard extends StatelessWidget {
     );
     context.push('/booking', extra: service);
   }
-}class _DriverListCard extends StatelessWidget {
+}
+
+class _DriverListCard extends StatelessWidget {
   final List<DriverPositionModel> drivers;
 
   const _DriverListCard({required this.drivers});
@@ -503,137 +534,137 @@ class _DriverInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final availableDrivers = drivers.where((d) => d.isAvailable).toList();
 
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Dostupní vodiči',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '${availableDrivers.length}/${drivers.length}',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (drivers.isEmpty) ...[
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Text('Žiadni vodiči v okruhu'),
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111111),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: AppColors.luxuryGold.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'PREMIUM VODIČI',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.luxuryGold,
+                  letterSpacing: 1.5,
                 ),
               ),
-            ] else ...[
-              SizedBox(
-                height: 120,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: drivers.length,
-                  itemBuilder: (context, index) {
-                    final driver = drivers[index];
-                    final isOnline = driver.isAvailable;
-                    return GestureDetector(
-                      onTap: () {
-                        if (!isOnline) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Vodič je momentálne offline.'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        } else {
-                          context.read<MapCubit>().selectDriver(driver.driverId);
-                        }
-                      },
-                      child: Opacity(
-                        opacity: isOnline ? 1.0 : 0.5,
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 12),
-                          width: 100,
-                          child: Column(
-                            children: [
-                              Stack(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 28,
-                                    backgroundColor: Colors.grey[200],
-                                    foregroundImage: (driver.avatar.isNotEmpty)
-                                        ? NetworkImage(driver.avatar)
-                                        : null,
-                                    onForegroundImageError: (driver.avatar.isNotEmpty)
-                                        ? (exception, stackTrace) {
-                                            debugPrint('Error loading map driver list avatar: $exception');
-                                          }
-                                        : null,
-                                    child: const Icon(Icons.person, size: 28),
-                                  ),
-                                  Positioned(
-                                    right: 0,
-                                    bottom: 0,
-                                    child: Container(
-                                      width: 14,
-                                      height: 14,
-                                      decoration: BoxDecoration(
-                                        color: isOnline ? Colors.green : Colors.red,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white, width: 2),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                driver.name.split(' ').first,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 2),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                    size: 12,
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    '${driver.rating}',
-                                    style: const TextStyle(fontSize: 11),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.luxuryGold.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${availableDrivers.length} ONLINE',
+                  style: const TextStyle(
+                    color: AppColors.luxuryGold,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 20),
+          if (drivers.isEmpty) ...[
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Text('VYHĽADÁVAME VODIČOV...', style: TextStyle(color: Colors.white24, fontWeight: FontWeight.bold, fontSize: 12)),
+              ),
+            ),
+          ] else ...[
+            SizedBox(
+              height: 110,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: drivers.length,
+                itemBuilder: (context, index) {
+                  final driver = drivers[index];
+                  final isOnline = driver.isAvailable;
+                  return GestureDetector(
+                    onTap: () {
+                      if (isOnline) {
+                        context.read<MapCubit>().selectDriver(driver.driverId);
+                      }
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      width: 85,
+                      child: Column(
+                        children: [
+                          Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isOnline ? AppColors.luxuryGold.withOpacity(0.5) : Colors.white10,
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: 30,
+                                  backgroundColor: const Color(0xFF1A1A1A),
+                                  foregroundImage: (driver.avatar.isNotEmpty)
+                                      ? NetworkImage(driver.avatar)
+                                      : null,
+                                  child: const Icon(Icons.person, size: 28, color: Colors.white12),
+                                ),
+                              ),
+                              if (isOnline)
+                                Positioned(
+                                  right: 2,
+                                  bottom: 2,
+                                  child: Container(
+                                    width: 14,
+                                    height: 14,
+                                    decoration: BoxDecoration(
+                                      color: Colors.greenAccent,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: const Color(0xFF111111), width: 2),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            driver.name.split(' ').first.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: isOnline ? Colors.white : Colors.white24,
+                              letterSpacing: 0.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

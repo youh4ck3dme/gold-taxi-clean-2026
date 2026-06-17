@@ -27,6 +27,13 @@ class AppColors {
   static const Color warning = Color(0xFFF59E0B);
   static const Color info = Color(0xFF0EA5E9);
 
+  // Luxury / Premium Palette
+  static const Color luxuryGold = Color(0xFFC9A84C);
+  static const Color deepBlack = Color(0xFF050505);
+  static const Color premiumGrey = Color(0xFF111827);
+  static const Color goldGlow = Color(0x33C9A84C);
+  static const Color glassWhite = Color(0x1AFFFFFF);
+
   // Brand Colors
   static const Color brandYellow = Color(0xFFFFB81C);
   static const Color brandGrey = Color(0xFF1F2937);

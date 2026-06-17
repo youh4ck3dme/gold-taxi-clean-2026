@@ -122,21 +122,53 @@ class AppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    primaryColor: AppColors.primary,
-    scaffoldBackgroundColor: AppColors.darkBackground,
+    primaryColor: AppColors.luxuryGold,
+    scaffoldBackgroundColor: AppColors.deepBlack,
     colorScheme: const ColorScheme.dark(
-      primary: AppColors.secondary,
-      secondary: AppColors.secondary,
-      tertiary: AppColors.accent,
-      surface: AppColors.darkSurface,
+      primary: AppColors.luxuryGold,
+      secondary: AppColors.luxuryGold,
+      tertiary: Color(0xFFFFB629),
+      surface: Color(0xFF111111),
+      onSurface: Colors.white,
       error: AppColors.error,
-      outline: AppColors.grey600,
+      outline: Color(0x33C9A84C),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.darkSurface,
-      foregroundColor: AppColors.white,
+      backgroundColor: AppColors.deepBlack,
+      foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: false,
+      titleTextStyle: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w900,
+        letterSpacing: -0.5,
+        color: Colors.white,
+      ),
+    ),
+    cardTheme: CardThemeData(
+      color: const Color(0xFF1A1A1A),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: Color(0x1AFFFFFF), width: 1),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.luxuryGold,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+      ),
+    ),
+    textTheme: const TextTheme(
+      displayLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+      headlineLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+      titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+      bodyLarge: TextStyle(color: Color(0xFFB8BEC9), fontWeight: FontWeight.w500),
+      bodyMedium: TextStyle(color: Color(0xFFB8BEC9)),
     ),
   );
 }

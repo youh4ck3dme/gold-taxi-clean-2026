@@ -45,8 +45,15 @@ class ProfileCubit extends Cubit<ProfileState> {
   void switchRole(String newRole) {
     final currentState = state;
     if (currentState is ProfileLoaded) {
-      if (newRole == 'driver' && !currentState.user.isDriver) return;
-      emit(currentState.copyWith(activeRole: newRole));
+      // Allow switching if user has the role OR if user is admin (demo purposes)
+      bool canSwitch = false;
+      if (newRole == 'admin' && currentState.user.isAdmin) canSwitch = true;
+      if (newRole == 'driver' && (currentState.user.isDriver || currentState.user.isAdmin)) canSwitch = true;
+      if (newRole == 'customer') canSwitch = true;
+
+      if (canSwitch) {
+        emit(currentState.copyWith(activeRole: newRole));
+      }
     }
   }
 

@@ -50,7 +50,7 @@ void main() {
         id: 'dev_user_123',
         name: 'Developer',
         email: 'dev@localhost',
-        role: 'customer',
+        role: UserRole.customer,
       ),
     ));
     when(() => mockAuthCubit.stream).thenAnswer((_) => Stream.value(mockAuthCubit.state));

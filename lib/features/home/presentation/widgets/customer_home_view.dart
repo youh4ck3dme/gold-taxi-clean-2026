@@ -21,8 +21,6 @@ class CustomerHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, profileState) {
         bool showPhoneWarning = false;
@@ -48,19 +46,23 @@ class CustomerHomeView extends StatelessWidget {
                         'Ahoj, $userName 👋',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 26,
-                            ),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 28,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
+                        ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      const Text(
                         'Kam sa dnes chystáš?',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
-                            ),
+                        style: TextStyle(
+                          color: Color(0xFFB8BEC9),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -68,21 +70,30 @@ class CustomerHomeView extends StatelessWidget {
                 const SizedBox(width: 12),
                 GestureDetector(
                   onTap: () => context.push('/profile'),
-                  child: CircleAvatar(
-                    radius: 26,
-                    backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
-                    foregroundImage: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
-                        ? NetworkImage(avatarUrl!)
-                        : null,
-                    onForegroundImageError: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
-                        ? (exception, stackTrace) {
-                            debugPrint('Error loading customer avatar: $exception');
-                          }
-                        : null,
-                    child: const Icon(
-                      Icons.person,
-                      color: AppColors.secondary,
-                      size: 28,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [AppColors.luxuryGold, Color(0xFFFFD700)],
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 26,
+                      backgroundColor: AppColors.deepBlack,
+                      foregroundImage: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                          ? NetworkImage(avatarUrl!)
+                          : null,
+                      onForegroundImageError: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                          ? (exception, stackTrace) {
+                              debugPrint('Error loading customer avatar: $exception');
+                            }
+                          : null,
+                      child: const Icon(
+                        Icons.person,
+                        color: AppColors.luxuryGold,
+                        size: 28,
+                      ),
                     ),
                   ),
                 ),
@@ -95,23 +106,23 @@ class CustomerHomeView extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                    const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
                     const SizedBox(width: 8),
-                    Expanded(
+                    const Expanded(
                       child: Text(
-                        'Pre objednanie jazdy je potrebné vyplniť telefónne číslo vo vašom profile.',
-                        style: TextStyle(color: isDarkMode ? Colors.orange[200] : Colors.orange[800], fontSize: 12),
+                        'Doplňte telefónne číslo pre objednanie jazdy.',
+                        style: TextStyle(color: Color(0xFFFFCC80), fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ),
                     TextButton(
                       onPressed: () => context.push('/profile'),
-                      child: const Text('Upraviť'),
+                      child: const Text('Upraviť', style: TextStyle(color: Colors.orange)),
                     ),
                   ],
                 ),
@@ -127,32 +138,40 @@ class CustomerHomeView extends StatelessWidget {
                     onTap: () => context.push('/active-ride'),
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 24),
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.secondary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.secondary),
+                        gradient: const LinearGradient(
+                          colors: [AppColors.luxuryGold, Color(0xFF8B6E2A)],
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.luxuryGold.withOpacity(0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.local_taxi, color: AppColors.secondary, size: 32),
+                          const Icon(Icons.local_taxi, color: Colors.black, size: 32),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Máte aktívnu jazdu',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  'AKTÍVNA JAZDA',
+                                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black54, letterSpacing: 1.0),
                                 ),
                                 Text(
-                                  'Stav: ${rideState.currentRide!.status.name}',
-                                  style: TextStyle(color: isDarkMode ? AppColors.grey400 : AppColors.grey700),
+                                  rideState.currentRide!.status.name.toUpperCase(),
+                                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.black),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(Icons.arrow_forward_ios, color: AppColors.secondary, size: 16),
+                          const Icon(Icons.arrow_forward_ios, color: Colors.black, size: 16),
                         ],
                       ),
                     ),
@@ -166,48 +185,58 @@ class CustomerHomeView extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Objednajte si jazdu',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+                  style: TextStyle(
+                        fontWeight: FontWeight.w900,
                         fontSize: 22,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
                       ),
                 ),
                 const SizedBox(height: 16),
                 InkWell(
                   onTap: () => context.push('/search'),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(24),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                     decoration: BoxDecoration(
-                      color: isDarkMode ? AppColors.grey900 : AppColors.grey50,
-                      borderRadius: BorderRadius.circular(16),
+                      color: const Color(0xFF111111),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: AppColors.secondary.withValues(alpha: 0.3),
-                        width: 2,
+                        color: AppColors.luxuryGold.withOpacity(0.3),
+                        width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.secondary.withValues(alpha: 0.1),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
+                          color: AppColors.luxuryGold.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         ),
                       ],
                     ),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.search,
-                          color: AppColors.secondary,
-                          size: 32,
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.luxuryGold.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.search_rounded,
+                            color: AppColors.luxuryGold,
+                            size: 28,
+                          ),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
+                        const SizedBox(width: 16),
+                        const Expanded(
                           child: Text(
                             'Kam to bude?',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
-                                  fontWeight: FontWeight.bold,
+                            style: TextStyle(
+                                  color: Color(0xFFB8BEC9),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
                                 ),
                           ),
                         ),
@@ -221,37 +250,43 @@ class CustomerHomeView extends StatelessWidget {
 
             // Saved Addresses Chips
             if (savedAddresses.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                children: savedAddresses.entries.map((entry) {
-                  final key = entry.key; // 'home' or 'work'
-                  final data = entry.value as Map<String, dynamic>? ?? {};
-                  final label = data['label']?.toString() ?? key;
-                  final address = data['address']?.toString() ?? '';
-                  final lat = double.tryParse(data['lat']?.toString() ?? '0') ?? 0;
-                  final lng = double.tryParse(data['lng']?.toString() ?? '0') ?? 0;
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: savedAddresses.entries.map((entry) {
+                    final key = entry.key;
+                    final data = entry.value as Map<String, dynamic>? ?? {};
+                    final label = data['label']?.toString() ?? key;
+                    final address = data['address']?.toString() ?? '';
+                    final lat = double.tryParse(data['lat']?.toString() ?? '0') ?? 0;
+                    final lng = double.tryParse(data['lng']?.toString() ?? '0') ?? 0;
 
-                  return ActionChip(
-                    avatar: Icon(
-                      key == 'home' ? Icons.home : (key == 'work' ? Icons.work : Icons.location_on),
-                      size: 16,
-                      color: AppColors.secondary,
-                    ),
-                    label: Text(label),
-                    onPressed: () {
-                      if (address.isNotEmpty) {
-                        final location = LocationModel(
-                          name: label,
-                          address: address,
-                          position: LatLng(lat, lng),
-                        );
-                        context.push('/ride-request', extra: location);
-                      }
-                    },
-                    backgroundColor: isDarkMode ? AppColors.grey800 : AppColors.grey100,
-                    side: BorderSide(color: AppColors.grey300.withValues(alpha: 0.5)),
-                  );
-                }).toList(),
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: ActionChip(
+                        avatar: Icon(
+                          key == 'home' ? Icons.home_filled : (key == 'work' ? Icons.work : Icons.location_on),
+                          size: 16,
+                          color: AppColors.luxuryGold,
+                        ),
+                        label: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        onPressed: () {
+                          if (address.isNotEmpty) {
+                            final location = LocationModel(
+                              name: label,
+                              address: address,
+                              position: LatLng(lat, lng),
+                            );
+                            context.push('/ride-request', extra: location);
+                          }
+                        },
+                        backgroundColor: const Color(0xFF1A1A1A),
+                        side: BorderSide(color: AppColors.luxuryGold.withOpacity(0.2)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
             
             const SizedBox(height: 24),
@@ -259,18 +294,16 @@ class CustomerHomeView extends StatelessWidget {
             // Promo Code Banner
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: isDarkMode
-                      ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
-                      : [AppColors.secondary.withValues(alpha: 0.08), AppColors.secondary.withValues(alpha: 0.03)],
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1A1A1A), Color(0xFF0A0A0A)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: AppColors.secondary.withValues(alpha: 0.2),
+                  color: AppColors.luxuryGold.withOpacity(0.15),
                   width: 1,
                 ),
               ),
@@ -280,27 +313,37 @@ class CustomerHomeView extends StatelessWidget {
                   Row(
                     children: [
                       const Icon(
-                        Icons.local_offer,
-                        color: AppColors.secondary,
-                        size: 24,
+                        Icons.auto_awesome,
+                        color: AppColors.luxuryGold,
+                        size: 22,
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Získaj zľavu 15%',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: isDarkMode ? AppColors.white : AppColors.black,
-                              ),
-                        ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'LIMITOVANÁ PONUKA',
+                        style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
+                              letterSpacing: 1.5,
+                              color: AppColors.luxuryGold.withOpacity(0.9),
+                            ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Zadaj promo kód GOLDTAXI a ušetri 15% na svoju prvú rezervovanú jazdu cez našu aplikáciu!',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: isDarkMode ? AppColors.grey300 : AppColors.grey700,
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Získaj zľavu 15%',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Zadaj promo kód GOLDTAXI a ušetri na svoju prvú jazdu.',
+                    style: TextStyle(
+                          color: Color(0xFFB8BEC9),
+                          fontSize: 13,
                           height: 1.4,
                         ),
                   ),

@@ -25,14 +25,14 @@ void main() {
       id: '1',
       name: 'Customer Erik',
       email: 'erik@goldtaxi.com',
-      role: 'customer',
+      role: UserRole.customer,
     );
 
     const testDriver = UserModel(
       id: '2',
       name: 'Driver Erik',
       email: 'driver@goldtaxi.com',
-      role: 'driver',
+      role: UserRole.driver,
     );
 
     test('Initial state is ProfileInitial', () {

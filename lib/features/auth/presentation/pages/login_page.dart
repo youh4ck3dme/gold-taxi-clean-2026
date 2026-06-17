@@ -325,6 +325,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           },
         ),
         const SizedBox(height: 32),
+        _buildInvestorDemoButton(context, isLoading),
+        const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -346,6 +348,43 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           ],
         )
       ],
+    );
+  }
+
+  Widget _buildInvestorDemoButton(BuildContext context, bool isLoading) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFC59B47).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFC59B47).withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            'STAKEHOLDER REVIEW',
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2.0,
+              color: Color(0xFFC59B47),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: isLoading ? null : () => context.read<AuthCubit>().magicLogin(),
+            icon: const Icon(Icons.auto_awesome_rounded, color: Color(0xFFC59B47), size: 18),
+            label: const Text(
+              'INVESTOR DEMO MODE',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 13,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
