@@ -71,14 +71,19 @@ class CustomerHomeView extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 26,
                     backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
-                    backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-                    child: avatarUrl == null
-                        ? const Icon(
-                            Icons.person,
-                            color: AppColors.secondary,
-                            size: 28,
-                          )
+                    foregroundImage: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                        ? NetworkImage(avatarUrl!)
                         : null,
+                    onForegroundImageError: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                        ? (exception, stackTrace) {
+                            debugPrint('Error loading customer avatar: $exception');
+                          }
+                        : null,
+                    child: const Icon(
+                      Icons.person,
+                      color: AppColors.secondary,
+                      size: 28,
+                    ),
                   ),
                 ),
               ],

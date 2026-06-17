@@ -51,8 +51,8 @@ echo "Getting pub packages..."
 flutter pub get
 
 # 6. Run code generation (build_runner)
-echo "Running code generators (build_runner)..."
-flutter pub run build_runner build --delete-conflicting-outputs
+echo "Skipping code generation on Vercel to save RAM (ensure generated files are pushed to Git)..."
+# flutter pub run build_runner build --delete-conflicting-outputs
 
 # 7. Compile the Web app in release mode with injected credentials
 echo "Compiling Flutter Web application with Production Credentials..."

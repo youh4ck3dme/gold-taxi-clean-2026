@@ -34,7 +34,7 @@ class UserModel extends Equatable {
       id: json['id']?.toString() ?? '',
       name: (json['name'] ?? json['full_name']) as String? ?? '',
       email: json['email'] as String? ?? '',
-      profilePictureUrl: json['profile_picture_url'] ?? _getAvatarUrl(json['avatar_urls']),
+      profilePictureUrl: _sanitizeUrl(json['profile_picture_url'] ?? _getAvatarUrl(json['avatar_urls'])),
       role: json['role'] as String? ?? _getRole(json['roles']),
       bio: json['bio'] ?? json['description'] as String?,
       isActive: json['is_active'] as bool? ?? true,
@@ -64,10 +64,20 @@ class UserModel extends Equatable {
     'referred_by': referredBy,
   };
 
+  /// Sanitize profile picture URL to handle empty or invalid values
+  static String? _sanitizeUrl(dynamic url) {
+    if (url == null) return null;
+    final urlStr = url.toString().trim();
+    if (urlStr.isEmpty || urlStr.toLowerCase() == 'null') {
+      return null;
+    }
+    return urlStr;
+  }
+
   /// Get avatar URL from nested JSON
   static String? _getAvatarUrl(dynamic avatarUrls) {
     if (avatarUrls is Map) {
-      return avatarUrls['96'] as String?;
+      return _sanitizeUrl(avatarUrls['96']);
     }
     return null;
   }

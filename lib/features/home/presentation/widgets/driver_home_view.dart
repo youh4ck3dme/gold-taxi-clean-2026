@@ -86,10 +86,19 @@ class _DriverHomeViewState extends State<DriverHomeView> {
               child: CircleAvatar(
                 radius: 26,
                 backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
-                backgroundImage: widget.avatarUrl != null ? NetworkImage(widget.avatarUrl!) : null,
-                child: widget.avatarUrl == null
-                    ? const Icon(Icons.person, color: AppColors.secondary, size: 28)
+                foregroundImage: (widget.avatarUrl != null && widget.avatarUrl!.trim().isNotEmpty)
+                    ? NetworkImage(widget.avatarUrl!)
                     : null,
+                onForegroundImageError: (widget.avatarUrl != null && widget.avatarUrl!.trim().isNotEmpty)
+                    ? (exception, stackTrace) {
+                        debugPrint('Error loading driver avatar: $exception');
+                      }
+                    : null,
+                child: const Icon(
+                  Icons.person,
+                  color: AppColors.secondary,
+                  size: 28,
+                ),
               ),
             ),
           ],

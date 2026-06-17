@@ -343,8 +343,16 @@ class _DriverInfoCard extends StatelessWidget {
             // Avatar
             CircleAvatar(
               radius: 35,
-              backgroundImage: NetworkImage(driver.avatar),
               backgroundColor: Colors.grey[200],
+              foregroundImage: (driver.avatar.isNotEmpty)
+                  ? NetworkImage(driver.avatar)
+                  : null,
+              onForegroundImageError: (driver.avatar.isNotEmpty)
+                  ? (exception, stackTrace) {
+                      debugPrint('Error loading map driver card avatar: $exception');
+                    }
+                  : null,
+              child: const Icon(Icons.person, size: 35),
             ),
             const SizedBox(width: 16),
             // Info
@@ -563,8 +571,16 @@ class _DriverInfoCard extends StatelessWidget {
                                 children: [
                                   CircleAvatar(
                                     radius: 28,
-                                    backgroundImage: NetworkImage(driver.avatar),
                                     backgroundColor: Colors.grey[200],
+                                    foregroundImage: (driver.avatar.isNotEmpty)
+                                        ? NetworkImage(driver.avatar)
+                                        : null,
+                                    onForegroundImageError: (driver.avatar.isNotEmpty)
+                                        ? (exception, stackTrace) {
+                                            debugPrint('Error loading map driver list avatar: $exception');
+                                          }
+                                        : null,
+                                    child: const Icon(Icons.person, size: 28),
                                   ),
                                   Positioned(
                                     right: 0,
