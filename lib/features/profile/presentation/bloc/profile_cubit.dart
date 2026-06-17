@@ -26,6 +26,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         }
       }
 
+      if (isClosed) return;
       emit(ProfileLoaded(
         user: user,
         orders: orders,
@@ -36,6 +37,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         activeRole: user.isDriver ? 'driver' : 'customer',
       ));
     } catch (e) {
+      if (isClosed) return;
       emit(ProfileError(e.toString()));
     }
   }

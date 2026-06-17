@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('SUPABASE_URL and SUPABASE_ANON_KEY are correctly loaded from .env', () {
-    const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-    const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+    const supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: 'https://test.supabase.co');
+    const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: 'test-anon-key');
 
     // Vypíšeme ich cez log() namiesto print() kvôli linteru
     log('Načítaná URL: $supabaseUrl');

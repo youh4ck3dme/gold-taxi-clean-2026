@@ -32,6 +32,7 @@ jobs:
       - name: Build Web
         run: |
           flutter build web --release --no-tree-shake-icons \
+            -t lib/main_prod.dart \
             --dart-define=BACKEND_MODE=supabase \
             --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
             --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} \
@@ -44,4 +45,4 @@ jobs:
           service_account: 'github-action-1265342369@goldtaxi-202ff.iam.gserviceaccount.com'
 
       - name: Deploy to Firebase Hosting
-        run: npx -y firebase-tools@latest deploy --only hosting:goldtaxi-202ff --project goldtaxi-202ff
+        run: npx -y firebase-tools@latest deploy --only hosting --project goldtaxi-202ff

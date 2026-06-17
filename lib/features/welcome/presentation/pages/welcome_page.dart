@@ -242,12 +242,17 @@ class _HeroCopy extends StatelessWidget {
               children: [
                 Icon(Icons.verified_rounded, color: _gold, size: 18),
                 SizedBox(width: 8),
-                Text(
-                  'Premium taxi & executive rides',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.2,
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'Premium taxi & executive rides',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
                   ),
                 ),
               ],
