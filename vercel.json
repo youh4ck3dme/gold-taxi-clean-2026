@@ -14,6 +14,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/splash",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
