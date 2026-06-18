@@ -40,7 +40,7 @@ jobs:
         run: flutter test --dart-define-from-file=.env
 
   build_android:
-    name: Build Android (Prod Flavor)
+    name: Build Android (Release)
     needs: test_and_lint
     runs-on: ubuntu-latest
     steps:
@@ -66,7 +66,6 @@ jobs:
         run: |
           flutter build appbundle \
             --release \
-            --flavor prod \
             -t lib/main_prod.dart \
             --obfuscate \
             --split-debug-info=build/app/outputs/symbols
@@ -74,8 +73,8 @@ jobs:
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-prod-release.aab
-          path: build/app/outputs/bundle/prodRelease/app-prod-release.aab
+          name: app-release.aab
+          path: build/app/outputs/bundle/release/app-release.aab
 
       # DevOps Note: Set up Google Play Console secrets to enable automatic uploading
       # - name: Upload to Google Play Internal Testing
@@ -87,7 +86,7 @@ jobs:
       #     track: internal
 
   build_ios:
-    name: Build iOS (Prod Flavor)
+    name: Build iOS (Release)
     needs: test_and_lint
     runs-on: macos-latest
     steps:
@@ -114,7 +113,6 @@ jobs:
         run: |
           flutter build ipa \
             --release \
-            --flavor prod \
             -t lib/main_prod.dart \
             --obfuscate \
             --split-debug-info=build/ios/outputs/symbols \
