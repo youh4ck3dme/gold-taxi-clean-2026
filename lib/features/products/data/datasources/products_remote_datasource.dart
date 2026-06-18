@@ -1,28 +1,28 @@
-import 'package:gold_taxi/core/services/api_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gold_taxi/models/product_model.dart';
 
 class ProductsRemoteDataSource {
-  final ApiService _apiService;
+  final SupabaseClient _supabase;
 
-  ProductsRemoteDataSource(this._apiService);
+  ProductsRemoteDataSource(SupabaseClient supabase) : _supabase = supabase;
 
-  /// Fetch products from WooCommerce API
+  /// Fetch products from Supabase
   Future<List<ProductModel>> fetchProducts({int page = 1, int perPage = 10, String? search}) async {
-    final Map<String, dynamic> queryParams = {
-      'page': page,
-      'per_page': perPage,
-    };
+    final from = (page - 1) * perPage;
+    final to = from + perPage - 1;
+
+    var query = _supabase.from('products').select();
+
     if (search != null && search.isNotEmpty) {
-      queryParams['search'] = search;
+      query = query.ilike('name', '%$search%');
     }
 
-    final response = await _apiService.get(
-      '/wp-json/wc/v3/products',
-      queryParameters: queryParams,
-    );
+    final response = await query
+        .order('created_at', ascending: false)
+        .range(from, to);
 
     if (response is List) {
-      return response.map((json) => ProductModel.fromJson(json as Map<String, dynamic>)).toList();
+      return response.map((json) => ProductModel.fromSupabaseJson(json as Map<String, dynamic>)).toList();
     }
     return [];
   }

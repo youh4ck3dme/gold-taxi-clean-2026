@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class FaqModel extends Equatable {
-  final int id;
+  final String id;
   final String question;
   final String answer;
   final String category;
@@ -35,10 +35,19 @@ class FaqModel extends Equatable {
     }
 
     return FaqModel(
-      id: json['id'] as int? ?? 0,
+      id: json['id']?.toString() ?? '',
       question: question,
       answer: answer,
       category: getField<String>('category', 'Všeobecné'),
+    );
+  }
+
+  factory FaqModel.fromSupabaseJson(Map<String, dynamic> json) {
+    return FaqModel(
+      id: json['id'] as String? ?? '',
+      question: json['question'] as String? ?? '',
+      answer: json['answer'] as String? ?? '',
+      category: json['category'] as String? ?? 'Všeobecné',
     );
   }
 

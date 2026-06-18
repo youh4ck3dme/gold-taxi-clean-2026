@@ -32,7 +32,7 @@ class DriverProfileService {
       final data = await _supabase
           .from(tableName)
           .upsert(driverData)
-          .select()
+          .select('*, active_vehicle:vehicles(*)')
           .single();
 
       // Convert the response data back to DriverPositionModel
@@ -59,7 +59,7 @@ class DriverProfileService {
       final data = await _supabase
           .from(tableName)
           .insert(driverData)
-          .select()
+          .select('*, active_vehicle:vehicles(*)')
           .single();
 
       final createdDriver = DriverPositionModel.fromMap(driver.driverId, data);
@@ -81,7 +81,7 @@ class DriverProfileService {
 
       final data = await _supabase
           .from(tableName)
-          .select()
+          .select('*, active_vehicle:vehicles(*)')
           .eq('id', driverId)
           .maybeSingle();
 
@@ -105,7 +105,7 @@ class DriverProfileService {
     try {
       _logger.i('📋 Fetching all driver profiles');
 
-      final dataList = await _supabase.from(tableName).select();
+      final dataList = await _supabase.from(tableName).select('*, active_vehicle:vehicles(*)');
 
       final drivers = <DriverPositionModel>[];
 
@@ -149,20 +149,18 @@ class DriverProfileService {
     try {
       _logger.i('📍 Updating position for driver: $driverId');
 
+      final locationStr = 'POINT($lng $lat)';
       final updateData = <String, dynamic>{
-        'current_lat': lat,
-        'current_lng': lng,
+        'current_location': locationStr,
+        'last_location_update': DateTime.now().toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
       };
-      if (bearing != null) {
-        updateData['bearing'] = bearing;
-      }
-
+      
       final data = await _supabase
           .from(tableName)
           .update(updateData)
           .eq('id', driverId)
-          .select()
+          .select('*, active_vehicle:vehicles(*)')
           .single();
 
       final updatedDriver = DriverPositionModel.fromMap(driverId, data);
@@ -190,7 +188,7 @@ class DriverProfileService {
             'updated_at': DateTime.now().toIso8601String(),
           })
           .eq('id', driverId)
-          .select()
+          .select('*, active_vehicle:vehicles(*)')
           .single();
 
       final updatedDriver = DriverPositionModel.fromMap(driverId, data);
@@ -204,7 +202,6 @@ class DriverProfileService {
   }
 
   /// Get nearest available drivers
-  /// Uses a Supabase RPC function 'get_nearest_drivers' or falls back to client-side filtering if RPC is not available.
   Future<List<DriverPositionModel>> getNearestAvailableDrivers({
     required double lat,
     required double lng,
@@ -213,73 +210,28 @@ class DriverProfileService {
   }) async {
     try {
       _logger.i(
-        '🔍 Fetching nearest available drivers within ${maxDistanceKm}km',
+        '🔍 Fetching nearest available drivers via find_nearest_drivers RPC',
       );
 
-      try {
-        // Try to use PostGIS RPC function if it exists in Supabase
-        final response = await _supabase.rpc(
-          'get_nearest_drivers',
-          params: {
-            'p_lat': lat,
-            'p_lng': lng,
-            'p_max_distance_km': maxDistanceKm,
-            'p_limit': limit,
-          },
-        );
+      final response = await _supabase.rpc(
+        'find_nearest_drivers',
+        params: {
+          'p_lat': lat,
+          'p_lng': lng,
+          'p_limit': limit,
+        },
+      );
 
-        final drivers = <DriverPositionModel>[];
-        for (final data in (response as List<dynamic>)) {
-          final mapData = Map<String, dynamic>.from(data as Map);
-          final driverId = mapData['id'] as String? ?? '';
-          if (driverId.isNotEmpty) {
-            drivers.add(DriverPositionModel.fromMap(driverId, mapData));
-          }
+      final drivers = <DriverPositionModel>[];
+      for (final data in (response as List<dynamic>)) {
+        final mapData = Map<String, dynamic>.from(data as Map);
+        final driverId = mapData['id'] as String? ?? '';
+        if (driverId.isNotEmpty) {
+          drivers.add(DriverPositionModel.fromMap(driverId, mapData));
         }
-        _logger.i('✅ Fetched ${drivers.length} nearest drivers via RPC');
-        return drivers;
-      } catch (rpcError) {
-        // Fallback: Fetch all available drivers and sort client-side (Not ideal for large datasets)
-        _logger.w(
-          '⚠️ RPC get_nearest_drivers failed or not found, falling back to client-side filtering. Error: $rpcError',
-        );
-
-        final dataList = await _supabase
-            .from(tableName)
-            .select()
-            .eq('is_online', true);
-
-        final drivers = <DriverPositionModel>[];
-        for (final data in dataList) {
-          final driverId = data['id'] as String? ?? '';
-          if (driverId.isNotEmpty) {
-            drivers.add(DriverPositionModel.fromMap(driverId, data));
-          }
-        }
-
-        final nearbyDrivers =
-            drivers
-                .where(
-                  (driver) =>
-                      _distanceKm(driver.lat, driver.lng, lat, lng) <=
-                      maxDistanceKm,
-                )
-                .toList()
-              ..sort(
-                (a, b) => _distanceKm(
-                  a.lat,
-                  a.lng,
-                  lat,
-                  lng,
-                ).compareTo(_distanceKm(b.lat, b.lng, lat, lng)),
-              );
-
-        final limitedDrivers = nearbyDrivers.take(limit).toList();
-        _logger.i(
-          '✅ Fetched ${limitedDrivers.length} nearest drivers via fallback',
-        );
-        return limitedDrivers;
       }
+      _logger.i('✅ Fetched ${drivers.length} nearest drivers via RPC');
+      return drivers;
     } catch (e) {
       _logger.e('❌ Exception fetching nearest drivers: $e');
       rethrow;

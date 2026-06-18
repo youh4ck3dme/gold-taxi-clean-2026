@@ -18,7 +18,6 @@ class AdminHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final rideRepository = getIt<RideRepository>();
 
     return Column(
@@ -36,18 +35,23 @@ class AdminHomeView extends StatelessWidget {
                     'Ahoj, $userName 🛡️',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 26,
+                    style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 28,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
                         ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'Admin Dashboard',
+                  const Text(
+                    'SYSTÉMOVÁ ADMINISTRÁCIA',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: isDarkMode ? AppColors.grey400 : AppColors.grey600,
+                    style: TextStyle(
+                          color: AppColors.luxuryGold,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
+                          letterSpacing: 1.5,
                         ),
                   ),
                 ],
@@ -56,21 +60,30 @@ class AdminHomeView extends StatelessWidget {
             const SizedBox(width: 12),
             GestureDetector(
               onTap: () => context.push('/profile'),
-              child: CircleAvatar(
-                radius: 26,
-                backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
-                foregroundImage: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
-                    ? NetworkImage(avatarUrl!)
-                    : null,
-                onForegroundImageError: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
-                    ? (exception, stackTrace) {
-                        debugPrint('Error loading admin avatar: $exception');
-                      }
-                    : null,
-                child: const Icon(
-                  Icons.shield,
-                  color: AppColors.secondary,
-                  size: 28,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [AppColors.luxuryGold, Color(0xFFFFD700)],
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 26,
+                  backgroundColor: AppColors.deepBlack,
+                  foregroundImage: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                      ? NetworkImage(avatarUrl!)
+                      : null,
+                  onForegroundImageError: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                      ? (exception, stackTrace) {
+                          debugPrint('Error loading admin avatar: $exception');
+                        }
+                      : null,
+                  child: const Icon(
+                    Icons.shield,
+                    color: AppColors.luxuryGold,
+                    size: 28,
+                  ),
                 ),
               ),
             ),
@@ -82,15 +95,27 @@ class AdminHomeView extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => context.push('/admin'),
-                icon: const Icon(Icons.dashboard),
-                label: const Text('Kompletný panel'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: AppColors.secondary,
-                  foregroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.luxuryGold.withOpacity(0.2),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/admin'),
+                  icon: const Icon(Icons.dashboard_rounded),
+                  label: const Text('FULL PANEL'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    backgroundColor: AppColors.luxuryGold,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
                 ),
               ),
             ),
@@ -98,11 +123,13 @@ class AdminHomeView extends StatelessWidget {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => context.push('/profile'),
-                icon: const Icon(Icons.settings),
-                label: const Text('Nastavenia'),
+                icon: const Icon(Icons.settings_outlined),
+                label: const Text('NASTAVENIA'),
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  foregroundColor: Colors.white,
+                  side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
               ),
             ),
@@ -112,8 +139,8 @@ class AdminHomeView extends StatelessWidget {
 
         // Live Statistics Stream
         const Text(
-          'Živý prehľad jázd',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          'Živý prehľad platformy',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
         ),
         const SizedBox(height: 16),
 
@@ -121,7 +148,7 @@ class AdminHomeView extends StatelessWidget {
           stream: rideRepository.getAllRides(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator(color: AppColors.luxuryGold));
             }
 
             final rides = snapshot.data ?? [];
@@ -135,35 +162,31 @@ class AdminHomeView extends StatelessWidget {
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 1.2,
+              childAspectRatio: 1.1,
               children: [
                 _buildStatCard(
-                  context: context,
-                  label: 'Aktívne jazdy',
+                  label: 'AKTÍVNE',
                   value: activeRides.toString(),
-                  icon: Icons.local_taxi,
-                  color: Colors.blue,
+                  icon: Icons.local_taxi_rounded,
+                  color: Colors.blueAccent,
                 ),
                 _buildStatCard(
-                  context: context,
-                  label: 'Čakajúce požiadavky',
+                  label: 'ČAKAJÚCE',
                   value: requestedRides.toString(),
-                  icon: Icons.pending_actions,
-                  color: Colors.orange,
+                  icon: Icons.notifications_active_rounded,
+                  color: Colors.orangeAccent,
                 ),
                 _buildStatCard(
-                  context: context,
-                  label: 'Dokončené dnes',
+                  label: 'DOKONČENÉ',
                   value: completedToday.toString(),
-                  icon: Icons.check_circle_outline,
-                  color: Colors.green,
+                  icon: Icons.check_circle_rounded,
+                  color: Colors.greenAccent,
                 ),
                 _buildStatCard(
-                  context: context,
-                  label: 'Všetky jazdy',
+                  label: 'CELKOVO',
                   value: rides.length.toString(),
-                  icon: Icons.list_alt,
-                  color: Colors.purple,
+                  icon: Icons.analytics_rounded,
+                  color: AppColors.luxuryGold,
                 ),
               ],
             );
@@ -174,41 +197,50 @@ class AdminHomeView extends StatelessWidget {
   }
 
   Widget _buildStatCard({
-    required BuildContext context,
     required String label,
     required String value,
     required IconData icon,
     required Color color,
   }) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    return Card(
-      elevation: 0,
-      color: isDarkMode ? AppColors.grey900 : AppColors.grey50,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppColors.grey300.withValues(alpha: 0.5)),
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF111111),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const Spacer(),
             Text(
               value,
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: -1,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.0,
+                color: color.withOpacity(0.8),
+              ),
             ),
           ],
         ),

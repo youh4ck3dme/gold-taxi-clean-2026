@@ -96,11 +96,30 @@ dev_dependencies:
   flutter_lints: ^3.0.0
   mocktail: ^1.0.3
 
+  flutter_launcher_icons: ^0.14.1
+
 flutter:
   uses-material-design: true
 
   assets:
     - assets/images/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#000000"
+    theme_color: "#C9A84C"
+  windows:
+    generate: false
+  macos:
+    generate: false
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
 
 #  fonts:
 #    - family: Poppins

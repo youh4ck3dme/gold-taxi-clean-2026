@@ -1,12 +1,19 @@
 import 'package:equatable/equatable.dart';
 
+enum UserRole {
+  admin,
+  driver,
+  customer,
+  subscriber,
+}
+
 /// User Model
 class UserModel extends Equatable {
   final String id;
   final String name;
   final String email;
   final String? profilePictureUrl;
-  final String role;
+  final UserRole role;
   final String? bio;
   final bool isActive;
   final String? phone;
@@ -35,7 +42,7 @@ class UserModel extends Equatable {
       name: (json['name'] ?? json['full_name']) as String? ?? '',
       email: json['email'] as String? ?? '',
       profilePictureUrl: _sanitizeUrl(json['profile_picture_url'] ?? _getAvatarUrl(json['avatar_urls'])),
-      role: json['role'] as String? ?? _getRole(json['roles']),
+      role: _parseRole(json['role'] ?? _getRole(json['roles'])),
       bio: json['bio'] ?? json['description'] as String?,
       isActive: json['is_active'] as bool? ?? true,
       phone: json['phone'] as String?,
@@ -53,8 +60,8 @@ class UserModel extends Equatable {
     'email': email,
     'avatar_urls': {'96': profilePictureUrl},
     'profile_picture_url': profilePictureUrl,
-    'role': role,
-    'roles': [role],
+    'role': role.name,
+    'roles': [role.name],
     'description': bio,
     'bio': bio,
     'is_active': isActive,
@@ -90,6 +97,22 @@ class UserModel extends Equatable {
     return 'customer';
   }
 
+  static UserRole _parseRole(dynamic role) {
+    final roleStr = role?.toString().toLowerCase();
+    switch (roleStr) {
+      case 'admin':
+      case 'administrator':
+        return UserRole.admin;
+      case 'driver':
+        return UserRole.driver;
+      case 'subscriber':
+        return UserRole.subscriber;
+      case 'customer':
+      default:
+        return UserRole.customer;
+    }
+  }
+
   @override
   List<Object?> get props => [
         id,
@@ -106,8 +129,7 @@ class UserModel extends Equatable {
       ];
 
 
-  bool get isCustomer => role == 'customer' || role == 'subscriber';
-  bool get isDriver => role == 'driver';
-  bool get isAdmin => role == 'admin' || role == 'administrator';
+  bool get isCustomer => role == UserRole.customer || role == UserRole.subscriber;
+  bool get isDriver => role == UserRole.driver;
+  bool get isAdmin => role == UserRole.admin;
 }
-

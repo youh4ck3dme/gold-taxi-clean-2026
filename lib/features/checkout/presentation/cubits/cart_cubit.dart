@@ -54,7 +54,7 @@ class CartCubit extends Cubit<CartState> {
   }
 
   /// Remove a product from the cart
-  Future<void> removeProduct(int productId) async {
+  Future<void> removeProduct(String productId) async {
     final currentState = state;
     if (currentState is CartLoaded) {
       final updatedItems = currentState.items
@@ -66,7 +66,7 @@ class CartCubit extends Cubit<CartState> {
   }
 
   /// Update quantity of an item
-  Future<void> updateQuantity(int productId, int quantity) async {
+  Future<void> updateQuantity(String productId, int quantity) async {
     final currentState = state;
     if (currentState is CartLoaded) {
       if (quantity <= 0) {

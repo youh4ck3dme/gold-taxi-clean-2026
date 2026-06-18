@@ -8,6 +8,7 @@ abstract class AuthRepository {
   Future<void> logout();
   Future<bool> isAuthenticated();
   Future<UserModel?> getCurrentUser();
+  Future<UserModel?> magicLogin();
 }
 
 class SupabaseAuthRepository implements AuthRepository {
@@ -71,19 +72,25 @@ class SupabaseAuthRepository implements AuthRepository {
     return _userModelFromSupabaseUser(user);
   }
 
+  @override
+  Future<UserModel?> magicLogin() async {
+    return null; // Not implemented for real Supabase
+  }
+
   UserModel _userModelFromSupabaseUser(User user) {
     final email = user.email ?? '';
     final metadata = user.userMetadata ?? {};
     
     final name = metadata['full_name'] ?? metadata['name'] ?? email;
     final avatarUrl = metadata['avatar_url'] ?? metadata['picture'];
+    final roleStr = metadata['role'] ?? 'customer';
 
     return UserModel(
       id: user.id,
       name: name,
       email: email,
       profilePictureUrl: avatarUrl,
-      role: 'customer',
+      role: roleStr == 'admin' ? UserRole.admin : (roleStr == 'driver' ? UserRole.driver : UserRole.customer),
       isActive: true,
     );
   }
@@ -128,7 +135,20 @@ class MockAuthRepository implements AuthRepository {
       name: "Mock Taxi Admin",
       email: "admin@goldtaxi.sk",
       profilePictureUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150",
-      role: "admin",
+      role: UserRole.admin,
+      isActive: true,
+    );
+  }
+
+  @override
+  Future<UserModel?> magicLogin() async {
+    await _storage.saveToken("magic_demo_token");
+    return const UserModel(
+      id: "investor-demo-id",
+      name: "Investor Demo",
+      email: "investor@goldtaxi.sk",
+      profilePictureUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150",
+      role: UserRole.admin,
       isActive: true,
     );
   }

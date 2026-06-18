@@ -159,7 +159,7 @@ void main() {
       id: '1',
       name: 'Test Driver',
       email: 'driver@test.com',
-      role: 'customer',
+      role: UserRole.customer,
       phone: '+421900123456',
     );
 

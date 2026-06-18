@@ -170,7 +170,7 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.supabase}) asyn
   }
 
   getIt.registerLazySingleton<FaqRepository>(() => FaqRepository(
-        getIt<ApiService>(),
+        Supabase.instance.client,
         getIt<Connectivity>(),
       ));
 
@@ -200,9 +200,9 @@ Future<void> setupServiceLocator({BackendMode mode = BackendMode.supabase}) asyn
   }
 
   // Register Data Sources
-  getIt.registerLazySingleton<BlogRemoteDataSource>(() => BlogRemoteDataSource(getIt<ApiService>()));
+  getIt.registerLazySingleton<BlogRemoteDataSource>(() => BlogRemoteDataSource(Supabase.instance.client));
   getIt.registerLazySingleton<BlogLocalDataSource>(() => BlogLocalDataSource());
-  getIt.registerLazySingleton<ProductsRemoteDataSource>(() => ProductsRemoteDataSource(getIt<ApiService>()));
+  getIt.registerLazySingleton<ProductsRemoteDataSource>(() => ProductsRemoteDataSource(Supabase.instance.client));
   getIt.registerLazySingleton<ProductsLocalDataSource>(() => ProductsLocalDataSource());
   getIt.registerLazySingleton<ServicesRemoteDataSource>(() => ServicesRemoteDataSource(getIt<ApiService>()));
   getIt.registerLazySingleton<ServicesLocalDataSource>(() => ServicesLocalDataSource());

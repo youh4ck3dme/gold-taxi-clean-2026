@@ -1,30 +1,30 @@
-import 'package:gold_taxi/core/services/api_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gold_taxi/models/post_model.dart';
 
 class BlogRemoteDataSource {
-  final ApiService _apiService;
+  final SupabaseClient _supabase;
 
-  BlogRemoteDataSource(this._apiService);
+  BlogRemoteDataSource(SupabaseClient supabase) : _supabase = supabase;
 
-  /// Fetch posts from WordPress REST API
+  /// Fetch posts from Supabase
   Future<List<PostModel>> fetchPosts({int page = 1, int perPage = 10, String? search}) async {
-    final Map<String, dynamic> queryParams = {
-      'page': page,
-      'per_page': perPage,
-      '_embed': 1,
-    };
+    final from = (page - 1) * perPage;
+    final to = from + perPage - 1;
+
+    var query = _supabase.from('posts').select();
+
     if (search != null && search.isNotEmpty) {
-      queryParams['search'] = search;
+      query = query.ilike('title', '%$search%');
     }
 
-    final response = await _apiService.get(
-      '/wp-json/wp/v2/posts',
-      queryParameters: queryParams,
-    );
+    final response = await query
+        .order('created_at', ascending: false)
+        .range(from, to);
 
     if (response is List) {
-      return response.map((json) => PostModel.fromJson(json as Map<String, dynamic>)).toList();
+      return response.map((json) => PostModel.fromSupabaseJson(json as Map<String, dynamic>)).toList();
     }
     return [];
   }
 }
+

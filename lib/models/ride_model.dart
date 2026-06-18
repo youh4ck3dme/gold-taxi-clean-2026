@@ -28,10 +28,15 @@ class RideModel extends Equatable {
   final String? passengerNote;
   final List<RideStop> stops;
 
+  final String? vehicleId;
+  final int? rating;
+  final String? reviewText;
+
   const RideModel({
     required this.id,
     required this.customerId,
     this.driverId,
+    this.vehicleId,
     required this.pickupAddress,
     required this.pickupLatLng,
     required this.dropoffAddress,
@@ -50,6 +55,8 @@ class RideModel extends Equatable {
     this.cancelledAt,
     this.cancellationReason,
     this.passengerNote,
+    this.rating,
+    this.reviewText,
     this.stops = const [],
   });
 
@@ -57,6 +64,7 @@ class RideModel extends Equatable {
     String? id,
     String? customerId,
     String? driverId,
+    String? vehicleId,
     String? pickupAddress,
     LatLng? pickupLatLng,
     String? dropoffAddress,
@@ -75,12 +83,15 @@ class RideModel extends Equatable {
     DateTime? cancelledAt,
     String? cancellationReason,
     String? passengerNote,
+    int? rating,
+    String? reviewText,
     List<RideStop>? stops,
   }) {
     return RideModel(
       id: id ?? this.id,
       customerId: customerId ?? this.customerId,
       driverId: driverId ?? this.driverId,
+      vehicleId: vehicleId ?? this.vehicleId,
       pickupAddress: pickupAddress ?? this.pickupAddress,
       pickupLatLng: pickupLatLng ?? this.pickupLatLng,
       dropoffAddress: dropoffAddress ?? this.dropoffAddress,
@@ -99,6 +110,8 @@ class RideModel extends Equatable {
       cancelledAt: cancelledAt ?? this.cancelledAt,
       cancellationReason: cancellationReason ?? this.cancellationReason,
       passengerNote: passengerNote ?? this.passengerNote,
+      rating: rating ?? this.rating,
+      reviewText: reviewText ?? this.reviewText,
       stops: stops ?? this.stops,
     );
   }
@@ -108,6 +121,7 @@ class RideModel extends Equatable {
       'id': id,
       'customer_id': customerId,
       'driver_id': driverId,
+      'vehicle_id': vehicleId,
       'pickup_address': pickupAddress,
       'pickup_lat': pickupLatLng.latitude,
       'pickup_lng': pickupLatLng.longitude,
@@ -120,6 +134,8 @@ class RideModel extends Equatable {
       'estimated_price': estimatedPrice,
       'final_price': finalPrice,
       'status': status.dbValue,
+      'rating': rating,
+      'review_text': reviewText,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'accepted_at': acceptedAt?.toIso8601String(),
@@ -135,7 +151,15 @@ class RideModel extends Equatable {
   Map<String, dynamic> toDbJson() {
     final json = toJson();
     json.remove('stops');
+    json.remove('pickup_lat');
+    json.remove('pickup_lng');
+    json.remove('dropoff_lat');
+    json.remove('dropoff_lng');
     
+    // PostGIS POINT format: POINT(longitude latitude)
+    json['pickup_location'] = 'POINT(${pickupLatLng.longitude} ${pickupLatLng.latitude})';
+    json['dropoff_location'] = 'POINT(${dropoffLatLng.longitude} ${dropoffLatLng.latitude})';
+
     final driverIdVal = json['driver_id'] as String?;
     if (driverIdVal != null) {
       final isValidUuid = RegExp(
@@ -149,28 +173,50 @@ class RideModel extends Equatable {
   }
 
   factory RideModel.fromJson(Map<String, dynamic> json) {
+    LatLng _parsePoint(dynamic pointData, double fallbackLat, double fallbackLng) {
+      if (pointData == null) return LatLng(fallbackLat, fallbackLng);
+      // Supabase might return as string "POINT(lng lat)" or as GeoJSON map
+      if (pointData is String) {
+        final match = RegExp(r'POINT\(([-0-9.]+) ([-0-9.]+)\)').firstMatch(pointData);
+        if (match != null) {
+          final lng = double.parse(match.group(1)!);
+          final lat = double.parse(match.group(2)!);
+          return LatLng(lat, lng);
+        }
+      } else if (pointData is Map && pointData['coordinates'] is List) {
+        final coords = pointData['coordinates'] as List;
+        return LatLng(coords[1].toDouble(), coords[0].toDouble());
+      }
+      return LatLng(fallbackLat, fallbackLng);
+    }
+
     return RideModel(
       id: json['id'] as String,
       customerId: (json['customer_id'] ?? json['customerId']) as String,
       driverId: (json['driver_id'] ?? json['driverId']) as String?,
+      vehicleId: (json['vehicle_id'] ?? json['vehicleId']) as String?,
       pickupAddress: (json['pickup_address'] ?? json['pickupAddress']) as String,
-      pickupLatLng: LatLng(
-        (json['pickup_lat'] ?? json['pickupLat'] as num).toDouble(),
-        (json['pickup_lng'] ?? json['pickupLng'] as num).toDouble(),
+      pickupLatLng: _parsePoint(
+        json['pickup_location'],
+        (json['pickup_lat'] ?? 0.0).toDouble(),
+        (json['pickup_lng'] ?? 0.0).toDouble(),
       ),
       dropoffAddress: (json['dropoff_address'] ?? json['dropoffAddress']) as String,
-      dropoffLatLng: LatLng(
-        (json['dropoff_lat'] ?? json['dropoffLat'] as num).toDouble(),
-        (json['dropoff_lng'] ?? json['dropoffLng'] as num).toDouble(),
+      dropoffLatLng: _parsePoint(
+        json['dropoff_location'],
+        (json['dropoff_lat'] ?? 0.0).toDouble(),
+        (json['dropoff_lng'] ?? 0.0).toDouble(),
       ),
-      serviceType: ServiceType.values.byName((json['service_type'] ?? json['serviceType']) as String),
-      estimatedDistance: (json['estimated_distance_km'] ?? json['estimatedDistance'] as num).toDouble(),
-      estimatedDuration: (json['estimated_duration_min'] ?? json['estimatedDuration'] as num).toDouble(),
-      estimatedPrice: (json['estimated_price'] ?? json['estimatedPrice'] as num).toDouble(),
+      serviceType: ServiceType.values.byName((json['service_type'] ?? json['serviceType'] ?? 'standard') as String),
+      estimatedDistance: (json['estimated_distance_km'] ?? json['estimatedDistance'] as num? ?? 0.0).toDouble(),
+      estimatedDuration: (json['estimated_duration_min'] ?? json['estimatedDuration'] as num? ?? 0.0).toDouble(),
+      estimatedPrice: (json['estimated_price'] ?? json['estimatedPrice'] as num? ?? 0.0).toDouble(),
       finalPrice: (json['final_price'] ?? json['finalPrice'] as num?)?.toDouble(),
-      status: RideStatusExtension.fromDbValue(json['status'] as String),
-      createdAt: DateTime.parse((json['created_at'] ?? json['createdAt']) as String),
-      updatedAt: DateTime.parse((json['updated_at'] ?? json['updatedAt']) as String),
+      status: RideStatusExtension.fromDbValue(json['status'] as String? ?? 'requested'),
+      rating: json['rating'] as int?,
+      reviewText: json['review_text'] as String?,
+      createdAt: DateTime.parse((json['created_at'] ?? json['createdAt'] ?? DateTime.now().toIso8601String()) as String),
+      updatedAt: DateTime.parse((json['updated_at'] ?? json['updatedAt'] ?? DateTime.now().toIso8601String()) as String),
       acceptedAt: (json['accepted_at'] ?? json['acceptedAt']) != null ? DateTime.parse((json['accepted_at'] ?? json['acceptedAt']) as String) : null,
       startedAt: (json['started_at'] ?? json['startedAt']) != null ? DateTime.parse((json['started_at'] ?? json['startedAt']) as String) : null,
       completedAt: (json['completed_at'] ?? json['completedAt']) != null ? DateTime.parse((json['completed_at'] ?? json['completedAt']) as String) : null,
@@ -186,9 +232,11 @@ class RideModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, customerId, driverId, pickupAddress, pickupLatLng, dropoffAddress,
+        id, customerId, driverId, vehicleId, pickupAddress, pickupLatLng, dropoffAddress,
         dropoffLatLng, serviceType, estimatedDistance, estimatedDuration,
         estimatedPrice, finalPrice, status, createdAt, updatedAt, acceptedAt,
-        startedAt, completedAt, cancelledAt, cancellationReason, passengerNote, stops
+        startedAt, completedAt, cancelledAt, cancellationReason, passengerNote,
+        rating, reviewText, stops
       ];
+
 }

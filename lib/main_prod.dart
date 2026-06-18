@@ -2,7 +2,8 @@ import 'core/config/app_config.dart';
 import 'main_common.dart';
 
 void main() {
-  const mockMode = bool.fromEnvironment('MOCK_MODE', defaultValue: false);
+  const mockMode = bool.fromEnvironment('MOCK_MODE', defaultValue: false) ||
+      String.fromEnvironment('BACKEND_MODE') == 'mock';
   assert(!mockMode, 'MOCK_MODE must be false in production builds.');
   if (mockMode) {
     throw StateError('Security violation: MOCK_MODE environment variable cannot be true in production.');

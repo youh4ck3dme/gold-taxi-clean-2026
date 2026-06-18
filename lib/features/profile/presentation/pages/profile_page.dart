@@ -50,40 +50,102 @@ class ProfilePage extends StatelessWidget {
             );
           } else if (state is ProfileLoaded) {
             final user = state.user;
-            if (user.isAdmin) {
-              return const AdminProfilePage();
+            
+            // Determine which view to show based on activeRole
+            Widget currentView;
+            String title = 'Profil';
+
+            if (state.activeRole == 'admin') {
+              currentView = const AdminProfilePage();
+              title = 'Admin Panel';
+            } else if (state.activeRole == 'driver') {
+              currentView = const DriverProfilePage();
+              title = 'Profil Vodiča';
+            } else {
+              currentView = const CustomerProfilePage();
+              title = 'Môj Profil';
             }
 
             return Scaffold(
               appBar: AppBar(
-                title: const Text('Profil'),
+                title: Text(title),
                 actions: [
-                  if (user.isDriver)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16.0),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.person_outline, size: 18),
-                          Switch(
-                            value: state.activeRole == 'driver',
-                            onChanged: (isDriver) {
-                              context.read<ProfileCubit>().switchRole(isDriver ? 'driver' : 'customer');
-                            },
-                            activeThumbColor: Colors.amber,
-                          ),
-                          const Icon(Icons.local_taxi, size: 18),
-                        ],
-                      ),
-                    ),
+                  if (user.isAdmin || user.isDriver)
+                    _buildRoleSwitcher(context, state),
                 ],
               ),
-              body: state.activeRole == 'driver' 
-                ? const DriverProfilePage() 
-                : const CustomerProfilePage(),
+              body: currentView,
             );
           }
           return const SizedBox();
         },
+      ),
+    );
+  }
+
+  Widget _buildRoleSwitcher(BuildContext context, ProfileLoaded state) {
+    final user = state.user;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: PopupMenuButton<String>(
+        icon: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.amber.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.amber.withOpacity(0.5)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.swap_horiz, size: 16, color: Colors.amber),
+              const SizedBox(width: 4),
+              Text(
+                state.activeRole.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber,
+                ),
+              ),
+            ],
+          ),
+        ),
+        onSelected: (role) => context.read<ProfileCubit>().switchRole(role),
+        itemBuilder: (context) => [
+          if (user.isAdmin)
+            const PopupMenuItem(
+              value: 'admin',
+              child: Row(
+                children: [
+                  Icon(Icons.admin_panel_settings, size: 20),
+                  SizedBox(width: 8),
+                  Text('Admin View'),
+                ],
+              ),
+            ),
+          if (user.isDriver || user.isAdmin)
+            const PopupMenuItem(
+              value: 'driver',
+              child: Row(
+                children: [
+                  Icon(Icons.local_taxi, size: 20),
+                  SizedBox(width: 8),
+                  Text('Driver View'),
+                ],
+              ),
+            ),
+          const PopupMenuItem(
+            value: 'customer',
+            child: Row(
+              children: [
+                Icon(Icons.person, size: 20),
+                SizedBox(width: 8),
+                Text('Customer View'),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

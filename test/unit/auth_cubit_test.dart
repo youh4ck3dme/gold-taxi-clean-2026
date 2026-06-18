@@ -26,7 +26,7 @@ void main() {
       id: '1',
       name: 'Test User',
       email: 'test@test.com',
-      role: 'subscriber',
+      role: UserRole.subscriber,
     );
 
     test('1. Initial state is AuthInitial', () {
@@ -69,7 +69,7 @@ void main() {
     );
 
     test(
-      '4. checkAuthStatus emits [AuthLoading, Unauthenticated] when token exists but user fails',
+      '4. checkAuthStatus emits [AuthLoading, AuthError] when token exists but user fails',
       () async {
         when(
           () => mockAuthRepository.isAuthenticated(),
@@ -80,7 +80,7 @@ void main() {
 
         expectLater(
           authCubit.stream,
-          emitsInOrder([isA<AuthLoading>(), isA<Unauthenticated>()]),
+          emitsInOrder([isA<AuthLoading>(), isA<AuthError>()]),
         );
 
         await authCubit.checkAuthStatus();
@@ -171,7 +171,7 @@ void main() {
     );
 
     test(
-      '10. signInWithGoogle emits [AuthLoading, AuthError, Unauthenticated] on null user',
+      '10. signInWithGoogle emits [AuthLoading, AuthError] on null user',
       () async {
         when(
           () => mockAuthRepository.signInWithGoogle(),
@@ -182,7 +182,6 @@ void main() {
           emitsInOrder([
             isA<AuthLoading>(),
             isA<AuthError>(),
-            isA<Unauthenticated>(),
           ]),
         );
 
@@ -211,4 +210,3 @@ void main() {
     );
   });
 }
-
