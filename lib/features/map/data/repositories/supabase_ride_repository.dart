@@ -129,16 +129,20 @@ class SupabaseRideRepository implements RideRepository {
     double lng, {
     double? heading,
   }) async {
+    final locationStr = 'POINT($lng $lat)';
+
     await _client.from('driver_locations').insert({
       'driver_id': driverId,
-      'lat': lat,
-      'lng': lng,
+      'location': locationStr,
       'heading': heading,
     });
 
     await _client
         .from('drivers')
-        .update({'current_lat': lat, 'current_lng': lng})
+        .update({
+          'current_location': locationStr,
+          'last_location_update': DateTime.now().toIso8601String(),
+        })
         .eq('id', driverId);
   }
 

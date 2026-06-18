@@ -1,23 +1,31 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:gold_taxi/core/services/api_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gold_taxi/models/faq_model.dart';
 
 class FaqRepository {
-  final ApiService _apiService;
+  final SupabaseClient _supabase;
   final Connectivity _connectivity;
   static const String _boxName = 'faqs_cache_box';
 
-  FaqRepository(this._apiService, this._connectivity);
+  FaqRepository(this._supabase, this._connectivity);
 
-  /// Fetch FAQs from remote API or fallback to local cache
+  /// Fetch FAQs from Supabase or fallback to local cache
   Future<List<FaqModel>> getFaqs() async {
     final connectivityResult = await _connectivity.checkConnectivity();
     final isOnline = !connectivityResult.contains(ConnectivityResult.none);
 
     if (isOnline) {
       try {
-        final faqs = await _apiService.getFAQs();
+        final response = await _supabase
+            .from('faqs')
+            .select()
+            .order('order_index', ascending: true);
+            
+        final faqs = (response as List)
+            .map((json) => FaqModel.fromSupabaseJson(json as Map<String, dynamic>))
+            .toList();
+            
         await _cacheFaqs(faqs);
         return faqs;
       } catch (_) {

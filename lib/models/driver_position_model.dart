@@ -34,16 +34,39 @@ class DriverPositionModel extends Equatable {
 
   /// Create from a plain Map (Supabase row or JSON)
   factory DriverPositionModel.fromMap(String id, Map<String, dynamic> data) {
+    double parsedLat = (data['current_lat'] ?? data['lat'] ?? 0.0).toDouble();
+    double parsedLng = (data['current_lng'] ?? data['lng'] ?? 0.0).toDouble();
+
+    final locationData = data['current_location'];
+    if (locationData != null) {
+      if (locationData is String) {
+        final match = RegExp(r'POINT\(([-0-9.]+) ([-0-9.]+)\)').firstMatch(locationData);
+        if (match != null) {
+          parsedLng = double.parse(match.group(1)!);
+          parsedLat = double.parse(match.group(2)!);
+        }
+      } else if (locationData is Map && locationData['coordinates'] is List) {
+        final coords = locationData['coordinates'] as List;
+        parsedLng = coords[0].toDouble();
+        parsedLat = coords[1].toDouble();
+      }
+    }
+
+    // Handle nested vehicle data if present
+    final vehicle = data['active_vehicle'] ?? {};
+    final carModel = (vehicle['make'] != null ? "${vehicle['make']} ${vehicle['model']}" : (data['vehicle_type'] ?? data['carModel'] ?? 'Unknown')) as String;
+    final carPlate = (vehicle['plate_number'] ?? data['vehicle_plate'] ?? data['carPlate'] ?? 'XXX-XXX') as String;
+
     return DriverPositionModel(
       driverId: id,
       name: (data['display_name'] ?? data['name'] ?? 'Unknown Driver') as String,
       avatar: (data['avatar'] ?? 'https://i.pravatar.cc/150?u=$id') as String,
-      lat: (data['current_lat'] ?? data['lat'] ?? 0.0).toDouble(),
-      lng: (data['current_lng'] ?? data['lng'] ?? 0.0).toDouble(),
-      bearing: (data['bearing'] ?? 0.0).toDouble(),
+      lat: parsedLat,
+      lng: parsedLng,
+      bearing: (data['bearing'] ?? data['heading'] ?? 0.0).toDouble(),
       isAvailable: (data['is_online'] ?? data['isAvailable'] ?? true) as bool,
-      carModel: (data['vehicle_type'] ?? data['carModel'] ?? 'Unknown') as String,
-      carPlate: (data['vehicle_plate'] ?? data['carPlate'] ?? 'XXX-XXX') as String,
+      carModel: carModel,
+      carPlate: carPlate,
       serviceType: (data['serviceType'] ?? 'Standard') as String,
       rating: (data['rating'] ?? 0.0).toDouble(),
       phone: (data['phone'] ?? '') as String,
@@ -55,12 +78,8 @@ class DriverPositionModel extends Equatable {
   Map<String, dynamic> toMap() {
     return {
       'display_name': name,
-      'current_lat': lat,
-      'current_lng': lng,
-      'bearing': bearing,
+      'current_location': 'POINT($lng $lat)',
       'is_online': isAvailable,
-      'vehicle_type': carModel,
-      'vehicle_plate': carPlate,
       'phone': phone,
       'updated_at': lastUpdated.toIso8601String(),
     };

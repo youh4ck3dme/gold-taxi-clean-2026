@@ -52,17 +52,17 @@ class ProductDetailPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        product.stock > 0 ? 'Na sklade (${product.stock} ks)' : 'Vypredané',
+                        (product.stock ?? 0) > 0 ? 'Na sklade (${product.stock} ks)' : 'Vypredané',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: product.stock > 0 ? Colors.green : Colors.red,
+                          color: (product.stock ?? 0) > 0 ? Colors.green : Colors.red,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  if (product.sku.isNotEmpty)
+                  if ((product.sku?.isNotEmpty ?? false))
                     Text(
                       'SKU: ${product.sku}',
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
@@ -80,7 +80,7 @@ class ProductDetailPage extends StatelessWidget {
                   const SizedBox(height: 32),
                   PrimaryButton(
                     text: 'Pridať do košíka',
-                    onPressed: product.stock > 0
+                    onPressed: (product.stock ?? 0) > 0
                         ? () {
                             context.read<CartCubit>().addProduct(product);
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -98,7 +98,7 @@ class ProductDetailPage extends StatelessWidget {
                         : null,
                   ),
                   const Divider(height: 32),
-                  ReviewsList(postId: product.id),
+                  ReviewsList(postId: int.tryParse(product.id) ?? 0),
                 ],
               ),
             ),

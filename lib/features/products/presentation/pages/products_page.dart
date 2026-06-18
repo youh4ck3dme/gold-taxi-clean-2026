@@ -174,7 +174,7 @@ class _ProductCard extends StatelessWidget {
                           color: Colors.green,
                         ),
                       ),
-                      if (product.stock > 0)
+                      if ((product.stock ?? 0) > 0)
                         const Icon(Icons.check_circle_outline, color: Colors.green, size: 16)
                       else
                         const Icon(Icons.highlight_off, color: Colors.red, size: 16)

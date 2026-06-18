@@ -64,10 +64,19 @@ class SupabaseProfileRepository implements ProfileRepository {
       throw Exception('Používateľ nie je prihlásený.');
     }
 
-    // Safely update ONLY whitelisted fields in the drivers table
+    // 1. Upsert vehicle record
+    final vehicleResponse = await _client.from('vehicles').upsert({
+      'plate_number': vehiclePlate,
+      'make': vehicleType.split(' ').first,
+      'model': vehicleType.split(' ').length > 1 ? vehicleType.split(' ').sublist(1).join(' ') : 'Unknown',
+      'vehicle_class': serviceClasses.contains('premium') ? 'premium' : (serviceClasses.contains('comfort') ? 'comfort' : 'standard'),
+    }).select().single();
+
+    final vehicleId = vehicleResponse['id'] as String;
+
+    // 2. Update driver record
     final updatePayload = {
-      'vehicle_type': vehicleType,
-      'vehicle_plate': vehiclePlate,
+      'active_vehicle_id': vehicleId,
       'service_classes': serviceClasses,
       'is_online': isOnline,
     };
@@ -82,7 +91,7 @@ class SupabaseProfileRepository implements ProfileRepository {
   Future<Map<String, dynamic>?> getDriverRecord(String userId) async {
     final data = await _client
         .from('drivers')
-        .select()
+        .select('*, active_vehicle:vehicles(*)')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -147,15 +156,24 @@ class SupabaseProfileRepository implements ProfileRepository {
       throw Exception('Používateľ nie je prihlásený.');
     }
 
-    // Update profile role to driver
+    // 1. Upsert vehicle record
+    final vehicleResponse = await _client.from('vehicles').upsert({
+      'plate_number': vehiclePlate,
+      'make': vehicleType.split(' ').first,
+      'model': vehicleType.split(' ').length > 1 ? vehicleType.split(' ').sublist(1).join(' ') : 'Unknown',
+      'vehicle_class': serviceClasses.contains('premium') ? 'premium' : (serviceClasses.contains('comfort') ? 'comfort' : 'standard'),
+    }).select().single();
+
+    final vehicleId = vehicleResponse['id'] as String;
+
+    // 2. Update profile role to driver
     await _client.from('profiles').update({'role': 'driver'}).eq('id', user.id);
 
-    // Insert driver record
+    // 3. Insert driver record
     await _client.from('drivers').insert({
       'user_id': user.id,
       'display_name': user.email?.split('@').first ?? 'Vodič',
-      'vehicle_type': vehicleType,
-      'vehicle_plate': vehiclePlate,
+      'active_vehicle_id': vehicleId,
       'service_classes': serviceClasses,
       'is_online': false,
       'verification_status': 'pending_verification',
