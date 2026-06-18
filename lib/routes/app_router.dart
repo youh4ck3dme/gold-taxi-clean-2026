@@ -47,7 +47,6 @@ import '../models/post_model.dart';
 import '../models/product_model.dart';
 import '../models/service_model.dart';
 import '../models/event_model.dart';
-import '../features/welcome/presentation/pages/welcome_page.dart';
 import '../features/splash/presentation/pages/splash_page.dart';
 import '../features/splash/presentation/cubits/splash_cubit.dart';
 
@@ -74,7 +73,6 @@ final appRouter = GoRouter(
   redirect: (context, state) {
     final authState = getIt<AuthCubit>().state;
     final isLoggingIn = state.matchedLocation == '/login';
-    final isWelcome = state.matchedLocation == '/welcome';
     final isSplash = state.matchedLocation == '/splash';
 
     // Feature Flags Check
@@ -110,11 +108,11 @@ final appRouter = GoRouter(
       return null;
     }
 
-    if (authState is Unauthenticated && !isLoggingIn && !isWelcome && !isSplash) {
-      return '/welcome';
+    if (authState is Unauthenticated && !isLoggingIn && !isSplash) {
+      return '/login';
     }
 
-    if (authState is Authenticated && (isLoggingIn || isWelcome) && !isSplash) {
+    if (authState is Authenticated && isLoggingIn && !isSplash) {
       return '/';
     }
 
@@ -159,7 +157,6 @@ final appRouter = GoRouter(
     ),
     // Auth routes
     GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
-    GoRoute(path: '/welcome', builder: (context, state) => const WelcomePage()),
     // Feature detail routes (outside ShellRoute for full-screen overlay)
     GoRoute(
       path: '/blog/detail',
