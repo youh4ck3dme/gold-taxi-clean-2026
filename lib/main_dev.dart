@@ -17,7 +17,7 @@ void main() {
       defaultValue: 'pk_test_dev_stripe_key',
     ),
     enableMockMode: const String.fromEnvironment('BACKEND_MODE') == 'mock' ||
-        const bool.fromEnvironment('MOCK_MODE', defaultValue: true),
+        const bool.fromEnvironment('MOCK_MODE', defaultValue: false),
     enableAnalytics: false,
   );
 
