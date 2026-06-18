@@ -19,3 +19,7 @@
 # Keep system service references
 -dontwarn android.runtime.**
 -dontwarn ch.qos.logback.core.status.StatusBase
+
+# Google Play Core classes referenced by Flutter deferred components
+-dontwarn com.google.android.play.core.**
+-keep class com.google.android.play.core.** { *; }
