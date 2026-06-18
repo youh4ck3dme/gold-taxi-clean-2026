@@ -48,6 +48,8 @@ import '../models/product_model.dart';
 import '../models/service_model.dart';
 import '../models/event_model.dart';
 import '../features/welcome/presentation/pages/welcome_page.dart';
+import '../features/splash/presentation/pages/splash_page.dart';
+import '../features/splash/presentation/cubits/splash_cubit.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
   late final StreamSubscription<dynamic> _subscription;
@@ -67,12 +69,13 @@ class GoRouterRefreshStream extends ChangeNotifier {
 }
 
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/splash',
   refreshListenable: GoRouterRefreshStream(getIt<AuthCubit>().stream),
   redirect: (context, state) {
     final authState = getIt<AuthCubit>().state;
     final isLoggingIn = state.matchedLocation == '/login';
     final isWelcome = state.matchedLocation == '/welcome';
+    final isSplash = state.matchedLocation == '/splash';
 
     // Feature Flags Check
     if (state.matchedLocation.startsWith('/blog') &&
@@ -107,17 +110,25 @@ final appRouter = GoRouter(
       return null;
     }
 
-    if (authState is Unauthenticated && !isLoggingIn && !isWelcome) {
+    if (authState is Unauthenticated && !isLoggingIn && !isWelcome && !isSplash) {
       return '/welcome';
     }
 
-    if (authState is Authenticated && (isLoggingIn || isWelcome)) {
+    if (authState is Authenticated && (isLoggingIn || isWelcome) && !isSplash) {
       return '/';
     }
 
     return null;
   },
   routes: [
+    // Splash screen (entry point)
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => BlocProvider(
+        create: (_) => SplashCubit(),
+        child: const SplashPage(),
+      ),
+    ),
     ShellRoute(
       builder: (context, state, child) {
         return MainShell(child: child);
