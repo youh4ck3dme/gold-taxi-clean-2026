@@ -107,6 +107,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/videos/
 
 flutter_launcher_icons:
   android: true

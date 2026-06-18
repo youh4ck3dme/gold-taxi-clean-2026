@@ -439,18 +439,15 @@ void main() {
         tester,
       ); // Počkáme, kým appka nabehne a vyrenderuje sa.
 
-      // 2. Overenie, že sme na správnej úvodnej obrazovke
-      final luxuryWelcomeText = find.text('Gold Taxi'); // WelcomePage title
-
-      if (luxuryWelcomeText.evaluate().isNotEmpty) {
-        // Sme na novej WelcomePage, klikneme na "Už mám účet" pre prechod na LoginPage
-        final alreadyHaveAccountBtn = find.widgetWithText(
-          TextButton,
-          'Už mám účet',
-        );
-        expect(alreadyHaveAccountBtn, findsOneWidget);
-        await tester.tap(alreadyHaveAccountBtn);
-        await pumpStableFrame(tester);
+      // 2. Overenie, že sme na správnej úvodnej obrazovke (Splash alebo Login)
+      // Keďže sme pridali interaktívnu Splash screen s videom, skúsime nájsť skip button (GestureDetector)
+      final skipBtn = find.byType(GestureDetector).last;
+      if (skipBtn.evaluate().isNotEmpty) {
+        await tester.tap(skipBtn);
+        // Počkáme na fade-to-dark animáciu (600ms) a prechod do login stránky
+        for (int i = 0; i < 4; i++) {
+          await tester.pump(const Duration(milliseconds: 200));
+        }
       }
 
       final loginWelcomeText = find.text('EXECUTIVE TAXI');
