@@ -1,4 +1,6 @@
 {
+  "buildCommand": "true",
+  "outputDirectory": "build/web",
   "headers": [
     {
       "source": "/(assets|canvaskit)/(.*)",
