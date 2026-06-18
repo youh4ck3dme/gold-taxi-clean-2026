@@ -173,7 +173,7 @@ class RideModel extends Equatable {
   }
 
   factory RideModel.fromJson(Map<String, dynamic> json) {
-    LatLng _parsePoint(dynamic pointData, double fallbackLat, double fallbackLng) {
+    LatLng parsePoint(dynamic pointData, double fallbackLat, double fallbackLng) {
       if (pointData == null) return LatLng(fallbackLat, fallbackLng);
       // Supabase might return as string "POINT(lng lat)" or as GeoJSON map
       if (pointData is String) {
@@ -196,13 +196,13 @@ class RideModel extends Equatable {
       driverId: (json['driver_id'] ?? json['driverId']) as String?,
       vehicleId: (json['vehicle_id'] ?? json['vehicleId']) as String?,
       pickupAddress: (json['pickup_address'] ?? json['pickupAddress']) as String,
-      pickupLatLng: _parsePoint(
+      pickupLatLng: parsePoint(
         json['pickup_location'],
         (json['pickup_lat'] ?? 0.0).toDouble(),
         (json['pickup_lng'] ?? 0.0).toDouble(),
       ),
       dropoffAddress: (json['dropoff_address'] ?? json['dropoffAddress']) as String,
-      dropoffLatLng: _parsePoint(
+      dropoffLatLng: parsePoint(
         json['dropoff_location'],
         (json['dropoff_lat'] ?? 0.0).toDouble(),
         (json['dropoff_lng'] ?? 0.0).toDouble(),

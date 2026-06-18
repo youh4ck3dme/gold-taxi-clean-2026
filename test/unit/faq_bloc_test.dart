@@ -23,7 +23,7 @@ void main() {
 
   group('FaqBloc Tests', () {
     const testFaq = FaqModel(
-      id: 1,
+      id: '1',
       question: 'How to pay?',
       answer: 'You can pay by card or cash.',
       category: 'Payments',

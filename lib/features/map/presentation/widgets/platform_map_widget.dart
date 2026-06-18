@@ -4,16 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' as ll;
+import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:gold_taxi/core/utils/math_utils.dart';
 import 'google_maps_loader_stub.dart'
     if (dart.library.js) 'google_maps_loader_web.dart'
     if (dart.library.io) 'google_maps_loader_mobile.dart';
 
-/// A platform-adaptive map widget.
-///
-/// Uses Google Maps on Web, Android, and iOS when a platform key is configured.
-/// Falls back to flutter_map (OpenStreetMap) on macOS (and any other platform
-/// where google_maps_flutter is not supported).
 class PlatformMapWidget extends StatefulWidget {
   final double latitude;
   final double longitude;
@@ -50,12 +47,13 @@ class PlatformMapWidget extends StatefulWidget {
   State<PlatformMapWidget> createState() => _PlatformMapWidgetState();
 }
 
-class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProviderStateMixin {
+class _PlatformMapWidgetState extends State<PlatformMapWidget> {
   bool _googleMapsReady = false;
-  late AnimationController _animationController;
-  final Map<String, _MarkerAnimationData> _animatedMarkers = {};
   gmaps.BitmapDescriptor? _carIcon;
   gmaps.GoogleMapController? _mapController;
+  
+  late ClusterManager<MapMarkerData> _clusterManager;
+  Set<gmaps.Marker> _gmapMarkers = {};
 
   @override
   void initState() {
@@ -69,15 +67,22 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProvid
       });
     }
 
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..addListener(() {
-        if (mounted) setState(() {});
-      });
+    _clusterManager = ClusterManager<MapMarkerData>(
+      widget.markers,
+      _updateGoogleMarkers,
+      markerBuilder: _markerBuilder,
+      levels: const [1, 4.25, 6.75, 8.25, 11.5, 14.5, 16.0, 16.5, 20.0],
+    );
 
-    _initAnimatedMarkers(widget.markers);
     _loadCustomCarIcon();
+  }
+
+  void _updateGoogleMarkers(Set<gmaps.Marker> markers) {
+    if (mounted) {
+      setState(() {
+        _gmapMarkers = markers;
+      });
+    }
   }
 
   Future<void> _loadCustomCarIcon() async {
@@ -97,99 +102,24 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProvid
     }
   }
 
-  void _initAnimatedMarkers(Set<MapMarkerData> markers) {
-    for (final marker in markers) {
-      _animatedMarkers[marker.id] = _MarkerAnimationData(
-        startLat: marker.latitude,
-        startLng: marker.longitude,
-        endLat: marker.latitude,
-        endLng: marker.longitude,
-        startRotation: marker.rotation,
-        endRotation: marker.rotation,
-        title: marker.title,
-        snippet: marker.snippet,
-        isAvailable: marker.isAvailable,
-        onTap: marker.onTap,
-      );
-    }
-  }
-
   @override
   void didUpdateWidget(PlatformMapWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
-    bool needsAnimation = false;
-
-    // Remove stale markers
-    final incomingIds = widget.markers.map((m) => m.id).toSet();
-    _animatedMarkers.removeWhere((key, value) => !incomingIds.contains(key));
-
-    for (final marker in widget.markers) {
-      final existing = _animatedMarkers[marker.id];
-      if (existing != null) {
-        // Did it move?
-        if (existing.endLat != marker.latitude || existing.endLng != marker.longitude) {
-          // It moved. Set start to current interpolated position
-          double currentLat = existing.startLat + (existing.endLat - existing.startLat) * _animationController.value;
-          double currentLng = existing.startLng + (existing.endLng - existing.startLng) * _animationController.value;
-          
-          double currentRotation = existing.startRotation + MathUtils.shortestAngle(existing.startRotation, existing.endRotation) * _animationController.value;
-
-          // Calculate new heading (rotation) based on movement direction if the backend didn't provide one
-          double newRotation = marker.rotation;
-          // Note: Geolocator.bearingBetween could be used here if needed, but we assume backend sends rotation
-
-          _animatedMarkers[marker.id] = existing.copyWith(
-            startLat: currentLat,
-            startLng: currentLng,
-            endLat: marker.latitude,
-            endLng: marker.longitude,
-            startRotation: currentRotation,
-            endRotation: newRotation,
-            title: marker.title,
-            snippet: marker.snippet,
-            isAvailable: marker.isAvailable,
-            onTap: marker.onTap,
+    if (widget.markers != oldWidget.markers) {
+      _clusterManager.setItems(widget.markers.toList());
+      
+      // Auto-tracking logic if needed
+      if (widget.isAutoTracking && widget.autoTrackMarkerId != null && _mapController != null) {
+        try {
+          final target = widget.markers.firstWhere((m) => m.id == widget.autoTrackMarkerId);
+          _mapController!.animateCamera(
+            gmaps.CameraUpdate.newLatLng(gmaps.LatLng(target.latitude, target.longitude)),
           );
-          needsAnimation = true;
-        } else {
-          // Just update info
-          _animatedMarkers[marker.id] = existing.copyWith(
-            title: marker.title,
-            snippet: marker.snippet,
-            isAvailable: marker.isAvailable,
-            onTap: marker.onTap,
-          );
-        }
-      } else {
-        // New marker
-        _animatedMarkers[marker.id] = _MarkerAnimationData(
-          startLat: marker.latitude,
-          startLng: marker.longitude,
-          endLat: marker.latitude,
-          endLng: marker.longitude,
-          startRotation: marker.rotation,
-          endRotation: marker.rotation,
-          title: marker.title,
-          snippet: marker.snippet,
-          isAvailable: marker.isAvailable,
-          onTap: marker.onTap,
-        );
+        } catch (_) {}
       }
     }
-
-    if (needsAnimation) {
-      _animationController.forward(from: 0.0);
-    }
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  /// Check if Google Maps is supported on this platform.
   static bool get _useGoogleMaps {
     if (kIsWeb) return true;
     switch (defaultTargetPlatform) {
@@ -201,14 +131,41 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProvid
     }
   }
 
-  /// Get taxi icon for Google Maps based on availability status
   gmaps.BitmapDescriptor _getTaxiIcon(bool isAvailable) {
     return gmaps.BitmapDescriptor.defaultMarkerWithHue(
       isAvailable ? gmaps.BitmapDescriptor.hueGreen : gmaps.BitmapDescriptor.hueRed,
     );
   }
 
-  /// Build taxi marker icon for flutter_map
+  Future<gmaps.Marker> _markerBuilder(Cluster<MapMarkerData> cluster) async {
+    return gmaps.Marker(
+      markerId: gmaps.MarkerId(cluster.getId()),
+      position: cluster.location,
+      onTap: () {
+        if (cluster.isMultiple) {
+          _mapController?.animateCamera(gmaps.CameraUpdate.newLatLngZoom(cluster.location, 14));
+        } else {
+          cluster.items.first.onTap?.call();
+        }
+      },
+      icon: cluster.isMultiple 
+        ? await _getClusterBitmap(cluster.count.toString())
+        : (_carIcon ?? _getTaxiIcon(cluster.items.first.isAvailable)),
+      rotation: cluster.isMultiple ? 0.0 : cluster.items.first.rotation,
+      infoWindow: cluster.isMultiple 
+        ? gmaps.InfoWindow.noText 
+        : gmaps.InfoWindow(
+            title: cluster.items.first.title,
+            snippet: cluster.items.first.snippet,
+          ),
+    );
+  }
+  
+  Future<gmaps.BitmapDescriptor> _getClusterBitmap(String text) async {
+    // Basic fallback to default hue for cluster if custom painter is not implemented yet
+    return gmaps.BitmapDescriptor.defaultMarkerWithHue(gmaps.BitmapDescriptor.hueAzure);
+  }
+
   Widget _buildTaxiMarkerIcon(bool isAvailable) {
     return Container(
       decoration: BoxDecoration(
@@ -232,43 +189,13 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProvid
     return _buildFlutterMap();
   }
 
-  /// Google Maps implementation (Web, Android, iOS)
   Widget _buildGoogleMap() {
-    final t = _animationController.value;
-    
-    final gMarkers = _animatedMarkers.entries.map((entry) {
-      final id = entry.key;
-      final data = entry.value;
-      
-      final currentLat = data.startLat + (data.endLat - data.startLat) * t;
-      final currentLng = data.startLng + (data.endLng - data.startLng) * t;
-      final currentRotation = data.startRotation + MathUtils.shortestAngle(data.startRotation, data.endRotation) * t;
-
-      if (widget.isAutoTracking && widget.autoTrackMarkerId == id && _mapController != null) {
-        _mapController!.moveCamera(
-          gmaps.CameraUpdate.newLatLng(gmaps.LatLng(currentLat, currentLng)),
-        );
-      }
-
-      return gmaps.Marker(
-        markerId: gmaps.MarkerId(id),
-        position: gmaps.LatLng(currentLat, currentLng),
-        infoWindow: gmaps.InfoWindow(
-          title: data.title,
-          snippet: data.snippet,
-        ),
-        icon: _carIcon ?? _getTaxiIcon(data.isAvailable),
-        rotation: currentRotation,
-        onTap: data.onTap,
-      );
-    }).toSet();
-
     return gmaps.GoogleMap(
       initialCameraPosition: gmaps.CameraPosition(
         target: gmaps.LatLng(widget.latitude, widget.longitude),
         zoom: widget.zoom,
       ),
-      markers: gMarkers,
+      markers: _gmapMarkers,
       myLocationEnabled: widget.myLocationEnabled,
       myLocationButtonEnabled: widget.myLocationButtonEnabled,
       compassEnabled: widget.compassEnabled,
@@ -276,13 +203,15 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProvid
       padding: widget.padding,
       onMapCreated: (controller) {
         _mapController = controller;
+        _clusterManager.setMapId(controller.mapId);
         widget.onMapCreated?.call(controller);
       },
+      onCameraMove: _clusterManager.onCameraMove,
+      onCameraIdle: _clusterManager.updateMap,
       gestureRecognizers: widget.gestureRecognizers ?? {},
     );
   }
 
-  /// Flutter Map (OpenStreetMap) implementation (macOS fallback)
   Widget _buildFlutterMap() {
     final fMarkers = widget.markers.map((m) {
       return Marker(
@@ -309,14 +238,33 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> with TickerProvid
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.goldtaxi.app',
         ),
-        MarkerLayer(markers: fMarkers),
+        MarkerClusterLayerWidget(
+          options: MarkerClusterLayerOptions(
+            maxClusterRadius: 45,
+            size: const Size(40, 40),
+            markers: fMarkers,
+            builder: (context, markers) {
+              return Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  color: Colors.blue,
+                ),
+                child: Center(
+                  child: Text(
+                    markers.length.toString(),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
 }
 
-/// Platform-agnostic marker data shared between Google Maps and flutter_map.
-class MapMarkerData {
+class MapMarkerData with ClusterItem {
   final String id;
   final double latitude;
   final double longitude;
@@ -326,7 +274,7 @@ class MapMarkerData {
   final double rotation;
   final VoidCallback? onTap;
 
-  const MapMarkerData({
+  MapMarkerData({
     required this.id,
     required this.latitude,
     required this.longitude,
@@ -338,6 +286,9 @@ class MapMarkerData {
   });
 
   @override
+  gmaps.LatLng get location => gmaps.LatLng(latitude, longitude);
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MapMarkerData &&
@@ -346,56 +297,4 @@ class MapMarkerData {
 
   @override
   int get hashCode => id.hashCode;
-}
-
-class _MarkerAnimationData {
-  final double startLat;
-  final double startLng;
-  final double endLat;
-  final double endLng;
-  final double startRotation;
-  final double endRotation;
-  final String title;
-  final String? snippet;
-  final bool isAvailable;
-  final VoidCallback? onTap;
-
-  _MarkerAnimationData({
-    required this.startLat,
-    required this.startLng,
-    required this.endLat,
-    required this.endLng,
-    required this.startRotation,
-    required this.endRotation,
-    required this.title,
-    this.snippet,
-    required this.isAvailable,
-    this.onTap,
-  });
-
-  _MarkerAnimationData copyWith({
-    double? startLat,
-    double? startLng,
-    double? endLat,
-    double? endLng,
-    double? startRotation,
-    double? endRotation,
-    String? title,
-    String? snippet,
-    bool? isAvailable,
-    VoidCallback? onTap,
-  }) {
-    return _MarkerAnimationData(
-      startLat: startLat ?? this.startLat,
-      startLng: startLng ?? this.startLng,
-      endLat: endLat ?? this.endLat,
-      endLng: endLng ?? this.endLng,
-      startRotation: startRotation ?? this.startRotation,
-      endRotation: endRotation ?? this.endRotation,
-      title: title ?? this.title,
-      snippet: snippet ?? this.snippet,
-      isAvailable: isAvailable ?? this.isAvailable,
-      onTap: onTap ?? this.onTap,
-    );
-  }
 }

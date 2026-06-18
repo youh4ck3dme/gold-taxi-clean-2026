@@ -20,6 +20,7 @@ class FaqRepository {
         final response = await _supabase
             .from('faqs')
             .select()
+            .neq('id', '')
             .order('order_index', ascending: true);
             
         final faqs = (response as List)

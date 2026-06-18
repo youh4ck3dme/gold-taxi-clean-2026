@@ -41,7 +41,7 @@ void main() {
 
   group('CartCubit Tests', () {
     const testProduct = ProductModel(
-      id: 1,
+      id: '1',
       name: 'Test Product',
       description: 'Test Description',
       price: 10.0,
@@ -61,7 +61,7 @@ void main() {
       expect(cartCubit.state, isA<CartLoaded>());
       final state = cartCubit.state as CartLoaded;
       expect(state.items, hasLength(1));
-      expect(state.items.first.product.id, 1);
+      expect(state.items.first.product.id, '1');
       expect(state.items.first.quantity, 2);
     });
 
@@ -76,7 +76,7 @@ void main() {
 
     test('updateQuantity modifies quantity of cart item', () async {
       await cartCubit.addProduct(testProduct, quantity: 2);
-      await cartCubit.updateQuantity(1, 4);
+      await cartCubit.updateQuantity('1', 4);
 
       final state = cartCubit.state as CartLoaded;
       expect(state.items.first.quantity, 4);
@@ -84,7 +84,7 @@ void main() {
 
     test('updateQuantity removes item if quantity set to 0 or less', () async {
       await cartCubit.addProduct(testProduct, quantity: 2);
-      await cartCubit.updateQuantity(1, 0);
+      await cartCubit.updateQuantity('1', 0);
 
       final state = cartCubit.state as CartLoaded;
       expect(state.items, isEmpty);
@@ -92,7 +92,7 @@ void main() {
 
     test('removeProduct deletes item from cart', () async {
       await cartCubit.addProduct(testProduct, quantity: 2);
-      await cartCubit.removeProduct(1);
+      await cartCubit.removeProduct('1');
 
       final state = cartCubit.state as CartLoaded;
       expect(state.items, isEmpty);

@@ -355,9 +355,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFC59B47).withOpacity(0.1),
+        color: const Color(0xFFC59B47).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC59B47).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFFC59B47).withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [

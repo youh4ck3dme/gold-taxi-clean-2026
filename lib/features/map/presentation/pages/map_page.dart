@@ -259,20 +259,20 @@ class _MapPageState extends State<MapPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF111111),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.luxuryGold.withOpacity(0.3), width: 1.5),
+                  border: Border.all(color: AppColors.luxuryGold.withValues(alpha: 0.3), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
                   ],
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.search_rounded, color: AppColors.luxuryGold, size: 24),
-                    const SizedBox(width: 16),
-                    const Text(
+                    Icon(Icons.search_rounded, color: AppColors.luxuryGold, size: 24),
+                    SizedBox(width: 16),
+                    Text(
                       'Kam to bude?',
                       style: TextStyle(
                         color: Color(0xFFB8BEC9), 
@@ -298,7 +298,7 @@ class _MapPageState extends State<MapPage> {
                 foregroundColor: AppColors.luxuryGold,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: AppColors.luxuryGold.withOpacity(0.3)),
+                  side: BorderSide(color: AppColors.luxuryGold.withValues(alpha: 0.3)),
                 ),
                 onPressed: _getCurrentPosition,
                 child: _isLoadingLocation
@@ -352,10 +352,10 @@ class _DriverInfoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.luxuryGold.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: AppColors.luxuryGold.withValues(alpha: 0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -414,11 +414,11 @@ class _DriverInfoCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: driver.isAvailable
-                            ? Colors.greenAccent.withOpacity(0.1)
-                            : Colors.redAccent.withOpacity(0.1),
+                            ? Colors.greenAccent.withValues(alpha: 0.1)
+                            : Colors.redAccent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: driver.isAvailable ? Colors.greenAccent.withOpacity(0.3) : Colors.redAccent.withOpacity(0.3),
+                          color: driver.isAvailable ? Colors.greenAccent.withValues(alpha: 0.3) : Colors.redAccent.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Text(
@@ -453,9 +453,9 @@ class _DriverInfoCard extends StatelessWidget {
                         onPressed: () => _makePhoneCall(driver.phone, context),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: Colors.white.withOpacity(0.05),
+                          backgroundColor: Colors.white.withValues(alpha: 0.05),
                           foregroundColor: Colors.white,
-                          side: BorderSide(color: Colors.white.withOpacity(0.1)),
+                          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
                       ),
@@ -539,10 +539,10 @@ class _DriverListCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.luxuryGold.withOpacity(0.2)),
+        border: Border.all(color: AppColors.luxuryGold.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -567,7 +567,7 @@ class _DriverListCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.luxuryGold.withOpacity(0.1),
+                  color: AppColors.luxuryGold.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -616,7 +616,7 @@ class _DriverListCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: isOnline ? AppColors.luxuryGold.withOpacity(0.5) : Colors.white10,
+                                    color: isOnline ? AppColors.luxuryGold.withValues(alpha: 0.5) : Colors.white10,
                                   ),
                                 ),
                                 child: CircleAvatar(

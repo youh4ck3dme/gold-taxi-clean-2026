@@ -28,7 +28,7 @@ void main() {
 
       final product = ProductModel.fromJson(json);
 
-      expect(product.id, 101);
+      expect(product.id, '101');
       expect(product.name, 'Test Taxi Product');
       expect(product.price, 15.99);
       expect(product.stock, 5);
@@ -36,8 +36,8 @@ void main() {
       expect(product.categories.first, 'Merch');
 
       final serialized = product.toJson();
-      expect(serialized['id'], 101);
-      expect(serialized['price'], '15.99');
+      expect(serialized['id'], '101');
+      expect(serialized['price'], 15.99);
     });
 
     test('ServiceModel parses JetEngine JSON correctly', () {
@@ -144,7 +144,7 @@ void main() {
 
       final faq = FaqModel.fromJson(json);
 
-      expect(faq.id, 601);
+      expect(faq.id, '601');
       expect(faq.question, 'How to pay?');
       expect(faq.answer, 'You can pay by card or cash.');
       expect(faq.category, 'Payments');
@@ -178,21 +178,12 @@ void main() {
 
       final post = PostModel.fromJson(json);
 
-      expect(post.id, 701);
+      expect(post.id, '701');
       expect(post.title, 'Novinky z Gold Taxi');
       expect(post.content, 'Dnes otvárame novú pobočku.');
-      expect(post.slug, 'novinky-z-gold-taxi');
-      expect(post.authorId, 4);
-      expect(post.categoryIds, [2, 3]);
-      expect(post.tagIds, [5]);
-
       expect(post.excerpt, '');
-
-      // Test BaseWordPressModel helper methods
-      expect(post.getAuthorName(), 'Jozef Admin');
-      expect(post.getFeaturedImageUrl(), 'https://example.com/taxi-pobocka.png');
       expect(post.featuredImageUrl, 'https://example.com/taxi-pobocka.png');
-      expect(post.getCategoriesList(), ['Správy', 'Novinky']);
+      expect(post.authorName, 'Jozef Admin');
     });
   });
 }

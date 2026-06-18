@@ -123,12 +123,12 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             color: const Color(0xFF111111),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: _isOnline ? Colors.green.withOpacity(0.3) : Colors.white.withOpacity(0.1),
+              color: _isOnline ? Colors.green.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.1),
               width: 1.5,
             ),
             boxShadow: _isOnline ? [
               BoxShadow(
-                color: Colors.green.withOpacity(0.1),
+                color: Colors.green.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -163,8 +163,8 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                   child: Switch(
                     value: _isOnline,
                     onChanged: _toggleOnline,
-                    activeTrackColor: Colors.green.withOpacity(0.5),
-                    activeColor: Colors.greenAccent,
+                    activeTrackColor: Colors.green.withValues(alpha: 0.5),
+                    activeThumbColor: Colors.greenAccent,
                   ),
                 ),
               ],
@@ -196,11 +196,11 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             decoration: BoxDecoration(
               color: const Color(0xFF111111),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: Column(
               children: [
-                Icon(Icons.power_settings_new_rounded, size: 48, color: Colors.white.withOpacity(0.1)),
+                Icon(Icons.power_settings_new_rounded, size: 48, color: Colors.white.withValues(alpha: 0.1)),
                 const SizedBox(height: 16),
                 const Text(
                   'Pre príjem jázd sa zapnite do režimu ONLINE',
@@ -246,14 +246,14 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF1A1A1A),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.luxuryGold.withOpacity(0.2)),
+                      border: Border.all(color: AppColors.luxuryGold.withValues(alpha: 0.2)),
                     ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(16),
                       leading: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
+                          color: Colors.green.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.person_pin_circle_rounded, color: Colors.greenAccent),

@@ -23,15 +23,15 @@ void main() {
 
   group('BlogBloc Tests', () {
     final testPost = PostModel(
-      id: 1,
+      id: '1',
       date: DateTime(2026, 6, 11),
       title: 'Test Post Title',
       content: 'Test Post Content',
       excerpt: 'Test Post Excerpt',
-      slug: 'test-post',
-      authorId: 10,
-      categoryIds: const [1],
-      tagIds: const [2],
+      featuredImageUrl: null,
+      authorName: 'Test Author',
+      categories: const ['Test Category'],
+      tags: const ['Test Tag'],
     );
 
     test('Initial state is BlogInitial', () {

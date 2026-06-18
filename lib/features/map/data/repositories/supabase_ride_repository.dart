@@ -108,6 +108,7 @@ class SupabaseRideRepository implements RideRepository {
     return _client
         .from('rides')
         .stream(primaryKey: ['id'])
+        .neq('id', '')
         .order('created_at', ascending: false)
         .map((data) => data.map((json) => RideModel.fromJson(json)).toList());
   }

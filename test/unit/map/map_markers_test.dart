@@ -4,7 +4,7 @@ import 'package:gold_taxi/features/map/presentation/widgets/platform_map_widget.
 void main() {
   group('MapMarkerData Tests', () {
     test('MapMarkerData has correct fields for demo driver', () {
-      const marker = MapMarkerData(
+      final marker = MapMarkerData(
         id: 'demo_driver_jan_novak',
         latitude: 48.1486,
         longitude: 17.1077,
@@ -23,7 +23,7 @@ void main() {
     });
 
     test('MapMarkerData equality works based on id', () {
-      const marker1 = MapMarkerData(
+      final marker1 = MapMarkerData(
         id: 'demo_driver_jan_novak',
         latitude: 48.1486,
         longitude: 17.1077,
@@ -32,7 +32,7 @@ void main() {
         isAvailable: true,
       );
 
-      const marker2 = MapMarkerData(
+      final marker2 = MapMarkerData(
         id: 'demo_driver_jan_novak',
         latitude: 48.1486,
         longitude: 17.1077,
@@ -41,7 +41,7 @@ void main() {
         isAvailable: true,
       );
 
-      const marker3 = MapMarkerData(
+      final marker3 = MapMarkerData(
         id: 'different_driver',
         latitude: 48.1486,
         longitude: 17.1077,
@@ -53,14 +53,14 @@ void main() {
     });
 
     test('MapMarkerData hashCode is based on id', () {
-      const marker1 = MapMarkerData(
+      final marker1 = MapMarkerData(
         id: 'demo_driver_jan_novak',
         latitude: 48.1486,
         longitude: 17.1077,
         title: 'Ján Novák',
       );
 
-      const marker2 = MapMarkerData(
+      final marker2 = MapMarkerData(
         id: 'demo_driver_jan_novak',
         latitude: 0,
         longitude: 0,
@@ -74,7 +74,7 @@ void main() {
   group('PlatformMapWidget Tests', () {
     test('PlatformMapWidget can be constructed with markers', () {
       final markers = {
-        const MapMarkerData(
+        MapMarkerData(
           id: 'demo_driver_jan_novak',
           latitude: 48.1486,
           longitude: 17.1077,
@@ -98,7 +98,7 @@ void main() {
     });
 
     test('Marker data for demo driver has taxi info in snippet', () {
-      const marker = MapMarkerData(
+      final marker = MapMarkerData(
         id: 'demo_driver_jan_novak',
         latitude: 48.1486,
         longitude: 17.1077,

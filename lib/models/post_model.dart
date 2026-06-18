@@ -38,8 +38,8 @@ class PostModel extends Equatable {
       excerpt: parseRendered(json['excerpt']),
       featuredImageUrl: _getWpFeaturedImage(json),
       authorName: _getWpAuthorName(json),
-      categories: [], // Simplified for now
-      tags: [],
+      categories: const [], // Simplified for now
+      tags: const [],
     );
   }
 

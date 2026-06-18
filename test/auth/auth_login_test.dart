@@ -20,7 +20,7 @@ void main() {
     // 0. Initialize fake Supabase instance for DI
     await Supabase.initialize(
       url: 'https://test.supabase.co',
-      anonKey: 'test_anon_key',
+      publishableKey: 'test_anon_key',
     );
 
     // 1. Initialize service locator in Supabase mode

@@ -23,7 +23,7 @@ void main() {
 
   group('ProductsBloc Tests', () {
     const testProduct = ProductModel(
-      id: 1,
+      id: '1',
       name: 'Test Product',
       description: 'Test Description',
       price: 10.0,

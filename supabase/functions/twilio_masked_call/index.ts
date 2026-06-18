@@ -38,6 +38,7 @@ serve(async (req: Request) => {
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=representation',
       }
     })
 

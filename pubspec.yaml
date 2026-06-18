@@ -48,7 +48,9 @@ dependencies:
 
   # Location & Maps
   google_maps_flutter: ^2.10.0
+  google_maps_cluster_manager: ^3.1.0
   flutter_map: ^7.0.2
+  flutter_map_marker_cluster: ^1.4.0
   latlong2: ^0.9.1
   geolocator: ^9.0.2
   geocoding: ^3.0.0

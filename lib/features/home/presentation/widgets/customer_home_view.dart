@@ -106,9 +106,9 @@ class CustomerHomeView extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -146,7 +146,7 @@ class CustomerHomeView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.luxuryGold.withOpacity(0.3),
+                            color: AppColors.luxuryGold.withValues(alpha: 0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),
@@ -204,12 +204,12 @@ class CustomerHomeView extends StatelessWidget {
                       color: const Color(0xFF111111),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: AppColors.luxuryGold.withOpacity(0.3),
+                        color: AppColors.luxuryGold.withValues(alpha: 0.3),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.luxuryGold.withOpacity(0.1),
+                          color: AppColors.luxuryGold.withValues(alpha: 0.1),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -220,7 +220,7 @@ class CustomerHomeView extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: AppColors.luxuryGold.withOpacity(0.1),
+                            color: AppColors.luxuryGold.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -281,7 +281,7 @@ class CustomerHomeView extends StatelessWidget {
                           }
                         },
                         backgroundColor: const Color(0xFF1A1A1A),
-                        side: BorderSide(color: AppColors.luxuryGold.withOpacity(0.2)),
+                        side: BorderSide(color: AppColors.luxuryGold.withValues(alpha: 0.2)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     );
@@ -303,7 +303,7 @@ class CustomerHomeView extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: AppColors.luxuryGold.withOpacity(0.15),
+                  color: AppColors.luxuryGold.withValues(alpha: 0.15),
                   width: 1,
                 ),
               ),
@@ -324,7 +324,7 @@ class CustomerHomeView extends StatelessWidget {
                               fontWeight: FontWeight.w900,
                               fontSize: 12,
                               letterSpacing: 1.5,
-                              color: AppColors.luxuryGold.withOpacity(0.9),
+                              color: AppColors.luxuryGold.withValues(alpha: 0.9),
                             ),
                       ),
                     ],

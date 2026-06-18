@@ -88,6 +88,7 @@ serve(async (req) => {
             'Content-Type': 'application/json',
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Prefer': 'return=representation',
           },
           body: JSON.stringify({
             status: newStatus,
@@ -119,6 +120,7 @@ serve(async (req) => {
               'Content-Type': 'application/json',
               'apikey': SUPABASE_KEY,
               'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Prefer': 'return=representation',
             },
           }
         )
@@ -137,6 +139,7 @@ serve(async (req) => {
                   'Content-Type': 'application/json',
                   'apikey': SUPABASE_KEY,
                   'Authorization': `Bearer ${SUPABASE_KEY}`,
+                  'Prefer': 'return=representation',
                 },
                 body: JSON.stringify({
                   status: isEnabled ? 'verified' : 'pending',

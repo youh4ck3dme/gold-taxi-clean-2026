@@ -220,7 +220,7 @@ void main() {
       WidgetTester tester,
     ) async {
       const product = ProductModel(
-        id: 10,
+        id: '10',
         name: 'Taxi Premium Cap',
         description: 'Cap with Taxi Logo',
         price: 12.0,
@@ -307,15 +307,15 @@ void main() {
       WidgetTester tester,
     ) async {
       final post = PostModel(
-        id: 40,
+        id: '40',
         date: DateTime(2026, 6, 11),
         title: 'New Taxi Fleet Arrived',
         content: 'We added 10 new cars.',
         excerpt: 'New fleet update',
-        slug: 'new-fleet',
-        authorId: 1,
-        categoryIds: const [],
-        tagIds: const [],
+        featuredImageUrl: null,
+        authorName: 'Admin',
+        categories: const [],
+        tags: const [],
       );
 
       when(
@@ -336,7 +336,7 @@ void main() {
       WidgetTester tester,
     ) async {
       const faq = FaqModel(
-        id: 50,
+        id: '50',
         question: 'Ako stornovať jazdu?',
         answer: 'Kliknite na tlačidlo storno v detaile jazdy.',
         category: 'Objednávky',

@@ -21,10 +21,7 @@ class BlogRemoteDataSource {
         .order('created_at', ascending: false)
         .range(from, to);
 
-    if (response is List) {
-      return response.map((json) => PostModel.fromSupabaseJson(json as Map<String, dynamic>)).toList();
-    }
-    return [];
+    return response.map((json) => PostModel.fromSupabaseJson(json)).toList();
   }
 }
 
