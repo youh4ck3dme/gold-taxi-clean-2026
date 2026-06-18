@@ -298,9 +298,10 @@ void main() {
         reason: 'Production must assert MOCK_MODE is false',
       );
 
-      // Must throw on violation
+      // Must throw on violation (quote-agnostic after dart format)
       expect(
-        source.contains("throw StateError('Security violation:"),
+        source.contains('throw StateError(') &&
+            source.contains('Security violation:'),
         isTrue,
         reason:
             'Production must throw StateError on MOCK_MODE security violation',
