@@ -6,10 +6,6 @@
   
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://nscxuxhapaabtsiduxlu.supabase.co/rest/v1/:path*"
-    },
-    {
       "source": "/auth/callback",
       "destination": "/index.html"
     },
@@ -123,19 +119,5 @@
         }
       ]
     }
-  ],
-
-  "functions": {
-    "api/auth/callback.js": {
-      "memory": 512,
-      "maxDuration": 10
-    }
-  },
-
-  "env": {
-    "SUPABASE_URL": "@supabase_url",
-    "SUPABASE_ANON_KEY": "@supabase_anon_key",
-    "GOOGLE_MAPS_API_KEY": "@google_maps_api_key",
-    "BACKEND_MODE": "@backend_mode"
-  }
+  ]
 }
