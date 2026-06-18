@@ -75,17 +75,22 @@ final appRouter = GoRouter(
     final isWelcome = state.matchedLocation == '/welcome';
 
     // Feature Flags Check
-    if (state.matchedLocation.startsWith('/blog') && !FeatureFlags.blogEnabled)
+    if (state.matchedLocation.startsWith('/blog') &&
+        !FeatureFlags.blogEnabled) {
       return '/';
+    }
     if (state.matchedLocation.startsWith('/products') &&
-        !FeatureFlags.productsEnabled)
+        !FeatureFlags.productsEnabled) {
       return '/';
+    }
     if (state.matchedLocation.startsWith('/events') &&
-        !FeatureFlags.eventsEnabled)
+        !FeatureFlags.eventsEnabled) {
       return '/';
+    }
     if (state.matchedLocation.startsWith('/insolvency') &&
-        !FeatureFlags.insolvencyEnabled)
+        !FeatureFlags.insolvencyEnabled) {
       return '/';
+    }
 
     if (authState is Authenticated) {
       final user = authState.user;

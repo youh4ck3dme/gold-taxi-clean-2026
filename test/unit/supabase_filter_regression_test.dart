@@ -284,27 +284,42 @@ void main() {
       final filePath = path.join('lib', 'main_prod.dart');
       final source = await File(filePath).readAsString();
 
-      // Must check MOCK_MODE
+      // Must use bool.fromEnvironment for MOCK_MODE
+      expect(
+        source.contains('bool.fromEnvironment'),
+        isTrue,
+        reason: 'Production must use bool.fromEnvironment for MOCK_MODE',
+      );
       expect(
         source.contains('MOCK_MODE'),
         isTrue,
         reason: 'Production must check MOCK_MODE',
       );
 
-      // Must assert it's false
+      // Must also check BACKEND_MODE
+      expect(
+        source.contains('BACKEND_MODE'),
+        isTrue,
+        reason: 'Production must check BACKEND_MODE',
+      );
+
+      // Must assert it's false (quote-agnostic)
       expect(
         source.contains('MOCK_MODE must be false in production builds'),
         isTrue,
         reason: 'Production must assert MOCK_MODE is false',
       );
 
-      // Must throw on violation (quote-agnostic after dart format)
+      // Must throw StateError on violation (quote-agnostic)
       expect(
-        source.contains('throw StateError(') &&
-            source.contains('Security violation:'),
+        source.contains('throw StateError'),
         isTrue,
-        reason:
-            'Production must throw StateError on MOCK_MODE security violation',
+        reason: 'Production must throw StateError on MOCK_MODE violation',
+      );
+      expect(
+        source.contains('Security violation'),
+        isTrue,
+        reason: 'Production must mention Security violation in error message',
       );
     });
 

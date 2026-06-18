@@ -112,8 +112,9 @@ class _ReviewFormState extends State<ReviewForm> {
                 hintText: 'Váš e-mail',
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Prosím zadajte e-mail';
+                  }
                   if (!RegExp(
                     r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                   ).hasMatch(value)) {
