@@ -1,7 +1,76 @@
 {
   "buildCommand": "true",
   "outputDirectory": "public",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://nscxuxhapaabtsiduxlu.supabase.co/rest/v1/:path*"
+    },
+    {
+      "source": "/auth/callback",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/auth/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+
   "headers": [
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate, max-age=0"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        },
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/flutter_service_worker.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "max-age=3600, must-revalidate"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    },
+    {
+      "source": "/flutter_bootstrap.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "max-age=31536000, immutable"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    },
     {
       "source": "/(assets|canvaskit)/(.*)",
       "headers": [
@@ -12,19 +81,64 @@
       ]
     },
     {
-      "source": "/index.html",
+      "source": "/main.dart.js",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    },
+    {
+      "source": "/(manifest.json|robots.txt|favicon.ico)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(self), camera=(), microphone=(), payment=()"
         }
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+
+  "functions": {
+    "api/auth/callback.js": {
+      "memory": 512,
+      "maxDuration": 10
     }
-  ]
+  },
+
+  "env": [
+    "SUPABASE_URL",
+    "SUPABASE_ANON_KEY",
+    "GOOGLE_MAPS_API_KEY",
+    "BACKEND_MODE"
+  ],
+
+  "framework": "flutter",
+  "buildCommand": "flutter build web --release"
 }
