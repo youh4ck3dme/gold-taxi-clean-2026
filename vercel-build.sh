@@ -13,7 +13,7 @@ echo "Generating .env file from environment variables..."
 echo "WP_BASE_URL: ${WP_BASE_URL:-[NOT SET]}"
 echo "WOO_CONSUMER_KEY: ${WOO_CONSUMER_KEY:-[NOT SET]}"
 
-cat << EOF > .env
+cat << ENV_EOF > .env
 WP_BASE_URL=${WP_BASE_URL}
 FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
 FIREBASE_API_KEY=${FIREBASE_API_KEY}
@@ -23,7 +23,7 @@ SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
 WOO_CONSUMER_KEY=${WOO_CONSUMER_KEY}
 WOO_CONSUMER_SECRET=${WOO_CONSUMER_SECRET}
 GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
-EOF
+ENV_EOF
 echo ".env file generated successfully!"
 
 # 1. Clone Flutter SDK (stable channel, shallow clone to save space & time)
@@ -54,13 +54,23 @@ flutter pub get
 echo "Skipping code generation on Vercel to save RAM (ensure generated files are pushed to Git)..."
 # flutter pub run build_runner build --delete-conflicting-outputs
 
-# 7. Compile the Web app in release mode with injected credentials
+# 7. Compile the Web app in release mode with performance optimizations
 echo "Compiling Flutter Web application with Production Credentials..."
-flutter build web --release --no-tree-shake-icons \
+flutter build web --release \
+  --no-tree-shake-icons \
+  --dart-obfuscation \
   -t lib/main_prod.dart \
   --dart-define=BACKEND_MODE=supabase \
   --dart-define=SUPABASE_URL=${SUPABASE_URL} \
   --dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY} \
-  --dart-define=GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+  --dart-define=GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY} \
+  --dart-define=DART_VM_PRODUCT=true
+
+# 8. Optimize generated web files
+echo "Optimizing web assets..."
+if command -v gzip >/dev/null 2>&1; then
+  find build/web -type f \( -name "*.js" -o -name "*.css" -o -name "*.json" \) ! -name "*.gz" -exec gzip -9 {} + -exec mv {}.gz {} \; 2>/dev/null || true
+  echo "✓ Gzip compression applied"
+fi
 
 echo "=== Vercel Build Script Completed Successfully ==="

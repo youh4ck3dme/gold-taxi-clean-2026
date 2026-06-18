@@ -91,7 +91,7 @@ class _SplashPageState extends State<SplashPage>
             FadeTransition(
               opacity: _fadeController,
               child: Container(
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
               ),
             ),
 
@@ -112,7 +112,7 @@ class _SplashPageState extends State<SplashPage>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFC9A84C).withOpacity(0.3),
+                        color: const Color(0xFFC9A84C).withValues(alpha: 0.3),
                         blurRadius: 15,
                         spreadRadius: 2,
                       ),
