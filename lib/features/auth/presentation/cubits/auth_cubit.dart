@@ -19,7 +19,11 @@ class AuthCubit extends Cubit<AuthState> {
           emit(Authenticated(user));
         } else {
           // Token exists but user load failed (e.g. network error)
-          emit(const AuthError('Nepodarilo sa načítať profil používateľa. Skontrolujte pripojenie.'));
+          emit(
+            const AuthError(
+              'Nepodarilo sa načítať profil používateľa. Skontrolujte pripojenie.',
+            ),
+          );
           // We don't emit Unauthenticated here to prevent kicking the user out
           // if it was just a transient error.
         }
@@ -43,7 +47,11 @@ class AuthCubit extends Cubit<AuthState> {
         if (user != null) {
           emit(Authenticated(user));
         } else {
-          emit(const AuthError('Prihlásenie úspešné, ale nepodarilo sa načítať profil.'));
+          emit(
+            const AuthError(
+              'Prihlásenie úspešné, ale nepodarilo sa načítať profil.',
+            ),
+          );
         }
       } else {
         emit(const AuthError('Prihlásenie zlyhalo. Skontrolujte si údaje.'));
@@ -66,7 +74,11 @@ class AuthCubit extends Cubit<AuthState> {
       if (user != null) {
         emit(Authenticated(user));
       } else {
-        emit(const AuthError('Google prihlásenie prebehlo, ale nepodarilo sa získať dáta používateľa.'));
+        emit(
+          const AuthError(
+            'Google prihlásenie prebehlo, ale nepodarilo sa získať dáta používateľa.',
+          ),
+        );
       }
     } on AuthException catch (e) {
       emit(AuthError('Google prihlásenie zlyhalo: ${e.message}'));
@@ -101,4 +113,3 @@ class AuthCubit extends Cubit<AuthState> {
     emit(Unauthenticated());
   }
 }
-

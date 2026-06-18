@@ -51,7 +51,7 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> {
   bool _googleMapsReady = false;
   gmaps.BitmapDescriptor? _carIcon;
   gmaps.GoogleMapController? _mapController;
-  
+
   late ClusterManager<MapMarkerData> _clusterManager;
   Set<gmaps.Marker> _gmapMarkers = {};
 
@@ -107,13 +107,19 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> {
     super.didUpdateWidget(oldWidget);
     if (widget.markers != oldWidget.markers) {
       _clusterManager.setItems(widget.markers.toList());
-      
+
       // Auto-tracking logic if needed
-      if (widget.isAutoTracking && widget.autoTrackMarkerId != null && _mapController != null) {
+      if (widget.isAutoTracking &&
+          widget.autoTrackMarkerId != null &&
+          _mapController != null) {
         try {
-          final target = widget.markers.firstWhere((m) => m.id == widget.autoTrackMarkerId);
+          final target = widget.markers.firstWhere(
+            (m) => m.id == widget.autoTrackMarkerId,
+          );
           _mapController!.animateCamera(
-            gmaps.CameraUpdate.newLatLng(gmaps.LatLng(target.latitude, target.longitude)),
+            gmaps.CameraUpdate.newLatLng(
+              gmaps.LatLng(target.latitude, target.longitude),
+            ),
           );
         } catch (_) {}
       }
@@ -133,7 +139,9 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> {
 
   gmaps.BitmapDescriptor _getTaxiIcon(bool isAvailable) {
     return gmaps.BitmapDescriptor.defaultMarkerWithHue(
-      isAvailable ? gmaps.BitmapDescriptor.hueGreen : gmaps.BitmapDescriptor.hueRed,
+      isAvailable
+          ? gmaps.BitmapDescriptor.hueGreen
+          : gmaps.BitmapDescriptor.hueRed,
     );
   }
 
@@ -143,27 +151,31 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> {
       position: cluster.location,
       onTap: () {
         if (cluster.isMultiple) {
-          _mapController?.animateCamera(gmaps.CameraUpdate.newLatLngZoom(cluster.location, 14));
+          _mapController?.animateCamera(
+            gmaps.CameraUpdate.newLatLngZoom(cluster.location, 14),
+          );
         } else {
           cluster.items.first.onTap?.call();
         }
       },
-      icon: cluster.isMultiple 
-        ? await _getClusterBitmap(cluster.count.toString())
-        : (_carIcon ?? _getTaxiIcon(cluster.items.first.isAvailable)),
+      icon: cluster.isMultiple
+          ? await _getClusterBitmap(cluster.count.toString())
+          : (_carIcon ?? _getTaxiIcon(cluster.items.first.isAvailable)),
       rotation: cluster.isMultiple ? 0.0 : cluster.items.first.rotation,
-      infoWindow: cluster.isMultiple 
-        ? gmaps.InfoWindow.noText 
-        : gmaps.InfoWindow(
-            title: cluster.items.first.title,
-            snippet: cluster.items.first.snippet,
-          ),
+      infoWindow: cluster.isMultiple
+          ? gmaps.InfoWindow.noText
+          : gmaps.InfoWindow(
+              title: cluster.items.first.title,
+              snippet: cluster.items.first.snippet,
+            ),
     );
   }
-  
+
   Future<gmaps.BitmapDescriptor> _getClusterBitmap(String text) async {
     // Basic fallback to default hue for cluster if custom painter is not implemented yet
-    return gmaps.BitmapDescriptor.defaultMarkerWithHue(gmaps.BitmapDescriptor.hueAzure);
+    return gmaps.BitmapDescriptor.defaultMarkerWithHue(
+      gmaps.BitmapDescriptor.hueAzure,
+    );
   }
 
   Widget _buildTaxiMarkerIcon(bool isAvailable) {
@@ -173,11 +185,7 @@ class _PlatformMapWidgetState extends State<PlatformMapWidget> {
         shape: BoxShape.circle,
       ),
       padding: const EdgeInsets.all(4),
-      child: const Icon(
-        Icons.local_taxi,
-        color: Colors.white,
-        size: 24,
-      ),
+      child: const Icon(Icons.local_taxi, color: Colors.white, size: 24),
     );
   }
 

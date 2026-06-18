@@ -45,7 +45,10 @@ void main() {
       expect(activeRequests.any((r) => r.id == testRide.id), isTrue);
 
       // Accept the ride
-      final acceptedRide = await repository.acceptRide(testRide.id, 'driver_777');
+      final acceptedRide = await repository.acceptRide(
+        testRide.id,
+        'driver_777',
+      );
       expect(acceptedRide.driverId, 'driver_777');
       expect(acceptedRide.status, RideStatus.accepted);
 
@@ -54,44 +57,54 @@ void main() {
       expect(activeRequests.any((r) => r.id == testRide.id), isFalse);
     });
 
-    test('3. Second accept attempt fails (double-booking protection)', () async {
-      await repository.createRide(testRide);
+    test(
+      '3. Second accept attempt fails (double-booking protection)',
+      () async {
+        await repository.createRide(testRide);
 
-      // First accept succeeds
-      await repository.acceptRide(testRide.id, 'driver_777');
+        // First accept succeeds
+        await repository.acceptRide(testRide.id, 'driver_777');
 
-      // Second accept throws "Ride is no longer available"
-      expect(
-        () => repository.acceptRide(testRide.id, 'driver_888'),
-        throwsA(predicate((e) => e.toString().contains('no longer available'))),
-      );
-    });
+        // Second accept throws "Ride is no longer available"
+        expect(
+          () => repository.acceptRide(testRide.id, 'driver_888'),
+          throwsA(
+            predicate((e) => e.toString().contains('no longer available')),
+          ),
+        );
+      },
+    );
 
-    test('4. getDriverActiveRide filters and streams driver active ride correctly', () async {
-      await repository.createRide(testRide);
+    test(
+      '4. getDriverActiveRide filters and streams driver active ride correctly',
+      () async {
+        await repository.createRide(testRide);
 
-      // Before accept, no active ride for driver_777
-      var activeRide = await repository.getDriverActiveRide('driver_777').first;
-      expect(activeRide, isNull);
+        // Before accept, no active ride for driver_777
+        var activeRide = await repository
+            .getDriverActiveRide('driver_777')
+            .first;
+        expect(activeRide, isNull);
 
-      // Accept the ride
-      await repository.acceptRide(testRide.id, 'driver_777');
+        // Accept the ride
+        await repository.acceptRide(testRide.id, 'driver_777');
 
-      // Now driver_777 has testRide as active ride
-      activeRide = await repository.getDriverActiveRide('driver_777').first;
-      expect(activeRide, isNotNull);
-      expect(activeRide!.id, testRide.id);
-      expect(activeRide.status, RideStatus.accepted);
+        // Now driver_777 has testRide as active ride
+        activeRide = await repository.getDriverActiveRide('driver_777').first;
+        expect(activeRide, isNotNull);
+        expect(activeRide!.id, testRide.id);
+        expect(activeRide.status, RideStatus.accepted);
 
-      // Update status to in progress
-      await repository.updateRideStatus(testRide.id, RideStatus.inProgress);
-      activeRide = await repository.getDriverActiveRide('driver_777').first;
-      expect(activeRide!.status, RideStatus.inProgress);
+        // Update status to in progress
+        await repository.updateRideStatus(testRide.id, RideStatus.inProgress);
+        activeRide = await repository.getDriverActiveRide('driver_777').first;
+        expect(activeRide!.status, RideStatus.inProgress);
 
-      // Complete the ride -> should be cleared from driver active stream
-      await repository.updateRideStatus(testRide.id, RideStatus.completed);
-      activeRide = await repository.getDriverActiveRide('driver_777').first;
-      expect(activeRide, isNull);
-    });
+        // Complete the ride -> should be cleared from driver active stream
+        await repository.updateRideStatus(testRide.id, RideStatus.completed);
+        activeRide = await repository.getDriverActiveRide('driver_777').first;
+        expect(activeRide, isNull);
+      },
+    );
   });
 }

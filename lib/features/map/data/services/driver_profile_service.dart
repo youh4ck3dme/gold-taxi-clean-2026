@@ -105,7 +105,9 @@ class DriverProfileService {
     try {
       _logger.i('📋 Fetching all driver profiles');
 
-      final dataList = await _supabase.from(tableName).select('*, active_vehicle:vehicles(*)');
+      final dataList = await _supabase
+          .from(tableName)
+          .select('*, active_vehicle:vehicles(*)');
 
       final drivers = <DriverPositionModel>[];
 
@@ -155,7 +157,7 @@ class DriverProfileService {
         'last_location_update': DateTime.now().toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
       };
-      
+
       final data = await _supabase
           .from(tableName)
           .update(updateData)
@@ -215,11 +217,7 @@ class DriverProfileService {
 
       final response = await _supabase.rpc(
         'find_nearest_drivers',
-        params: {
-          'p_lat': lat,
-          'p_lng': lng,
-          'p_limit': limit,
-        },
+        params: {'p_lat': lat, 'p_lng': lng, 'p_limit': limit},
       );
 
       final drivers = <DriverPositionModel>[];
@@ -238,4 +236,3 @@ class DriverProfileService {
     }
   }
 }
-

@@ -1,11 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum UserRole {
-  admin,
-  driver,
-  customer,
-  subscriber,
-}
+enum UserRole { admin, driver, customer, subscriber }
 
 /// User Model
 class UserModel extends Equatable {
@@ -41,12 +36,15 @@ class UserModel extends Equatable {
       id: json['id']?.toString() ?? '',
       name: (json['name'] ?? json['full_name']) as String? ?? '',
       email: json['email'] as String? ?? '',
-      profilePictureUrl: _sanitizeUrl(json['profile_picture_url'] ?? _getAvatarUrl(json['avatar_urls'])),
+      profilePictureUrl: _sanitizeUrl(
+        json['profile_picture_url'] ?? _getAvatarUrl(json['avatar_urls']),
+      ),
       role: _parseRole(json['role'] ?? _getRole(json['roles'])),
       bio: json['bio'] ?? json['description'] as String?,
       isActive: json['is_active'] as bool? ?? true,
       phone: json['phone'] as String?,
-      savedAddresses: json['saved_addresses'] as Map<String, dynamic>? ?? const {},
+      savedAddresses:
+          json['saved_addresses'] as Map<String, dynamic>? ?? const {},
       referralCode: json['referral_code'] as String?,
       referredBy: json['referred_by'] as String?,
     );
@@ -115,21 +113,21 @@ class UserModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        email,
-        profilePictureUrl,
-        role,
-        bio,
-        isActive,
-        phone,
-        savedAddresses,
-        referralCode,
-        referredBy,
-      ];
+    id,
+    name,
+    email,
+    profilePictureUrl,
+    role,
+    bio,
+    isActive,
+    phone,
+    savedAddresses,
+    referralCode,
+    referredBy,
+  ];
 
-
-  bool get isCustomer => role == UserRole.customer || role == UserRole.subscriber;
+  bool get isCustomer =>
+      role == UserRole.customer || role == UserRole.subscriber;
   bool get isDriver => role == UserRole.driver;
   bool get isAdmin => role == UserRole.admin;
 }

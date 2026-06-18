@@ -40,7 +40,9 @@ void main() {
       final dbJson = mockRide.toDbJson();
       expect(dbJson.containsKey('stops'), isFalse);
 
-      final rideWithMockDriver = mockRide.copyWith(driverId: 'demo_driver_jan_novak');
+      final rideWithMockDriver = mockRide.copyWith(
+        driverId: 'demo_driver_jan_novak',
+      );
       final dbJsonMockDriver = rideWithMockDriver.toDbJson();
       expect(dbJsonMockDriver['driver_id'], isNull);
 

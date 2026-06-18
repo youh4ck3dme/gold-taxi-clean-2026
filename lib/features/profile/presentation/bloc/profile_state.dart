@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:gold_taxi/models/user_model.dart';
 
-
 abstract class ProfileState extends Equatable {
   const ProfileState();
 
@@ -34,7 +33,8 @@ class ProfileLoaded extends ProfileState {
 
   int get loyaltyPoints {
     // 10 loyalty points per completed order
-    final orderPoints = orders.where((order) => order['status'] == 'completed').length * 10;
+    final orderPoints =
+        orders.where((order) => order['status'] == 'completed').length * 10;
     // Add 5 points per booking
     final bookingPoints = bookings.length * 5;
     return orderPoints + bookingPoints;
@@ -61,7 +61,15 @@ class ProfileLoaded extends ProfileState {
   }
 
   @override
-  List<Object?> get props => [user, orders, bookings, driverRecord, driverStats, driverDocs, activeRole];
+  List<Object?> get props => [
+    user,
+    orders,
+    bookings,
+    driverRecord,
+    driverStats,
+    driverDocs,
+    activeRole,
+  ];
 }
 
 class ProfileError extends ProfileState {
@@ -83,4 +91,3 @@ class ProfileUpdateSuccess extends ProfileState {
   @override
   List<Object?> get props => [updatedUser];
 }
-

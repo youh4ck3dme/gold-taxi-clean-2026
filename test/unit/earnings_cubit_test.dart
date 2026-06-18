@@ -64,187 +64,228 @@ void main() {
       expect(earningsCubit.state, isA<EarningsInitial>());
     });
 
-    test('loadEarningsSummary emits [EarningsLoading, EarningsSummaryLoaded] on success', () async {
-      when(() => mockEarningsRepository.getEarningsSummary(testDriverId))
-          .thenAnswer((_) async => testSummary);
-      when(() => mockEarningsRepository.getDriverEarnings(
+    test(
+      'loadEarningsSummary emits [EarningsLoading, EarningsSummaryLoaded] on success',
+      () async {
+        when(
+          () => mockEarningsRepository.getEarningsSummary(testDriverId),
+        ).thenAnswer((_) async => testSummary);
+        when(
+          () => mockEarningsRepository.getDriverEarnings(
             driverId: testDriverId,
             limit: 10,
-          )).thenAnswer((_) async => testEarnings);
+          ),
+        ).thenAnswer((_) async => testEarnings);
 
-      expectLater(
-        earningsCubit.stream,
-        emitsInOrder([
-          isA<EarningsLoading>(),
-          predicate<EarningsState>((state) {
-            if (state is! EarningsSummaryLoaded) return false;
-            expect(state.summary, testSummary);
-            expect(state.recentEarnings, testEarnings);
-            return true;
-          }),
-        ]),
-      );
+        expectLater(
+          earningsCubit.stream,
+          emitsInOrder([
+            isA<EarningsLoading>(),
+            predicate<EarningsState>((state) {
+              if (state is! EarningsSummaryLoaded) return false;
+              expect(state.summary, testSummary);
+              expect(state.recentEarnings, testEarnings);
+              return true;
+            }),
+          ]),
+        );
 
-      await earningsCubit.loadEarningsSummary();
-    });
+        await earningsCubit.loadEarningsSummary();
+      },
+    );
 
-    test('loadEarningsSummary emits [EarningsLoading, EarningsError] on failure', () async {
-      when(() => mockEarningsRepository.getEarningsSummary(testDriverId))
-          .thenThrow(Exception('API Error'));
+    test(
+      'loadEarningsSummary emits [EarningsLoading, EarningsError] on failure',
+      () async {
+        when(
+          () => mockEarningsRepository.getEarningsSummary(testDriverId),
+        ).thenThrow(Exception('API Error'));
 
-      expectLater(
-        earningsCubit.stream,
-        emitsInOrder([
-          isA<EarningsLoading>(),
-          isA<EarningsError>(),
-        ]),
-      );
+        expectLater(
+          earningsCubit.stream,
+          emitsInOrder([isA<EarningsLoading>(), isA<EarningsError>()]),
+        );
 
-      await earningsCubit.loadEarningsSummary();
-    });
+        await earningsCubit.loadEarningsSummary();
+      },
+    );
 
-    test('loadRideEarningsBreakdown emits [EarningsLoading, RideEarningsBreakdownLoaded] on success', () async {
-      const breakdown = RideEarningsBreakdown(
-        rideId: 'ride_1',
-        totalAmount: 25.0,
-        appFee: 3.75,
-        netAmount: 21.25,
-        paymentStatus: PaymentStatus.completed,
-        paymentMethod: PaymentMethod.cash,
-      );
+    test(
+      'loadRideEarningsBreakdown emits [EarningsLoading, RideEarningsBreakdownLoaded] on success',
+      () async {
+        const breakdown = RideEarningsBreakdown(
+          rideId: 'ride_1',
+          totalAmount: 25.0,
+          appFee: 3.75,
+          netAmount: 21.25,
+          paymentStatus: PaymentStatus.completed,
+          paymentMethod: PaymentMethod.cash,
+        );
 
-      when(() => mockEarningsRepository.getRideEarningsBreakdown('ride_1'))
-          .thenAnswer((_) async => breakdown);
+        when(
+          () => mockEarningsRepository.getRideEarningsBreakdown('ride_1'),
+        ).thenAnswer((_) async => breakdown);
 
-      expectLater(
-        earningsCubit.stream,
-        emitsInOrder([
-          isA<EarningsLoading>(),
-          predicate<EarningsState>((state) {
-            if (state is! RideEarningsBreakdownLoaded) return false;
-            expect(state.breakdown, breakdown);
-            return true;
-          }),
-        ]),
-      );
+        expectLater(
+          earningsCubit.stream,
+          emitsInOrder([
+            isA<EarningsLoading>(),
+            predicate<EarningsState>((state) {
+              if (state is! RideEarningsBreakdownLoaded) return false;
+              expect(state.breakdown, breakdown);
+              return true;
+            }),
+          ]),
+        );
 
-      await earningsCubit.loadRideEarningsBreakdown('ride_1');
-    });
+        await earningsCubit.loadRideEarningsBreakdown('ride_1');
+      },
+    );
 
-    test('loadPayouts emits [EarningsLoading, PayoutsLoaded] on success', () async {
-      when(() => mockEarningsRepository.getDriverPayouts(
+    test(
+      'loadPayouts emits [EarningsLoading, PayoutsLoaded] on success',
+      () async {
+        when(
+          () => mockEarningsRepository.getDriverPayouts(
             driverId: testDriverId,
             limit: 20,
-          )).thenAnswer((_) async => testPayouts);
+          ),
+        ).thenAnswer((_) async => testPayouts);
 
-      expectLater(
-        earningsCubit.stream,
-        emitsInOrder([
-          isA<EarningsLoading>(),
-          predicate<EarningsState>((state) {
-            if (state is! PayoutsLoaded) return false;
-            expect(state.payouts, testPayouts);
-            return true;
-          }),
-        ]),
-      );
+        expectLater(
+          earningsCubit.stream,
+          emitsInOrder([
+            isA<EarningsLoading>(),
+            predicate<EarningsState>((state) {
+              if (state is! PayoutsLoaded) return false;
+              expect(state.payouts, testPayouts);
+              return true;
+            }),
+          ]),
+        );
 
-      await earningsCubit.loadPayouts();
-    });
+        await earningsCubit.loadPayouts();
+      },
+    );
 
-    test('loadAllData emits [EarningsLoading, EarningsDataLoaded] on success', () async {
-      when(() => mockEarningsRepository.getEarningsSummary(testDriverId))
-          .thenAnswer((_) async => testSummary);
-      when(() => mockEarningsRepository.getDriverEarnings(
-            driverId: testDriverId,
-            limit: 20,
-            fromDate: any(named: 'fromDate'),
-            toDate: any(named: 'toDate'),
-          )).thenAnswer((_) async => testEarnings);
-      when(() => mockEarningsRepository.getDriverPayouts(
-            driverId: testDriverId,
-            limit: 20,
-          )).thenAnswer((_) async => testPayouts);
-      when(() => mockEarningsRepository.getDriverBankAccount(testDriverId))
-          .thenAnswer((_) async => null);
-
-      expectLater(
-        earningsCubit.stream,
-        emitsInOrder([
-          isA<EarningsLoading>(),
-          predicate<EarningsState>((state) {
-            if (state is! EarningsDataLoaded) return false;
-            expect(state.summary, testSummary);
-            expect(state.recentEarnings, testEarnings);
-            expect(state.payouts, testPayouts);
-            return true;
-          }),
-        ]),
-      );
-
-      await earningsCubit.loadAllData();
-    });
-
-    test('requestPayout calls repository, emits [EarningsLoading, PayoutRequested, EarningsLoading, EarningsDataLoaded]', () async {
-      const response = PayoutRequestResponse(
-        payoutId: 'payout_123',
-        status: 'pending',
-        message: 'Payout requested successfully',
-      );
-
-      when(() => mockEarningsRepository.requestPayout(
-            driverId: testDriverId,
-            amount: 50.0,
-            stripeAccountId: null,
-            bankAccountLast4: '1234',
-          )).thenAnswer((_) async => response);
-
-      // Setup for loadAllData inside requestPayout
-      when(() => mockEarningsRepository.getEarningsSummary(testDriverId))
-          .thenAnswer((_) async => testSummary);
-      when(() => mockEarningsRepository.getDriverEarnings(
+    test(
+      'loadAllData emits [EarningsLoading, EarningsDataLoaded] on success',
+      () async {
+        when(
+          () => mockEarningsRepository.getEarningsSummary(testDriverId),
+        ).thenAnswer((_) async => testSummary);
+        when(
+          () => mockEarningsRepository.getDriverEarnings(
             driverId: testDriverId,
             limit: 20,
             fromDate: any(named: 'fromDate'),
             toDate: any(named: 'toDate'),
-          )).thenAnswer((_) async => testEarnings);
-      when(() => mockEarningsRepository.getDriverPayouts(
+          ),
+        ).thenAnswer((_) async => testEarnings);
+        when(
+          () => mockEarningsRepository.getDriverPayouts(
             driverId: testDriverId,
             limit: 20,
-          )).thenAnswer((_) async => testPayouts);
-      when(() => mockEarningsRepository.getDriverBankAccount(testDriverId))
-          .thenAnswer((_) async => null);
+          ),
+        ).thenAnswer((_) async => testPayouts);
+        when(
+          () => mockEarningsRepository.getDriverBankAccount(testDriverId),
+        ).thenAnswer((_) async => null);
 
-      expectLater(
-        earningsCubit.stream,
-        emitsInOrder([
-          isA<EarningsLoading>(),
-          predicate<EarningsState>((state) {
-            if (state is! PayoutRequested) return false;
-            expect(state.response.status, 'pending');
-            return true;
-          }),
-          isA<EarningsLoading>(),
-          isA<EarningsDataLoaded>(),
-        ]),
-      );
+        expectLater(
+          earningsCubit.stream,
+          emitsInOrder([
+            isA<EarningsLoading>(),
+            predicate<EarningsState>((state) {
+              if (state is! EarningsDataLoaded) return false;
+              expect(state.summary, testSummary);
+              expect(state.recentEarnings, testEarnings);
+              expect(state.payouts, testPayouts);
+              return true;
+            }),
+          ]),
+        );
 
-      await earningsCubit.requestPayout(
-        amount: 50.0,
-        bankAccountLast4: '1234',
-      );
+        await earningsCubit.loadAllData();
+      },
+    );
 
-      verify(() => mockEarningsRepository.requestPayout(
+    test(
+      'requestPayout calls repository, emits [EarningsLoading, PayoutRequested, EarningsLoading, EarningsDataLoaded]',
+      () async {
+        const response = PayoutRequestResponse(
+          payoutId: 'payout_123',
+          status: 'pending',
+          message: 'Payout requested successfully',
+        );
+
+        when(
+          () => mockEarningsRepository.requestPayout(
             driverId: testDriverId,
             amount: 50.0,
             stripeAccountId: null,
             bankAccountLast4: '1234',
-          )).called(1);
-    });
+          ),
+        ).thenAnswer((_) async => response);
 
-    test('calculateAppFee and calculateNetEarnings helper methods work correctly', () {
-      expect(earningsCubit.calculateAppFee(100.0), 15.0);
-      expect(earningsCubit.calculateNetEarnings(100.0), 85.0);
-    });
+        // Setup for loadAllData inside requestPayout
+        when(
+          () => mockEarningsRepository.getEarningsSummary(testDriverId),
+        ).thenAnswer((_) async => testSummary);
+        when(
+          () => mockEarningsRepository.getDriverEarnings(
+            driverId: testDriverId,
+            limit: 20,
+            fromDate: any(named: 'fromDate'),
+            toDate: any(named: 'toDate'),
+          ),
+        ).thenAnswer((_) async => testEarnings);
+        when(
+          () => mockEarningsRepository.getDriverPayouts(
+            driverId: testDriverId,
+            limit: 20,
+          ),
+        ).thenAnswer((_) async => testPayouts);
+        when(
+          () => mockEarningsRepository.getDriverBankAccount(testDriverId),
+        ).thenAnswer((_) async => null);
+
+        expectLater(
+          earningsCubit.stream,
+          emitsInOrder([
+            isA<EarningsLoading>(),
+            predicate<EarningsState>((state) {
+              if (state is! PayoutRequested) return false;
+              expect(state.response.status, 'pending');
+              return true;
+            }),
+            isA<EarningsLoading>(),
+            isA<EarningsDataLoaded>(),
+          ]),
+        );
+
+        await earningsCubit.requestPayout(
+          amount: 50.0,
+          bankAccountLast4: '1234',
+        );
+
+        verify(
+          () => mockEarningsRepository.requestPayout(
+            driverId: testDriverId,
+            amount: 50.0,
+            stripeAccountId: null,
+            bankAccountLast4: '1234',
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'calculateAppFee and calculateNetEarnings helper methods work correctly',
+      () {
+        expect(earningsCubit.calculateAppFee(100.0), 15.0);
+        expect(earningsCubit.calculateNetEarnings(100.0), 85.0);
+      },
+    );
   });
 }

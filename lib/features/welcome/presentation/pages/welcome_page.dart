@@ -70,19 +70,19 @@ class _WelcomePageState extends State<WelcomePage>
                           child: isWide
                               ? Row(
                                   children: [
-                                    const Expanded(
-                                      flex: 6,
-                                      child: _HeroCopy(),
-                                    ),
+                                    const Expanded(flex: 6, child: _HeroCopy()),
                                     const SizedBox(width: 44),
                                     Expanded(
                                       flex: 5,
                                       child: _WelcomeActionCard(
-                                        onBookRide: widget.onBookRide ??
+                                        onBookRide:
+                                            widget.onBookRide ??
                                             () => _fallbackNavigate('/'),
-                                        onDriverMode: widget.onDriverMode ??
+                                        onDriverMode:
+                                            widget.onDriverMode ??
                                             () => _fallbackNavigate('/driver'),
-                                        onLogin: widget.onLogin ??
+                                        onLogin:
+                                            widget.onLogin ??
                                             () => _fallbackNavigate('/login'),
                                       ),
                                     ),
@@ -98,11 +98,14 @@ class _WelcomePageState extends State<WelcomePage>
                                     ),
                                     const SizedBox(height: 18),
                                     _WelcomeActionCard(
-                                      onBookRide: widget.onBookRide ??
+                                      onBookRide:
+                                          widget.onBookRide ??
                                           () => _fallbackNavigate('/'),
-                                      onDriverMode: widget.onDriverMode ??
+                                      onDriverMode:
+                                          widget.onDriverMode ??
                                           () => _fallbackNavigate('/driver'),
-                                      onLogin: widget.onLogin ??
+                                      onLogin:
+                                          widget.onLogin ??
                                           () => _fallbackNavigate('/login'),
                                     ),
                                   ],
@@ -135,29 +138,19 @@ class _AnimatedLuxuryBackground extends StatelessWidget {
             gradient: RadialGradient(
               center: Alignment(0.7, -0.55),
               radius: 1.15,
-              colors: [
-                Color(0xFF382300),
-                Color(0xFF111827),
-                Color(0xFF050505),
-              ],
+              colors: [Color(0xFF382300), Color(0xFF111827), Color(0xFF050505)],
             ),
           ),
         ),
         Positioned(
           top: -120 + math.sin(angle) * 18,
           right: -90 + math.cos(angle) * 18,
-          child: const _GlowOrb(
-            size: 280,
-            color: Color(0x66FFB629),
-          ),
+          child: const _GlowOrb(size: 280, color: Color(0x66FFB629)),
         ),
         Positioned(
           bottom: -160 + math.cos(angle) * 14,
           left: -110 + math.sin(angle) * 14,
-          child: const _GlowOrb(
-            size: 340,
-            color: Color(0x334B5563),
-          ),
+          child: const _GlowOrb(size: 340, color: Color(0x334B5563)),
         ),
         CustomPaint(
           painter: _RoadLinePainter(progress: progress),
@@ -169,10 +162,7 @@ class _AnimatedLuxuryBackground extends StatelessWidget {
 }
 
 class _GlowOrb extends StatelessWidget {
-  const _GlowOrb({
-    required this.size,
-    required this.color,
-  });
+  const _GlowOrb({required this.size, required this.color});
   final double size;
   final Color color;
 
@@ -184,10 +174,7 @@ class _GlowOrb extends StatelessWidget {
         child: Container(
           width: size,
           height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color,
-          ),
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
         ),
       ),
     );
@@ -202,10 +189,7 @@ class _GoldNoiseOverlay extends StatelessWidget {
     return IgnorePointer(
       child: Opacity(
         opacity: 0.045,
-        child: CustomPaint(
-          size: Size.infinite,
-          painter: _NoisePainter(),
-        ),
+        child: CustomPaint(size: Size.infinite, painter: _NoisePainter()),
       ),
     );
   }
@@ -233,9 +217,7 @@ class _HeroCopy extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.10),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
@@ -298,10 +280,16 @@ class _HeroCopy extends StatelessWidget {
             spacing: 10,
             runSpacing: 10,
             children: [
-              _FeaturePill(icon: Icons.flash_on_rounded, label: 'Rýchle vyžiadanie'),
+              _FeaturePill(
+                icon: Icons.flash_on_rounded,
+                label: 'Rýchle vyžiadanie',
+              ),
               _FeaturePill(icon: Icons.map_rounded, label: 'Live tracking'),
               _FeaturePill(icon: Icons.shield_rounded, label: 'Bezpečné jazdy'),
-              _FeaturePill(icon: Icons.workspace_premium_rounded, label: 'Premium vodiči'),
+              _FeaturePill(
+                icon: Icons.workspace_premium_rounded,
+                label: 'Premium vodiči',
+              ),
             ],
           ),
         ],
@@ -326,11 +314,7 @@ class _BrandMark extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFFFFD166),
-                Color(0xFFFFB629),
-                Color(0xFF9B5C00),
-              ],
+              colors: [Color(0xFFFFD166), Color(0xFFFFB629), Color(0xFF9B5C00)],
             ),
             boxShadow: [
               BoxShadow(
@@ -377,10 +361,7 @@ class _BrandMark extends StatelessWidget {
 }
 
 class _FeaturePill extends StatelessWidget {
-  const _FeaturePill({
-    required this.icon,
-    required this.label,
-  });
+  const _FeaturePill({required this.icon, required this.label});
   final IconData icon;
   final String label;
   static const _gold = Color(0xFFFFB629);
@@ -392,9 +373,7 @@ class _FeaturePill extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.075),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.10),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -436,9 +415,7 @@ class _WelcomeActionCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.095),
             borderRadius: BorderRadius.circular(34),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.14),
-            ),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.35),
@@ -541,13 +518,8 @@ class _SecondaryButton extends StatelessWidget {
         label: Text(label),
         style: OutlinedButton.styleFrom(
           foregroundColor: Colors.white,
-          side: BorderSide(
-            color: Colors.white.withValues(alpha: 0.18),
-          ),
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 15,
-          ),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.18)),
+          textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -570,17 +542,11 @@ class _MiniMapPreview extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
           color: const Color(0xFF0E1624),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.10),
-          ),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
         ),
         child: Stack(
           children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _MiniMapPainter(),
-              ),
-            ),
+            Positioned.fill(child: CustomPaint(painter: _MiniMapPainter())),
             Positioned(
               left: 22,
               top: 22,
@@ -590,11 +556,7 @@ class _MiniMapPreview extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.92),
               ),
             ),
-            const Positioned(
-              right: 24,
-              bottom: 28,
-              child: _DriverAvatar(),
-            ),
+            const Positioned(right: 24, bottom: 28, child: _DriverAvatar()),
             Positioned(
               left: 24,
               bottom: 26,
@@ -657,9 +619,7 @@ class _MapBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.10),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

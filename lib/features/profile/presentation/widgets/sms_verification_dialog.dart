@@ -8,7 +8,11 @@ class SmsVerificationDialog extends StatefulWidget {
 
   const SmsVerificationDialog({super.key, required this.phone});
 
-  static Future<bool?> show(BuildContext context, {required String phone, required ProfileCubit profileCubit}) {
+  static Future<bool?> show(
+    BuildContext context, {
+    required String phone,
+    required ProfileCubit profileCubit,
+  }) {
     return showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -24,7 +28,10 @@ class SmsVerificationDialog extends StatefulWidget {
 }
 
 class _SmsVerificationDialogState extends State<SmsVerificationDialog> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   int _resendTimer = 30;
@@ -90,7 +97,10 @@ class _SmsVerificationDialogState extends State<SmsVerificationDialog> {
       _errorMessage = null;
     });
 
-    final success = await context.read<ProfileCubit>().verifyPhoneOtp(widget.phone, code);
+    final success = await context.read<ProfileCubit>().verifyPhoneOtp(
+      widget.phone,
+      code,
+    );
 
     if (mounted) {
       setState(() => _isLoading = false);
@@ -120,7 +130,7 @@ class _SmsVerificationDialogState extends State<SmsVerificationDialog> {
               child: Icon(Icons.sms_outlined, size: 48, color: Colors.amber),
             ),
             const SizedBox(height: 16),
-            
+
             // Title
             const Text(
               'Overenie čísla',
@@ -132,7 +142,11 @@ class _SmsVerificationDialogState extends State<SmsVerificationDialog> {
             // Subtitle
             Text(
               'Zadajte 6-miestny kód zaslaný na číslo\n${widget.phone}',
-              style: const TextStyle(fontSize: 13, color: Colors.grey, height: 1.4),
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.grey,
+                height: 1.4,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -150,7 +164,10 @@ class _SmsVerificationDialogState extends State<SmsVerificationDialog> {
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
                     maxLength: 1,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                     decoration: InputDecoration(
                       counterText: '',
                       contentPadding: EdgeInsets.zero,
@@ -162,7 +179,10 @@ class _SmsVerificationDialogState extends State<SmsVerificationDialog> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Colors.amber, width: 2),
+                        borderSide: const BorderSide(
+                          color: Colors.amber,
+                          width: 2,
+                        ),
                       ),
                     ),
                     onChanged: (value) {
@@ -199,13 +219,18 @@ class _SmsVerificationDialogState extends State<SmsVerificationDialog> {
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 45),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: _verifyCode,
-                child: const Text('Overiť', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Overiť',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(height: 12),
-              
+
               // Resend / timer row
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -231,7 +256,10 @@ class _SmsVerificationDialogState extends State<SmsVerificationDialog> {
 
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Zrušiť', style: TextStyle(color: Colors.redAccent)),
+                child: const Text(
+                  'Zrušiť',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
               ),
             ],
           ],

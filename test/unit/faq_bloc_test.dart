@@ -33,34 +33,36 @@ void main() {
       expect(faqBloc.state, isA<FaqInitial>());
     });
 
-    test('FetchFaqs emits [FaqLoading, FaqLoaded] when repository succeeds', () async {
-      when(() => mockFaqRepository.getFaqs())
-          .thenAnswer((_) async => [testFaq]);
+    test(
+      'FetchFaqs emits [FaqLoading, FaqLoaded] when repository succeeds',
+      () async {
+        when(
+          () => mockFaqRepository.getFaqs(),
+        ).thenAnswer((_) async => [testFaq]);
 
-      expectLater(
-        faqBloc.stream,
-        emitsInOrder([
-          isA<FaqLoading>(),
-          isA<FaqLoaded>(),
-        ]),
-      );
+        expectLater(
+          faqBloc.stream,
+          emitsInOrder([isA<FaqLoading>(), isA<FaqLoaded>()]),
+        );
 
-      faqBloc.add(const FetchFaqs());
-    });
+        faqBloc.add(const FetchFaqs());
+      },
+    );
 
-    test('FetchFaqs emits [FaqLoading, FaqError] when repository fails', () async {
-      when(() => mockFaqRepository.getFaqs())
-          .thenThrow(Exception('API error'));
+    test(
+      'FetchFaqs emits [FaqLoading, FaqError] when repository fails',
+      () async {
+        when(
+          () => mockFaqRepository.getFaqs(),
+        ).thenThrow(Exception('API error'));
 
-      expectLater(
-        faqBloc.stream,
-        emitsInOrder([
-          isA<FaqLoading>(),
-          isA<FaqError>(),
-        ]),
-      );
+        expectLater(
+          faqBloc.stream,
+          emitsInOrder([isA<FaqLoading>(), isA<FaqError>()]),
+        );
 
-      faqBloc.add(const FetchFaqs());
-    });
+        faqBloc.add(const FetchFaqs());
+      },
+    );
   });
 }

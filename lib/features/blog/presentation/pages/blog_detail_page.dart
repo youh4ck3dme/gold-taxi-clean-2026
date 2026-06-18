@@ -10,9 +10,7 @@ class BlogDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail článku'),
-      ),
+      appBar: AppBar(title: const Text('Detail článku')),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -40,15 +38,10 @@ class BlogDetailPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Publikované: ${post.date.day}.${post.date.month}.${post.date.year}',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                   const Divider(height: 32),
-                  Html(
-                    data: post.content,
-                  ),
+                  Html(data: post.content),
                 ],
               ),
             ),

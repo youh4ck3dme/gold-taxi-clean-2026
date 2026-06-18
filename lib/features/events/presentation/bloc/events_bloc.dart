@@ -10,7 +10,10 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
     on<FetchEvents>(_onFetchEvents);
   }
 
-  Future<void> _onFetchEvents(FetchEvents event, Emitter<EventsState> emit) async {
+  Future<void> _onFetchEvents(
+    FetchEvents event,
+    Emitter<EventsState> emit,
+  ) async {
     if (state is! EventsLoaded || event.isRefresh || event.search != null) {
       emit(EventsLoading());
     }

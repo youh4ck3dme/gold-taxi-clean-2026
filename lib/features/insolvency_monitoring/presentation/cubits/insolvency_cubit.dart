@@ -45,7 +45,8 @@ class InsolvencyCubit extends Cubit<InsolvencyState> {
   final InsolvencyPredictorService _predictorService;
   final ApiService _apiService;
 
-  InsolvencyCubit(this._predictorService, this._apiService) : super(InsolvencyInitial());
+  InsolvencyCubit(this._predictorService, this._apiService)
+    : super(InsolvencyInitial());
 
   /// Načíta platobné dáta pre vybraný scenár (alebo reálne dáta z WordPress)
   Future<void> loadScenario(String scenarioName) async {
@@ -58,11 +59,13 @@ class InsolvencyCubit extends Cubit<InsolvencyState> {
         invoices = _getMockInvoicesForScenario(scenarioName);
       }
       final prediction = _predictorService.analyzeInsolvencyRisk(invoices);
-      emit(InsolvencyLoaded(
-        invoices: invoices,
-        prediction: prediction,
-        activeScenario: scenarioName,
-      ));
+      emit(
+        InsolvencyLoaded(
+          invoices: invoices,
+          prediction: prediction,
+          activeScenario: scenarioName,
+        ),
+      );
     } catch (e) {
       emit(InsolvencyError('Nepodarilo sa načítať dáta: $e'));
     }
@@ -79,35 +82,45 @@ class InsolvencyCubit extends Cubit<InsolvencyState> {
             amount: 1200.00,
             issueDate: now.subtract(const Duration(days: 170)),
             dueDate: now.subtract(const Duration(days: 156)),
-            paidDate: now.subtract(const Duration(days: 154)), // 2 dni oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 154),
+            ), // 2 dni oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-002',
             amount: 1450.00,
             issueDate: now.subtract(const Duration(days: 140)),
             dueDate: now.subtract(const Duration(days: 126)),
-            paidDate: now.subtract(const Duration(days: 121)), // 5 dní oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 121),
+            ), // 5 dní oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-003',
             amount: 1100.00,
             issueDate: now.subtract(const Duration(days: 110)),
             dueDate: now.subtract(const Duration(days: 96)),
-            paidDate: now.subtract(const Duration(days: 95)), // 1 deň oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 95),
+            ), // 1 deň oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-004',
             amount: 1300.00,
             issueDate: now.subtract(const Duration(days: 80)),
             dueDate: now.subtract(const Duration(days: 66)),
-            paidDate: now.subtract(const Duration(days: 64)), // 2 dni oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 64),
+            ), // 2 dni oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-005',
             amount: 1500.00,
             issueDate: now.subtract(const Duration(days: 50)),
             dueDate: now.subtract(const Duration(days: 36)),
-            paidDate: now.subtract(const Duration(days: 35)), // 1 deň oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 35),
+            ), // 1 deň oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-006',
@@ -125,28 +138,36 @@ class InsolvencyCubit extends Cubit<InsolvencyState> {
             amount: 800.00,
             issueDate: now.subtract(const Duration(days: 170)),
             dueDate: now.subtract(const Duration(days: 156)),
-            paidDate: now.subtract(const Duration(days: 155)), // 1 deň oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 155),
+            ), // 1 deň oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-102',
             amount: 950.00,
             issueDate: now.subtract(const Duration(days: 140)),
             dueDate: now.subtract(const Duration(days: 126)),
-            paidDate: now.subtract(const Duration(days: 121)), // 5 dní oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 121),
+            ), // 5 dní oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-103',
             amount: 1100.00,
             issueDate: now.subtract(const Duration(days: 110)),
             dueDate: now.subtract(const Duration(days: 96)),
-            paidDate: now.subtract(const Duration(days: 81)), // 15 dní oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 81),
+            ), // 15 dní oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-104',
             amount: 1250.00,
             issueDate: now.subtract(const Duration(days: 80)),
             dueDate: now.subtract(const Duration(days: 66)),
-            paidDate: now.subtract(const Duration(days: 36)), // 30 dní oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 36),
+            ), // 30 dní oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-105',
@@ -171,7 +192,9 @@ class InsolvencyCubit extends Cubit<InsolvencyState> {
             amount: 2000.00,
             issueDate: now.subtract(const Duration(days: 170)),
             dueDate: now.subtract(const Duration(days: 156)),
-            paidDate: now.subtract(const Duration(days: 126)), // 30 dní oneskorenie
+            paidDate: now.subtract(
+              const Duration(days: 126),
+            ), // 30 dní oneskorenie
           ),
           InvoiceModel(
             id: 'FA-2026-202',

@@ -11,11 +11,7 @@ class ReviewForm extends StatefulWidget {
   final int postId;
   final VoidCallback onSuccess;
 
-  const ReviewForm({
-    super.key,
-    required this.postId,
-    required this.onSuccess,
-  });
+  const ReviewForm({super.key, required this.postId, required this.onSuccess});
 
   @override
   State<ReviewForm> createState() => _ReviewFormState();
@@ -39,14 +35,14 @@ class _ReviewFormState extends State<ReviewForm> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       context.read<ReviewsBloc>().add(
-            SubmitReview(
-              postId: widget.postId,
-              authorName: _nameController.text,
-              authorEmail: _emailController.text,
-              rating: _rating,
-              comment: _commentController.text,
-            ),
-          );
+        SubmitReview(
+          postId: widget.postId,
+          authorName: _nameController.text,
+          authorEmail: _emailController.text,
+          rating: _rating,
+          comment: _commentController.text,
+        ),
+      );
     }
   }
 
@@ -62,7 +58,9 @@ class _ReviewFormState extends State<ReviewForm> {
           Navigator.of(context).pop();
         } else if (state is ReviewSubmissionFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Nepodarilo sa odoslať recenziu: ${state.message}')),
+            SnackBar(
+              content: Text('Nepodarilo sa odoslať recenziu: ${state.message}'),
+            ),
           );
         }
       },
@@ -103,8 +101,9 @@ class _ReviewFormState extends State<ReviewForm> {
                 labelText: 'Meno',
                 hintText: 'Vaše meno',
                 keyboardType: TextInputType.name,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Prosím zadajte meno' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Prosím zadajte meno'
+                    : null,
               ),
               const SizedBox(height: 12),
               AppTextField(
@@ -113,8 +112,11 @@ class _ReviewFormState extends State<ReviewForm> {
                 hintText: 'Váš e-mail',
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Prosím zadajte e-mail';
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                  if (value == null || value.isEmpty)
+                    return 'Prosím zadajte e-mail';
+                  if (!RegExp(
+                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  ).hasMatch(value)) {
                     return 'Zadajte platnú e-mailovú adresu';
                   }
                   return null;
@@ -127,8 +129,9 @@ class _ReviewFormState extends State<ReviewForm> {
                 hintText: 'Napíšte vaše skúsenosti...',
                 keyboardType: TextInputType.multiline,
                 maxLines: 4,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Prosím zadajte text recenzie' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Prosím zadajte text recenzie'
+                    : null,
               ),
               const SizedBox(height: 24),
               BlocBuilder<ReviewsBloc, ReviewsState>(

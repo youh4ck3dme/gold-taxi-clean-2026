@@ -32,23 +32,20 @@ class _BookingPageState extends State<BookingPage> {
   void _fetchSlotsForDate(DateTime date) {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
     context.read<BookingsBloc>().add(
-          FetchAvailableSlots(
-            serviceId: widget.service.id,
-            date: dateStr,
-          ),
-        );
+      FetchAvailableSlots(serviceId: widget.service.id, date: dateStr),
+    );
   }
 
   void _submit() {
     if (_selectedDay != null && _selectedTimeSlot != null) {
       final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDay!);
       context.read<BookingsBloc>().add(
-            SubmitBooking(
-              serviceId: widget.service.id,
-              date: dateStr,
-              timeSlot: _selectedTimeSlot!,
-            ),
-          );
+        SubmitBooking(
+          serviceId: widget.service.id,
+          date: dateStr,
+          timeSlot: _selectedTimeSlot!,
+        ),
+      );
     }
   }
 
@@ -94,23 +91,29 @@ class _BookingPageState extends State<BookingPage> {
                   children: [
                     Text(
                       widget.service.name,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       'Poskytuje: ${widget.service.provider}',
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Table Calendar Widget
                     Card(
                       elevation: 1,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: TableCalendar(
                         firstDay: DateTime.now(),
                         lastDay: DateTime.now().add(const Duration(days: 30)),
                         focusedDay: _focusedDay,
-                        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                        selectedDayPredicate: (day) =>
+                            isSameDay(_selectedDay, day),
                         onDaySelected: (selectedDay, focusedDay) {
                           setState(() {
                             _selectedDay = selectedDay;
@@ -139,7 +142,10 @@ class _BookingPageState extends State<BookingPage> {
                     const SizedBox(height: 24),
                     const Text(
                       'Dostupné časové sloty',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 12),
 
@@ -191,7 +197,9 @@ class _BookingPageState extends State<BookingPage> {
                                 selected: isSelected,
                                 selectedColor: Colors.blue,
                                 labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.black,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 onSelected: (selected) {
@@ -225,7 +233,10 @@ class _BookingPageState extends State<BookingPage> {
               child: BlocBuilder<BookingsBloc, BookingsState>(
                 builder: (context, state) {
                   final isSubmitting = state is BookingSubmissionInProgress;
-                  final canSubmit = _selectedDay != null && _selectedTimeSlot != null && !isSubmitting;
+                  final canSubmit =
+                      _selectedDay != null &&
+                      _selectedTimeSlot != null &&
+                      !isSubmitting;
 
                   return PrimaryButton(
                     text: isSubmitting ? 'Odosiela sa...' : 'Rezervovať termín',

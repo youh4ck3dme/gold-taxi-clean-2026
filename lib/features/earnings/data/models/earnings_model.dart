@@ -1,28 +1,19 @@
 import 'package:equatable/equatable.dart';
 
 /// Payment status for a ride earnings record
-enum PaymentStatus {
-  pending,
-  completed,
-  failed,
-  refunded,
-}
+enum PaymentStatus { pending, completed, failed, refunded }
 
 /// Payment method used for the ride
-enum PaymentMethod {
-  cash,
-  card,
-  stripe,
-}
+enum PaymentMethod { cash, card, stripe }
 
 /// Model for driver earnings from a single ride
 class EarningsModel extends Equatable {
   final String id;
   final String rideId;
   final String driverId;
-  final double totalAmount;      // Total paid by customer
-  final double appFee;           // Application fee (e.g., 15%)
-  final double netAmount;        // Driver's net earnings
+  final double totalAmount; // Total paid by customer
+  final double appFee; // Application fee (e.g., 15%)
+  final double netAmount; // Driver's net earnings
   final PaymentStatus paymentStatus;
   final PaymentMethod paymentMethod;
   final DateTime createdAt;
@@ -50,8 +41,8 @@ class EarningsModel extends Equatable {
       netAmount: (json['net_amount'] as num?)?.toDouble() ?? 0.0,
       paymentStatus: _parsePaymentStatus(json['payment_status'] as String?),
       paymentMethod: _parsePaymentMethod(json['payment_method'] as String?),
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at'] as String) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
     );
   }
@@ -168,7 +159,8 @@ class RideEarningsBreakdown extends Equatable {
   }
 
   /// Calculate app fee percentage
-  double get appFeePercentage => totalAmount > 0 ? (appFee / totalAmount) * 100 : 0;
+  double get appFeePercentage =>
+      totalAmount > 0 ? (appFee / totalAmount) * 100 : 0;
 
   static PaymentStatus _parsePaymentStatus(String? status) {
     switch (status?.toLowerCase()) {

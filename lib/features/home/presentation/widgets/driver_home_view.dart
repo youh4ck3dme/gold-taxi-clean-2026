@@ -14,11 +14,7 @@ class DriverHomeView extends StatefulWidget {
   final String userName;
   final String? avatarUrl;
 
-  const DriverHomeView({
-    super.key,
-    required this.userName,
-    this.avatarUrl,
-  });
+  const DriverHomeView({super.key, required this.userName, this.avatarUrl});
 
   @override
   State<DriverHomeView> createState() => _DriverHomeViewState();
@@ -37,7 +33,10 @@ class _DriverHomeViewState extends State<DriverHomeView> {
   void _toggleOnline(bool value) async {
     final authState = context.read<AuthCubit>().state;
     if (authState is Authenticated) {
-      await _rideRepository.updateDriverStatus(authState.user.id.toString(), value);
+      await _rideRepository.updateDriverStatus(
+        authState.user.id.toString(),
+        value,
+      );
       if (mounted) {
         setState(() => _isOnline = value);
       }
@@ -62,11 +61,11 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 28,
-                          color: Colors.white,
-                          letterSpacing: -0.5,
-                        ),
+                      fontWeight: FontWeight.w900,
+                      fontSize: 28,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   const Text(
@@ -74,11 +73,11 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                          color: AppColors.luxuryGold,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12,
-                          letterSpacing: 1.5,
-                        ),
+                      color: AppColors.luxuryGold,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12,
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ],
               ),
@@ -97,10 +96,14 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                 child: CircleAvatar(
                   radius: 26,
                   backgroundColor: AppColors.deepBlack,
-                  foregroundImage: (widget.avatarUrl != null && widget.avatarUrl!.trim().isNotEmpty)
+                  foregroundImage:
+                      (widget.avatarUrl != null &&
+                          widget.avatarUrl!.trim().isNotEmpty)
                       ? NetworkImage(widget.avatarUrl!)
                       : null,
-                  onForegroundImageError: (widget.avatarUrl != null && widget.avatarUrl!.trim().isNotEmpty)
+                  onForegroundImageError:
+                      (widget.avatarUrl != null &&
+                          widget.avatarUrl!.trim().isNotEmpty)
                       ? (exception, stackTrace) {
                           debugPrint('Error loading driver avatar: $exception');
                         }
@@ -123,16 +126,20 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             color: const Color(0xFF111111),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: _isOnline ? Colors.green.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.1),
+              color: _isOnline
+                  ? Colors.green.withValues(alpha: 0.3)
+                  : Colors.white.withValues(alpha: 0.1),
               width: 1.5,
             ),
-            boxShadow: _isOnline ? [
-              BoxShadow(
-                color: Colors.green.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ] : null,
+            boxShadow: _isOnline
+                ? [
+                    BoxShadow(
+                      color: Colors.green.withValues(alpha: 0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ]
+                : null,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -153,8 +160,14 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _isOnline ? 'Prijímate nové jazdy' : 'Jazdy sú pozastavené',
-                      style: const TextStyle(color: Color(0xFFB8BEC9), fontSize: 13, fontWeight: FontWeight.w600),
+                      _isOnline
+                          ? 'Prijímate nové jazdy'
+                          : 'Jazdy sú pozastavené',
+                      style: const TextStyle(
+                        color: Color(0xFFB8BEC9),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -179,11 +192,22 @@ class _DriverHomeViewState extends State<DriverHomeView> {
           children: [
             const Text(
               'Aktuálne požiadavky',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+              ),
             ),
             TextButton(
               onPressed: () => context.push('/driver'),
-              child: const Text('HISTÓRIA', style: TextStyle(color: AppColors.luxuryGold, fontWeight: FontWeight.w900, fontSize: 12)),
+              child: const Text(
+                'HISTÓRIA',
+                style: TextStyle(
+                  color: AppColors.luxuryGold,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                ),
+              ),
             ),
           ],
         ),
@@ -200,12 +224,19 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             ),
             child: Column(
               children: [
-                Icon(Icons.power_settings_new_rounded, size: 48, color: Colors.white.withValues(alpha: 0.1)),
+                Icon(
+                  Icons.power_settings_new_rounded,
+                  size: 48,
+                  color: Colors.white.withValues(alpha: 0.1),
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'Pre príjem jázd sa zapnite do režimu ONLINE',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white24, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Colors.white24,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -215,7 +246,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
             stream: _rideRepository.getActiveRequests(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator(color: AppColors.luxuryGold));
+                return const Center(
+                  child: CircularProgressIndicator(color: AppColors.luxuryGold),
+                );
               }
               final rides = snapshot.data ?? [];
               if (rides.isEmpty) {
@@ -232,7 +265,7 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                   ),
                 );
               }
-              
+
               // Show only first 3 requests
               final displayRides = rides.take(3).toList();
               return ListView.builder(
@@ -246,7 +279,9 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF1A1A1A),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.luxuryGold.withValues(alpha: 0.2)),
+                      border: Border.all(
+                        color: AppColors.luxuryGold.withValues(alpha: 0.2),
+                      ),
                     ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(16),
@@ -256,22 +291,35 @@ class _DriverHomeViewState extends State<DriverHomeView> {
                           color: Colors.green.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.person_pin_circle_rounded, color: Colors.greenAccent),
+                        child: const Icon(
+                          Icons.person_pin_circle_rounded,
+                          color: Colors.greenAccent,
+                        ),
                       ),
                       title: Text(
-                        ride.pickupAddress, 
-                        maxLines: 1, 
+                        ride.pickupAddress,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4.0),
                         child: Text(
                           '${ride.estimatedPrice.toStringAsFixed(2)} € • ${ride.estimatedDistance} km',
-                          style: const TextStyle(color: AppColors.luxuryGold, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: AppColors.luxuryGold,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white24, size: 16),
+                      trailing: const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Colors.white24,
+                        size: 16,
+                      ),
                       onTap: () => context.push('/driver'),
                     ),
                   );

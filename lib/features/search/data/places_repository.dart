@@ -6,7 +6,7 @@ import 'package:gold_taxi/features/search/data/models/place_model.dart';
 
 class PlacesRepository {
   final Dio _dio;
-  
+
   // Rate limiting properties
   static int _dailyRequestCount = 0;
   static DateTime? _lastRequestDate;
@@ -17,7 +17,10 @@ class PlacesRepository {
 
   bool _isSpam(String query) {
     // Reject SQL wildcards or excessive emojis
-    final RegExp spamRegex = RegExp(r'[%;_]|[\u{1F600}-\u{1F64F}]', unicode: true);
+    final RegExp spamRegex = RegExp(
+      r'[%;_]|[\u{1F600}-\u{1F64F}]',
+      unicode: true,
+    );
     return spamRegex.hasMatch(query);
   }
 
@@ -27,7 +30,7 @@ class PlacesRepository {
       _lastRequestDate = now;
       _dailyRequestCount = 0;
     }
-    
+
     if (_dailyRequestCount >= 500) {
       return false; // Rate limit exceeded (simulated 500/day IP limit)
     }
@@ -35,7 +38,10 @@ class PlacesRepository {
     return true;
   }
 
-  Future<List<PlaceModel>> autocomplete(String query, LatLng? currentLocation) async {
+  Future<List<PlaceModel>> autocomplete(
+    String query,
+    LatLng? currentLocation,
+  ) async {
     if (query.trim().isEmpty || _isSpam(query)) {
       return [];
     }
@@ -58,11 +64,15 @@ class PlacesRepository {
       };
 
       if (currentLocation != null) {
-        queryParams['location'] = '${currentLocation.latitude},${currentLocation.longitude}';
+        queryParams['location'] =
+            '${currentLocation.latitude},${currentLocation.longitude}';
         queryParams['radius'] = '50000'; // 50km bias
       }
 
-      final response = await _dio.get('/autocomplete/json', queryParameters: queryParams);
+      final response = await _dio.get(
+        '/autocomplete/json',
+        queryParameters: queryParams,
+      );
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -82,19 +92,25 @@ class PlacesRepository {
     }
   }
 
-  Future<PlaceModel> getPlaceDetails(String placeId, LatLng? currentLocation) async {
+  Future<PlaceModel> getPlaceDetails(
+    String placeId,
+    LatLng? currentLocation,
+  ) async {
     const apiKey = String.fromEnvironment('GOOGLE_MAPS_API_KEY');
     if (apiKey.isEmpty) {
       throw Exception('GOOGLE_MAPS_API_KEY is not configured');
     }
 
     try {
-      final response = await _dio.get('/details/json', queryParameters: {
-        'place_id': placeId,
-        'key': apiKey,
-        'language': 'sk',
-        'fields': 'geometry,name,formatted_address'
-      });
+      final response = await _dio.get(
+        '/details/json',
+        queryParameters: {
+          'place_id': placeId,
+          'key': apiKey,
+          'language': 'sk',
+          'fields': 'geometry,name,formatted_address',
+        },
+      );
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -102,11 +118,14 @@ class PlacesRepository {
           final result = data['result'];
           final lat = result['geometry']['location']['lat'];
           final lng = result['geometry']['location']['lng'];
-          
+
           double? distance;
           if (currentLocation != null && lat != null && lng != null) {
             distance = Geolocator.distanceBetween(
-              currentLocation.latitude, currentLocation.longitude, lat, lng
+              currentLocation.latitude,
+              currentLocation.longitude,
+              lat,
+              lng,
             );
           }
 

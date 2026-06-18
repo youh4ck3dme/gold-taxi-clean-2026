@@ -119,8 +119,12 @@ class MapCubit extends Cubit<MapState> {
           icon: kIsWeb
               ? BitmapDescriptor.defaultMarker
               : (driver.isAvailable
-                  ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen)
-                  : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed)),
+                    ? BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueGreen,
+                      )
+                    : BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueRed,
+                      )),
           rotation: driver.bearing,
           onTap: () => selectDriver(driver.driverId),
         ),

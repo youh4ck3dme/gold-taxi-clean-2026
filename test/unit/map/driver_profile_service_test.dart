@@ -91,7 +91,7 @@ void main() {
         final serialized = originalDriver.toMap();
         serialized['id'] = originalDriver.driverId;
         // Mock DB fields that aren't in toMap for tests
-        serialized['rating'] = 4.95; 
+        serialized['rating'] = 4.95;
 
         final deserialized = DriverPositionModel.fromMap(
           originalDriver.driverId,

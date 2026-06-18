@@ -33,9 +33,19 @@ class AdminDashboardPage extends StatelessWidget {
   }
 
   Widget _buildStatGrid(List<RideModel> rides) {
-    final activeRides = rides.where((r) => r.status != RideStatus.completed && r.status != RideStatus.cancelled).length;
-    final completedToday = rides.where((r) => r.status == RideStatus.completed).length;
-    final totalRevenue = rides.where((r) => r.status == RideStatus.completed).fold(0.0, (sum, r) => sum + (r.finalPrice ?? r.estimatedPrice));
+    final activeRides = rides
+        .where(
+          (r) =>
+              r.status != RideStatus.completed &&
+              r.status != RideStatus.cancelled,
+        )
+        .length;
+    final completedToday = rides
+        .where((r) => r.status == RideStatus.completed)
+        .length;
+    final totalRevenue = rides
+        .where((r) => r.status == RideStatus.completed)
+        .fold(0.0, (sum, r) => sum + (r.finalPrice ?? r.estimatedPrice));
 
     return GridView.count(
       shrinkWrap: true,
@@ -45,8 +55,16 @@ class AdminDashboardPage extends StatelessWidget {
       childAspectRatio: 1.5,
       children: [
         _buildStatCard('Aktívne jazdy', activeRides.toString(), Colors.blue),
-        _buildStatCard('Dokončené dnes', completedToday.toString(), Colors.green),
-        _buildStatCard('Dnešný obrat', '${totalRevenue.toStringAsFixed(2)} €', Colors.orange),
+        _buildStatCard(
+          'Dokončené dnes',
+          completedToday.toString(),
+          Colors.green,
+        ),
+        _buildStatCard(
+          'Dnešný obrat',
+          '${totalRevenue.toStringAsFixed(2)} €',
+          Colors.orange,
+        ),
         _buildStatCard('Celkom jázd', rides.length.toString(), Colors.purple),
       ],
     );
@@ -59,7 +77,14 @@ class AdminDashboardPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
             Text(label, style: const TextStyle(fontSize: 12)),
           ],
         ),
@@ -68,12 +93,21 @@ class AdminDashboardPage extends StatelessWidget {
   }
 
   Widget _buildActiveRidesList(List<RideModel> rides) {
-    final activeRides = rides.where((r) => r.status != RideStatus.completed && r.status != RideStatus.cancelled).toList();
+    final activeRides = rides
+        .where(
+          (r) =>
+              r.status != RideStatus.completed &&
+              r.status != RideStatus.cancelled,
+        )
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Aktuálne prebiehajúce jazdy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          'Aktuálne prebiehajúce jazdy',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 12),
         if (activeRides.isEmpty)
           const Card(child: ListTile(title: Text('Žiadne aktívne jazdy'))),
@@ -90,7 +124,11 @@ class AdminDashboardPage extends StatelessWidget {
                 subtitle: Text('Smer: ${ride.dropoffAddress}'),
                 trailing: Text(
                   ride.status.name.toUpperCase(),
-                  style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 10),
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                  ),
                 ),
               ),
             );

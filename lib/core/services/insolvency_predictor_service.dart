@@ -4,8 +4,10 @@ class InsolvencyPrediction {
   final double riskScore; // 0.0 to 100.0
   final String riskLevel; // 'Nízke', 'Stredné', 'Vysoké'
   final double averageDelayDays;
-  final double delayTrend; // Rozdiel v priemernom oneskorení (posledných 90 dní vs predchádzajúcich 90 dní)
-  final double unpaidRatio; // Pomer neuhradených po splatnosti k celkovému objemu
+  final double
+  delayTrend; // Rozdiel v priemernom oneskorení (posledných 90 dní vs predchádzajúcich 90 dní)
+  final double
+  unpaidRatio; // Pomer neuhradených po splatnosti k celkovému objemu
   final List<String> riskFactors;
   final bool predictsInsolvencyIn3Months;
 
@@ -22,13 +24,18 @@ class InsolvencyPrediction {
 
 class InsolvencyPredictorService {
   /// Analyzuje platobnú morálku a generuje predikciu úpadku na 3 mesiace vopred
-  InsolvencyPrediction analyzeInsolvencyRisk(List<InvoiceModel> invoices, {DateTime? evaluationDate}) {
+  InsolvencyPrediction analyzeInsolvencyRisk(
+    List<InvoiceModel> invoices, {
+    DateTime? evaluationDate,
+  }) {
     final now = evaluationDate ?? DateTime.now();
     final cutoff180 = now.subtract(const Duration(days: 180));
     final cutoff90 = now.subtract(const Duration(days: 90));
 
     // Filtrujeme faktúry za posledných 180 dní pre relevantnú analýzu platobnej morálky
-    final relevantInvoices = invoices.where((inv) => inv.issueDate.isAfter(cutoff180)).toList();
+    final relevantInvoices = invoices
+        .where((inv) => inv.issueDate.isAfter(cutoff180))
+        .toList();
 
     if (relevantInvoices.isEmpty) {
       return const InsolvencyPrediction(
@@ -51,11 +58,21 @@ class InsolvencyPredictorService {
         totalOverdueUnpaid += inv.amount;
       }
     }
-    final unpaidRatio = totalInvoiced > 0 ? (totalOverdueUnpaid / totalInvoiced) : 0.0;
+    final unpaidRatio = totalInvoiced > 0
+        ? (totalOverdueUnpaid / totalInvoiced)
+        : 0.0;
 
     // 2. Rozdelenie do dvoch okien (Recent: 0-90 dní, Prior: 90-180 dní)
-    final recentInvoices = relevantInvoices.where((inv) => inv.issueDate.isAfter(cutoff90)).toList();
-    final priorInvoices = relevantInvoices.where((inv) => inv.issueDate.isBefore(cutoff90) || inv.issueDate.isAtSameMomentAs(cutoff90)).toList();
+    final recentInvoices = relevantInvoices
+        .where((inv) => inv.issueDate.isAfter(cutoff90))
+        .toList();
+    final priorInvoices = relevantInvoices
+        .where(
+          (inv) =>
+              inv.issueDate.isBefore(cutoff90) ||
+              inv.issueDate.isAtSameMomentAs(cutoff90),
+        )
+        .toList();
 
     double calculateAvgDelay(List<InvoiceModel> list) {
       if (list.isEmpty) return 0.0;
@@ -68,7 +85,9 @@ class InsolvencyPredictorService {
 
     final recentAvgDelay = calculateAvgDelay(recentInvoices);
     final priorAvgDelay = calculateAvgDelay(priorInvoices);
-    final delayTrend = priorInvoices.isNotEmpty ? (recentAvgDelay - priorAvgDelay) : 0.0;
+    final delayTrend = priorInvoices.isNotEmpty
+        ? (recentAvgDelay - priorAvgDelay)
+        : 0.0;
 
     // 3. Výpočet rizikového skóre (0 - 100)
     double riskScore = 0.0;
@@ -98,12 +117,17 @@ class InsolvencyPredictorService {
       riskScore += 20;
     } else if (delayTrend > 5) {
       riskScore += 10;
-    } else if (priorInvoices.isNotEmpty && delayTrend < -5 && unpaidRatio < 0.3) {
-      riskScore -= 10; // Platby sú rýchlejšie (iba ak je nízky pomer neuhradených)
+    } else if (priorInvoices.isNotEmpty &&
+        delayTrend < -5 &&
+        unpaidRatio < 0.3) {
+      riskScore -=
+          10; // Platby sú rýchlejšie (iba ak je nízky pomer neuhradených)
     }
 
     // Kritické oneskorenia (viac ako 90 dní po splatnosti voči evaluationDate)
-    bool hasCriticallyOverdue = invoices.any((inv) => inv.getDelayDays(now) > 90);
+    bool hasCriticallyOverdue = invoices.any(
+      (inv) => inv.getDelayDays(now) > 90,
+    );
     if (hasCriticallyOverdue) {
       riskScore += 10;
     }
@@ -117,7 +141,8 @@ class InsolvencyPredictorService {
 
     if (riskScore >= 70) {
       riskLevel = 'Vysoké';
-      predictsInsolvency = true; // Skóre nad 70 predpovedá úpadok 3 mesiace vopred
+      predictsInsolvency =
+          true; // Skóre nad 70 predpovedá úpadok 3 mesiace vopred
     } else if (riskScore >= 35) {
       riskLevel = 'Stredné';
       // Ak oneskorenie drasticky rastie a pomer neuhradených je vysoký, predpovedáme insolvenciu
@@ -129,19 +154,27 @@ class InsolvencyPredictorService {
     // 5. Zostavenie rizikových faktorov v slovenčine
     List<String> riskFactors = [];
     if (recentAvgDelay > 30) {
-      riskFactors.add('Priemerné oneskorenie úhrad za posledných 90 dní je vysoké (${recentAvgDelay.toStringAsFixed(1)} dní).');
+      riskFactors.add(
+        'Priemerné oneskorenie úhrad za posledných 90 dní je vysoké (${recentAvgDelay.toStringAsFixed(1)} dní).',
+      );
     }
     if (delayTrend > 5) {
-      riskFactors.add('Trend platobnej morálky sa zhoršuje (oneskorenie vzrástlo o ${delayTrend.toStringAsFixed(1)} dní).');
+      riskFactors.add(
+        'Trend platobnej morálky sa zhoršuje (oneskorenie vzrástlo o ${delayTrend.toStringAsFixed(1)} dní).',
+      );
     }
     if (unpaidRatio > 0.2) {
-      riskFactors.add('Vysoký pomer neuhradených faktúr po splatnosti (${(unpaidRatio * 100).toStringAsFixed(0)}% z celkového objemu).');
+      riskFactors.add(
+        'Vysoký pomer neuhradených faktúr po splatnosti (${(unpaidRatio * 100).toStringAsFixed(0)}% z celkového objemu).',
+      );
     }
     if (hasCriticallyOverdue) {
       riskFactors.add('Evidujeme faktúry viac ako 90 dní po splatnosti.');
     }
     if (riskFactors.isEmpty) {
-      riskFactors.add('Žiadne významné rizikové faktory. Platobná morálka je stabilná.');
+      riskFactors.add(
+        'Žiadne významné rizikové faktory. Platobná morálka je stabilná.',
+      );
     }
 
     return InsolvencyPrediction(

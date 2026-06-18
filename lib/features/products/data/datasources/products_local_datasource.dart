@@ -17,7 +17,10 @@ class ProductsLocalDataSource {
     final productsJson = box.get('cached_products') as List?;
     if (productsJson != null) {
       return productsJson
-          .map((json) => ProductModel.fromJson(Map<String, dynamic>.from(json as Map)))
+          .map(
+            (json) =>
+                ProductModel.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     }
     return [];

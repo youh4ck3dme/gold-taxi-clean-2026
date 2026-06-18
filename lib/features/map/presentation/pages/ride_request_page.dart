@@ -24,7 +24,7 @@ class RideRequestPage extends StatefulWidget {
 
 class _RideRequestPageState extends State<RideRequestPage> {
   ServiceType _selectedType = ServiceType.standard;
-  
+
   // Mock current position: Centrum Košice
   final LatLng _pickup = const LatLng(48.7219, 21.2575);
 
@@ -52,8 +52,10 @@ class _RideRequestPageState extends State<RideRequestPage> {
         children: [
           // Map Background
           PlatformMapWidget(
-            latitude: (_pickup.latitude + widget.destination.position.latitude) / 2,
-            longitude: (_pickup.longitude + widget.destination.position.longitude) / 2,
+            latitude:
+                (_pickup.latitude + widget.destination.position.latitude) / 2,
+            longitude:
+                (_pickup.longitude + widget.destination.position.longitude) / 2,
             zoom: 13.0,
             markers: {
               MapMarkerData(
@@ -80,7 +82,9 @@ class _RideRequestPageState extends State<RideRequestPage> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),
@@ -101,221 +105,291 @@ class _RideRequestPageState extends State<RideRequestPage> {
                       waitingFee += stop.waitingMinutes * 0.30;
                     }
                   }
-                  final estimate = (baseEstimate * state.surgeMultiplier) + waitingFee;
+                  final estimate =
+                      (baseEstimate * state.surgeMultiplier) + waitingFee;
 
                   return SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                      // Service Selection
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildTypeOption(ServiceType.standard, 'Standard', Icons.directions_car),
-                          _buildTypeOption(ServiceType.comfort, 'Comfort', Icons.weekend),
-                          _buildTypeOption(ServiceType.premium, 'Premium', Icons.star),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Multi Stop Timeline
-                      MultiStopTimeline(
-                        pickupAddress: 'Moja poloha (Centrum)',
-                        dropoffAddress: widget.destination.name,
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Zone Checking Status
-                      if (state.isCheckingZone)
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.blue),
-                              ),
-                              SizedBox(width: 10),
-                              Text('Overujem zónu a ceny...', style: TextStyle(color: Colors.grey)),
-                            ],
-                          ),
+                        // Service Selection
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildTypeOption(
+                              ServiceType.standard,
+                              'Standard',
+                              Icons.directions_car,
+                            ),
+                            _buildTypeOption(
+                              ServiceType.comfort,
+                              'Comfort',
+                              Icons.weekend,
+                            ),
+                            _buildTypeOption(
+                              ServiceType.premium,
+                              'Premium',
+                              Icons.star,
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 20),
 
-                      // Not in zone warning
-                      if (!state.isCheckingZone && !state.isInZone)
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.red[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.red[200]!),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.error_outline, color: Colors.red),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  state.errorMessage ?? 'V tejto oblasti zatiaľ nejazdíme',
-                                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                          ),
+                        // Multi Stop Timeline
+                        MultiStopTimeline(
+                          pickupAddress: 'Moja poloha (Centrum)',
+                          dropoffAddress: widget.destination.name,
                         ),
+                        const SizedBox(height: 12),
 
-                      // Surge Pricing Warning
-                      if (!state.isCheckingZone && state.isInZone && state.surgeMultiplier > 1.0)
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.amber[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.amber[200]!),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.flash_on, color: Colors.amber),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'Zvýšený dopyt (násobič ${state.surgeMultiplier.toStringAsFixed(1)}x)',
-                                  style: TextStyle(
-                                    color: Colors.amber[800],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                        // Zone Checking Status
+                        if (state.isCheckingZone)
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.blue,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      
-                      // Promo Code Section
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.local_offer_outlined, color: Colors.blue, size: 20),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 10),
                                 Text(
-                                  state.appliedPromo != null
-                                      ? 'Kód: ${state.appliedPromo!.code}'
-                                      : 'Promo kód',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  'Overujem zónu a ceny...',
+                                  style: TextStyle(color: Colors.grey),
                                 ),
                               ],
                             ),
-                            if (state.appliedPromo != null)
+                          ),
+
+                        // Not in zone warning
+                        if (!state.isCheckingZone && !state.isInZone)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.red[200]!),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    state.errorMessage ??
+                                        'V tejto oblasti zatiaľ nejazdíme',
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Surge Pricing Warning
+                        if (!state.isCheckingZone &&
+                            state.isInZone &&
+                            state.surgeMultiplier > 1.0)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.amber[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.amber[200]!),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.flash_on, color: Colors.amber),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Zvýšený dopyt (násobič ${state.surgeMultiplier.toStringAsFixed(1)}x)',
+                                    style: TextStyle(
+                                      color: Colors.amber[800],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Promo Code Section
+                        const Divider(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
                               Row(
                                 children: [
-                                  Text(
-                                    '-${state.appliedPromo!.calculatedDiscount.toStringAsFixed(2)} €',
-                                    style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                                  const Icon(
+                                    Icons.local_offer_outlined,
+                                    color: Colors.blue,
+                                    size: 20,
                                   ),
                                   const SizedBox(width: 8),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                                    onPressed: () {
-                                      context.read<RideCubit>().removePromoCode();
-                                    },
-                                    constraints: const BoxConstraints(),
-                                    padding: EdgeInsets.zero,
+                                  Text(
+                                    state.appliedPromo != null
+                                        ? 'Kód: ${state.appliedPromo!.code}'
+                                        : 'Promo kód',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ],
-                              )
-                            else
-                              TextButton(
-                                onPressed: () => _showPromoDialog(context, estimate),
-                                child: const Text('Zadať kód'),
                               ),
-                          ],
-                        ),
-                      ),
-                      if (state.promoError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            state.promoError!,
-                            style: const TextStyle(color: Colors.red, fontSize: 12),
-                          ),
-                        ),
-                      const Divider(),
-                      const SizedBox(height: 8),
-
-                      // Summary
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Odhadovaná cena',
-                            style: TextStyle(fontSize: 16, color: AppColors.grey600),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
                               if (state.appliedPromo != null)
-                                Text(
-                                  '${estimate.toStringAsFixed(2)} €',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      '-${state.appliedPromo!.calculatedDiscount.toStringAsFixed(2)} €',
+                                      style: const TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.red,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        context
+                                            .read<RideCubit>()
+                                            .removePromoCode();
+                                      },
+                                      constraints: const BoxConstraints(),
+                                      padding: EdgeInsets.zero,
+                                    ),
+                                  ],
+                                )
+                              else
+                                TextButton(
+                                  onPressed: () =>
+                                      _showPromoDialog(context, estimate),
+                                  child: const Text('Zadať kód'),
                                 ),
-                              AnimatedPriceText(
-                                value: (estimate - (state.appliedPromo?.calculatedDiscount ?? 0.0)).clamp(0.0, double.infinity),
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.secondary,
-                                ),
-                              ),
                             ],
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      
-                      PrimaryButton(
-                        text: 'Potvrdiť jazdu',
-                        onPressed: (state.isCheckingZone || !state.isInZone)
-                            ? null
-                            : () {
-                                final authState = context.read<AuthCubit>().state;
-                                String customerId = 'guest_user';
-                                if (authState is Authenticated) {
-                                  customerId = authState.user.id.toString();
-                                }
+                        ),
+                        if (state.promoError != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Text(
+                              state.promoError!,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        const Divider(),
+                        const SizedBox(height: 8),
 
-                                final finalEstimate = (estimate - (state.appliedPromo?.calculatedDiscount ?? 0.0)).clamp(0.0, double.infinity);
+                        // Summary
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Odhadovaná cena',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: AppColors.grey600,
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                if (state.appliedPromo != null)
+                                  Text(
+                                    '${estimate.toStringAsFixed(2)} €',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                                  ),
+                                AnimatedPriceText(
+                                  value:
+                                      (estimate -
+                                              (state
+                                                      .appliedPromo
+                                                      ?.calculatedDiscount ??
+                                                  0.0))
+                                          .clamp(0.0, double.infinity),
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.secondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
 
-                                context.read<RideCubit>().requestRide(
-                                  customerId: customerId,
-                                  pickupAddress: 'Moja poloha (Centrum)',
-                                  pickupLatLng: _pickup,
-                                  dropoffAddress: widget.destination.name,
-                                  dropoffLatLng: widget.destination.position,
-                                  serviceType: _selectedType,
-                                  distance: distance,
-                                  estimate: finalEstimate,
-                                );
-                                
-                                // Navigate to active ride tracking
-                                context.push('/active-ride');
-                              },
-                      ),
-                    ],
-                  ),
-                );
+                        PrimaryButton(
+                          text: 'Potvrdiť jazdu',
+                          onPressed: (state.isCheckingZone || !state.isInZone)
+                              ? null
+                              : () {
+                                  final authState = context
+                                      .read<AuthCubit>()
+                                      .state;
+                                  String customerId = 'guest_user';
+                                  if (authState is Authenticated) {
+                                    customerId = authState.user.id.toString();
+                                  }
+
+                                  final finalEstimate =
+                                      (estimate -
+                                              (state
+                                                      .appliedPromo
+                                                      ?.calculatedDiscount ??
+                                                  0.0))
+                                          .clamp(0.0, double.infinity);
+
+                                  context.read<RideCubit>().requestRide(
+                                    customerId: customerId,
+                                    pickupAddress: 'Moja poloha (Centrum)',
+                                    pickupLatLng: _pickup,
+                                    dropoffAddress: widget.destination.name,
+                                    dropoffLatLng: widget.destination.position,
+                                    serviceType: _selectedType,
+                                    distance: distance,
+                                    estimate: finalEstimate,
+                                  );
+
+                                  // Navigate to active ride tracking
+                                  context.push('/active-ride');
+                                },
+                        ),
+                      ],
+                    ),
+                  );
                 },
               ),
             ),
@@ -360,7 +434,9 @@ class _RideRequestPageState extends State<RideRequestPage> {
     final controller = TextEditingController();
     final cubit = context.read<RideCubit>();
     final authState = context.read<AuthCubit>().state;
-    final userId = authState is Authenticated ? authState.user.id.toString() : 'guest';
+    final userId = authState is Authenticated
+        ? authState.user.id.toString()
+        : 'guest';
 
     showDialog(
       context: context,

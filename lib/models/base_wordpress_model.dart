@@ -61,17 +61,20 @@ abstract class BaseWordPressModel extends Equatable {
     try {
       final terms = embedded?['wp:term'] as List?;
       if (terms == null) return [];
-      
+
       for (var termGroup in terms) {
         if (termGroup is List && termGroup.isNotEmpty) {
           final first = termGroup[0];
           if (first is Map && first['taxonomy'] == 'category') {
-            return termGroup.map((cat) {
-              if (cat is Map) {
-                return cat['name'] as String? ?? '';
-              }
-              return '';
-            }).where((name) => name.isNotEmpty).toList();
+            return termGroup
+                .map((cat) {
+                  if (cat is Map) {
+                    return cat['name'] as String? ?? '';
+                  }
+                  return '';
+                })
+                .where((name) => name.isNotEmpty)
+                .toList();
           }
         }
       }

@@ -16,14 +16,16 @@ class ChatCubit extends Cubit<ChatState> {
     emit(ChatLoading());
 
     _messagesSubscription?.cancel();
-    _messagesSubscription = _chatRepository.getMessagesStream(rideId).listen(
-      (messages) {
-        emit(ChatLoaded(messages: messages));
-      },
-      onError: (error) {
-        emit(ChatError('Nepodarilo sa načítať chat: $error'));
-      },
-    );
+    _messagesSubscription = _chatRepository
+        .getMessagesStream(rideId)
+        .listen(
+          (messages) {
+            emit(ChatLoaded(messages: messages));
+          },
+          onError: (error) {
+            emit(ChatError('Nepodarilo sa načítať chat: $error'));
+          },
+        );
   }
 
   Future<void> sendMessage({
@@ -53,7 +55,7 @@ class ChatCubit extends Cubit<ChatState> {
     final currentState = state;
     if (currentState is ChatLoaded) {
       emit(currentState.copyWith(isCalling: true));
-      
+
       try {
         final proxyNumber = await _chatRepository.triggerMaskedCall(
           rideId: rideId,

@@ -40,7 +40,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _selectLocation(LocationModel location) {
-    // In a real app, we'd also have a pickup location. 
+    // In a real app, we'd also have a pickup location.
     // Here we assume "Current Position" as pickup for now.
     context.push('/ride-request', extra: location);
   }
@@ -50,10 +50,7 @@ class _SearchPageState extends State<SearchPage> {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kam to bude?'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Kam to bude?'), elevation: 0),
       body: Column(
         children: [
           // Input Section
@@ -75,7 +72,10 @@ class _SearchPageState extends State<SearchPage> {
               onChanged: _onQueryChanged,
               decoration: InputDecoration(
                 hintText: 'Zadajte cieľovú adresu (Košice)',
-                prefixIcon: const Icon(Icons.location_on, color: Colors.redAccent),
+                prefixIcon: const Icon(
+                  Icons.location_on,
+                  color: Colors.redAccent,
+                ),
                 filled: true,
                 fillColor: isDarkMode ? AppColors.grey900 : AppColors.grey100,
                 border: OutlineInputBorder(
@@ -93,7 +93,8 @@ class _SearchPageState extends State<SearchPage> {
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.separated(
                     itemCount: _suggestions.length,
-                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final loc = _suggestions[index];
                       return ListTile(
@@ -103,7 +104,11 @@ class _SearchPageState extends State<SearchPage> {
                             color: AppColors.grey200.withValues(alpha: 0.5),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.history, color: AppColors.grey600, size: 20),
+                          child: const Icon(
+                            Icons.history,
+                            color: AppColors.grey600,
+                            size: 20,
+                          ),
                         ),
                         title: Text(
                           loc.name,

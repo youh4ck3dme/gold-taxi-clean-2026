@@ -1,8 +1,9 @@
-
-
 /// API Constants for WordPress JetEngine integration
 class ApiConstants {
-  static String get baseUrl => const String.fromEnvironment('WP_BASE_URL', defaultValue: 'https://your-wordpress-site.com');
+  static String get baseUrl => const String.fromEnvironment(
+    'WP_BASE_URL',
+    defaultValue: 'https://your-wordpress-site.com',
+  );
 
   // WordPress API endpoints
   static String get wordpressApi => '$baseUrl/wp-json/wp/v2';
@@ -29,13 +30,24 @@ class ApiConstants {
   static String get faqEndpoint => '$wordpressApi/posts'; // Graceful fallback
 
   // Firebase
-  static String get firebaseProjectId => const String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: 'your-firebase-project-id');
-  static String get firebaseApiKey => const String.fromEnvironment('FIREBASE_API_KEY', defaultValue: 'your-firebase-api-key');
-  static String get firebaseAppId => const String.fromEnvironment('FIREBASE_APP_ID', defaultValue: 'your-firebase-app-id');
+  static String get firebaseProjectId => const String.fromEnvironment(
+    'FIREBASE_PROJECT_ID',
+    defaultValue: 'your-firebase-project-id',
+  );
+  static String get firebaseApiKey => const String.fromEnvironment(
+    'FIREBASE_API_KEY',
+    defaultValue: 'your-firebase-api-key',
+  );
+  static String get firebaseAppId => const String.fromEnvironment(
+    'FIREBASE_APP_ID',
+    defaultValue: 'your-firebase-app-id',
+  );
 
   // WooCommerce
-  static String get wooCommerceConsumerKey => const String.fromEnvironment('WOO_CONSUMER_KEY', defaultValue: '');
-  static String get wooCommerceConsumerSecret => const String.fromEnvironment('WOO_CONSUMER_SECRET', defaultValue: '');
+  static String get wooCommerceConsumerKey =>
+      const String.fromEnvironment('WOO_CONSUMER_KEY', defaultValue: '');
+  static String get wooCommerceConsumerSecret =>
+      const String.fromEnvironment('WOO_CONSUMER_SECRET', defaultValue: '');
 }
 
 /// Query parameters

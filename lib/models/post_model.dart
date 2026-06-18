@@ -46,7 +46,9 @@ class PostModel extends Equatable {
   factory PostModel.fromSupabaseJson(Map<String, dynamic> json) {
     return PostModel(
       id: json['id'] as String? ?? '',
-      date: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+      date:
+          DateTime.tryParse(json['created_at']?.toString() ?? '') ??
+          DateTime.now(),
       title: json['title'] as String? ?? '',
       content: json['content'] as String? ?? '',
       excerpt: json['excerpt'] as String? ?? '',
@@ -59,7 +61,8 @@ class PostModel extends Equatable {
 
   static String? _getWpFeaturedImage(Map<String, dynamic> json) {
     try {
-      return json['_embedded']?['wp:featuredmedia']?[0]?['source_url'] as String?;
+      return json['_embedded']?['wp:featuredmedia']?[0]?['source_url']
+          as String?;
     } catch (_) {
       return null;
     }
@@ -74,7 +77,17 @@ class PostModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, date, title, content, excerpt, featuredImageUrl, authorName, categories, tags];
+  List<Object?> get props => [
+    id,
+    date,
+    title,
+    content,
+    excerpt,
+    featuredImageUrl,
+    authorName,
+    categories,
+    tags,
+  ];
 
   Map<String, dynamic> toJson() {
     return {

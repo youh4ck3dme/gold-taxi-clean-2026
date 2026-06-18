@@ -14,7 +14,8 @@ void main() {
 
   test('Supabase Production Config - URL and Key are valid', () {
     const url = 'https://nscxuxhapaabtsiduxlu.supabase.co';
-    const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zY3h1eGhhcGFhYnRzaWR1eGx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzODEwNzAsImV4cCI6MjA5Njk1NzA3MH0.AI-8BfolBjcxMRDS5YlDCFSK5CrQyFck5Mf3TVIErO0';
+    const anonKey =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zY3h1eGhhcGFhYnRzaWR1eGx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzODEwNzAsImV4cCI6MjA5Njk1NzA3MH0.AI-8BfolBjcxMRDS5YlDCFSK5CrQyFck5Mf3TVIErO0';
 
     final config = AppConfig(
       environment: AppEnvironment.prod,
@@ -35,7 +36,8 @@ void main() {
   test('Supabase Initialization - Should not throw', () async {
     await Supabase.initialize(
       url: 'https://nscxuxhapaabtsiduxlu.supabase.co',
-      publishableKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zY3h1eGhhcGFhYnRzaWR1eGx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzODEwNzAsImV4cCI6MjA5Njk1NzA3MH0.AI-8BfolBjcxMRDS5YlDCFSK5CrQyFck5Mf3TVIErO0',
+      publishableKey:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zY3h1eGhhcGFhYnRzaWR1eGx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzODEwNzAsImV4cCI6MjA5Njk1NzA3MH0.AI-8BfolBjcxMRDS5YlDCFSK5CrQyFck5Mf3TVIErO0',
     );
 
     expect(Supabase.instance.client, isNotNull);

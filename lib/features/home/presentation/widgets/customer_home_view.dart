@@ -13,11 +13,7 @@ class CustomerHomeView extends StatelessWidget {
   final String userName;
   final String? avatarUrl;
 
-  const CustomerHomeView({
-    super.key,
-    required this.userName,
-    this.avatarUrl,
-  });
+  const CustomerHomeView({super.key, required this.userName, this.avatarUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +23,9 @@ class CustomerHomeView extends StatelessWidget {
         Map<String, dynamic> savedAddresses = {};
 
         if (profileState is ProfileLoaded) {
-          showPhoneWarning = profileState.user.phone == null || profileState.user.phone!.trim().isEmpty;
+          showPhoneWarning =
+              profileState.user.phone == null ||
+              profileState.user.phone!.trim().isEmpty;
           savedAddresses = profileState.user.savedAddresses;
         }
 
@@ -81,12 +79,16 @@ class CustomerHomeView extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 26,
                       backgroundColor: AppColors.deepBlack,
-                      foregroundImage: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                      foregroundImage:
+                          (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
                           ? NetworkImage(avatarUrl!)
                           : null,
-                      onForegroundImageError: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                      onForegroundImageError:
+                          (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
                           ? (exception, stackTrace) {
-                              debugPrint('Error loading customer avatar: $exception');
+                              debugPrint(
+                                'Error loading customer avatar: $exception',
+                              );
                             }
                           : null,
                       child: const Icon(
@@ -108,21 +110,34 @@ class CustomerHomeView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.orange,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     const Expanded(
                       child: Text(
                         'Doplňte telefónne číslo pre objednanie jazdy.',
-                        style: TextStyle(color: Color(0xFFFFCC80), fontSize: 12, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Color(0xFFFFCC80),
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     TextButton(
                       onPressed: () => context.push('/profile'),
-                      child: const Text('Upraviť', style: TextStyle(color: Colors.orange)),
+                      child: const Text(
+                        'Upraviť',
+                        style: TextStyle(color: Colors.orange),
+                      ),
                     ),
                   ],
                 ),
@@ -131,7 +146,7 @@ class CustomerHomeView extends StatelessWidget {
             // Active Ride Card
             BlocBuilder<RideCubit, RideState>(
               builder: (context, rideState) {
-                if (rideState.currentRide != null && 
+                if (rideState.currentRide != null &&
                     rideState.currentRide!.status != RideStatus.completed &&
                     rideState.currentRide!.status != RideStatus.cancelled) {
                   return GestureDetector(
@@ -154,7 +169,11 @@ class CustomerHomeView extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.local_taxi, color: Colors.black, size: 32),
+                          const Icon(
+                            Icons.local_taxi,
+                            color: Colors.black,
+                            size: 32,
+                          ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
@@ -162,16 +181,30 @@ class CustomerHomeView extends StatelessWidget {
                               children: [
                                 const Text(
                                   'AKTÍVNA JAZDA',
-                                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.black54, letterSpacing: 1.0),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 13,
+                                    color: Colors.black54,
+                                    letterSpacing: 1.0,
+                                  ),
                                 ),
                                 Text(
-                                  rideState.currentRide!.status.name.toUpperCase(),
-                                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.black),
+                                  rideState.currentRide!.status.name
+                                      .toUpperCase(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(Icons.arrow_forward_ios, color: Colors.black, size: 16),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.black,
+                            size: 16,
+                          ),
                         ],
                       ),
                     ),
@@ -188,18 +221,21 @@ class CustomerHomeView extends StatelessWidget {
                 const Text(
                   'Objednajte si jazdu',
                   style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 22,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                      ),
+                    fontWeight: FontWeight.w900,
+                    fontSize: 22,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 InkWell(
                   onTap: () => context.push('/search'),
                   borderRadius: BorderRadius.circular(24),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 24,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF111111),
                       borderRadius: BorderRadius.circular(24),
@@ -234,10 +270,10 @@ class CustomerHomeView extends StatelessWidget {
                           child: Text(
                             'Kam to bude?',
                             style: TextStyle(
-                                  color: Color(0xFFB8BEC9),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                ),
+                              color: Color(0xFFB8BEC9),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ],
@@ -258,18 +294,30 @@ class CustomerHomeView extends StatelessWidget {
                     final data = entry.value as Map<String, dynamic>? ?? {};
                     final label = data['label']?.toString() ?? key;
                     final address = data['address']?.toString() ?? '';
-                    final lat = double.tryParse(data['lat']?.toString() ?? '0') ?? 0;
-                    final lng = double.tryParse(data['lng']?.toString() ?? '0') ?? 0;
+                    final lat =
+                        double.tryParse(data['lat']?.toString() ?? '0') ?? 0;
+                    final lng =
+                        double.tryParse(data['lng']?.toString() ?? '0') ?? 0;
 
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: ActionChip(
                         avatar: Icon(
-                          key == 'home' ? Icons.home_filled : (key == 'work' ? Icons.work : Icons.location_on),
+                          key == 'home'
+                              ? Icons.home_filled
+                              : (key == 'work'
+                                    ? Icons.work
+                                    : Icons.location_on),
                           size: 16,
                           color: AppColors.luxuryGold,
                         ),
-                        label: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        label: Text(
+                          label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         onPressed: () {
                           if (address.isNotEmpty) {
                             final location = LocationModel(
@@ -281,14 +329,18 @@ class CustomerHomeView extends StatelessWidget {
                           }
                         },
                         backgroundColor: const Color(0xFF1A1A1A),
-                        side: BorderSide(color: AppColors.luxuryGold.withValues(alpha: 0.2)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        side: BorderSide(
+                          color: AppColors.luxuryGold.withValues(alpha: 0.2),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     );
                   }).toList(),
                 ),
               ),
-            
+
             const SizedBox(height: 24),
 
             // Promo Code Banner
@@ -321,11 +373,11 @@ class CustomerHomeView extends StatelessWidget {
                       Text(
                         'LIMITOVANÁ PONUKA',
                         style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 12,
-                              letterSpacing: 1.5,
-                              color: AppColors.luxuryGold.withValues(alpha: 0.9),
-                            ),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
+                          letterSpacing: 1.5,
+                          color: AppColors.luxuryGold.withValues(alpha: 0.9),
+                        ),
                       ),
                     ],
                   ),
@@ -342,10 +394,10 @@ class CustomerHomeView extends StatelessWidget {
                   const Text(
                     'Zadaj promo kód GOLDTAXI a ušetri na svoju prvú jazdu.',
                     style: TextStyle(
-                          color: Color(0xFFB8BEC9),
-                          fontSize: 13,
-                          height: 1.4,
-                        ),
+                      color: Color(0xFFB8BEC9),
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
                   ),
                 ],
               ),

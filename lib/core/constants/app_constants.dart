@@ -4,7 +4,8 @@ class AppConstants {
   static const String appName = 'Gold-Taxi';
   static const String appVersion = '1.0.0';
   static const String appPackage = 'com.goldtaxi.gold_taxi';
-  static const String appDescription = 'Gold-Taxi - WordPress JetEngine Mobile App';
+  static const String appDescription =
+      'Gold-Taxi - WordPress JetEngine Mobile App';
 
   // Timeouts
   static const Duration apiTimeout = Duration(seconds: 30);

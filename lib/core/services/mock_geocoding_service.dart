@@ -72,12 +72,16 @@ class MockGeocodingService {
   ];
 
   static Future<List<LocationModel>> search(String query) async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate API delay
+    await Future.delayed(
+      const Duration(milliseconds: 500),
+    ); // Simulate API delay
     if (query.isEmpty) return kosiceLocations;
     return kosiceLocations
-        .where((loc) => 
-            loc.name.toLowerCase().contains(query.toLowerCase()) ||
-            loc.address.toLowerCase().contains(query.toLowerCase()))
+        .where(
+          (loc) =>
+              loc.name.toLowerCase().contains(query.toLowerCase()) ||
+              loc.address.toLowerCase().contains(query.toLowerCase()),
+        )
         .toList();
   }
 }

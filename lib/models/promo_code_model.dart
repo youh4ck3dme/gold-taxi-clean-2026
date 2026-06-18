@@ -24,9 +24,11 @@ class PromoCodeModel extends Equatable {
     return PromoCodeModel(
       id: json['id'] as String?,
       code: json['code'] as String? ?? '',
-      discountPercentage: (json['discount_percentage'] as num?)?.toDouble() ?? 0.0,
+      discountPercentage:
+          (json['discount_percentage'] as num?)?.toDouble() ?? 0.0,
       discountAmount: (json['discount_amount'] as num?)?.toDouble() ?? 0.0,
-      calculatedDiscount: (json['calculated_discount'] as num?)?.toDouble() ?? 0.0,
+      calculatedDiscount:
+          (json['calculated_discount'] as num?)?.toDouble() ?? 0.0,
       isValid: json['is_valid'] as bool? ?? false,
       errorMessage: json['error_message'] as String?,
     );
@@ -66,12 +68,12 @@ class PromoCodeModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        code,
-        discountPercentage,
-        discountAmount,
-        calculatedDiscount,
-        isValid,
-        errorMessage,
-      ];
+    id,
+    code,
+    discountPercentage,
+    discountAmount,
+    calculatedDiscount,
+    isValid,
+    errorMessage,
+  ];
 }

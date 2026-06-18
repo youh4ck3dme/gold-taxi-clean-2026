@@ -38,34 +38,42 @@ void main() {
       expect(blogBloc.state, isA<BlogInitial>());
     });
 
-    test('FetchPosts emits [BlogLoading, BlogLoaded] when repository succeeds', () async {
-      when(() => mockBlogRepository.getPosts(page: any(named: 'page'), search: any(named: 'search')))
-          .thenAnswer((_) async => [testPost]);
+    test(
+      'FetchPosts emits [BlogLoading, BlogLoaded] when repository succeeds',
+      () async {
+        when(
+          () => mockBlogRepository.getPosts(
+            page: any(named: 'page'),
+            search: any(named: 'search'),
+          ),
+        ).thenAnswer((_) async => [testPost]);
 
-      expectLater(
-        blogBloc.stream,
-        emitsInOrder([
-          isA<BlogLoading>(),
-          isA<BlogLoaded>(),
-        ]),
-      );
+        expectLater(
+          blogBloc.stream,
+          emitsInOrder([isA<BlogLoading>(), isA<BlogLoaded>()]),
+        );
 
-      blogBloc.add(const FetchPosts());
-    });
+        blogBloc.add(const FetchPosts());
+      },
+    );
 
-    test('FetchPosts emits [BlogLoading, BlogError] when repository throws error', () async {
-      when(() => mockBlogRepository.getPosts(page: any(named: 'page'), search: any(named: 'search')))
-          .thenThrow(Exception('API error'));
+    test(
+      'FetchPosts emits [BlogLoading, BlogError] when repository throws error',
+      () async {
+        when(
+          () => mockBlogRepository.getPosts(
+            page: any(named: 'page'),
+            search: any(named: 'search'),
+          ),
+        ).thenThrow(Exception('API error'));
 
-      expectLater(
-        blogBloc.stream,
-        emitsInOrder([
-          isA<BlogLoading>(),
-          isA<BlogError>(),
-        ]),
-      );
+        expectLater(
+          blogBloc.stream,
+          emitsInOrder([isA<BlogLoading>(), isA<BlogError>()]),
+        );
 
-      blogBloc.add(const FetchPosts());
-    });
+        blogBloc.add(const FetchPosts());
+      },
+    );
   });
 }

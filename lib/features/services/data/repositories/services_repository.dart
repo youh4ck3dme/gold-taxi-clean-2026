@@ -8,10 +8,18 @@ class ServicesRepository {
   final ServicesLocalDataSource _localDataSource;
   final Connectivity _connectivity;
 
-  ServicesRepository(this._remoteDataSource, this._localDataSource, this._connectivity);
+  ServicesRepository(
+    this._remoteDataSource,
+    this._localDataSource,
+    this._connectivity,
+  );
 
   /// Fetch services from remote API or fallback to local cache
-  Future<List<ServiceModel>> getServices({int page = 1, int perPage = 10, String? search}) async {
+  Future<List<ServiceModel>> getServices({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
     final connectivityResult = await _connectivity.checkConnectivity();
     final isOnline = !connectivityResult.contains(ConnectivityResult.none);
 

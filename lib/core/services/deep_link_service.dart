@@ -41,7 +41,7 @@ class DeepLinkService {
 
       if (section == 'products') {
         appRouter.go('/products'); // Or navigate to lists first
-        // Note: For full production routing with direct models loading, 
+        // Note: For full production routing with direct models loading,
         // we can fetch by ID from repository or construct path with query params.
       } else if (section == 'services') {
         appRouter.go('/services');

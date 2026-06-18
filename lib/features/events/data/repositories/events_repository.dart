@@ -8,10 +8,18 @@ class EventsRepository {
   final EventsLocalDataSource _localDataSource;
   final Connectivity _connectivity;
 
-  EventsRepository(this._remoteDataSource, this._localDataSource, this._connectivity);
+  EventsRepository(
+    this._remoteDataSource,
+    this._localDataSource,
+    this._connectivity,
+  );
 
   /// Fetch events from remote API or fallback to local cache
-  Future<List<EventModel>> getEvents({int page = 1, int perPage = 10, String? search}) async {
+  Future<List<EventModel>> getEvents({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
     final connectivityResult = await _connectivity.checkConnectivity();
     final isOnline = !connectivityResult.contains(ConnectivityResult.none);
 

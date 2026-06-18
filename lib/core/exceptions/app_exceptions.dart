@@ -11,54 +11,40 @@ abstract class AppException implements Exception {
 
 /// Network related exceptions
 class NetworkException extends AppException {
-  NetworkException({
-    required super.message,
-    String? code,
-  }) : super(code: code ?? 'NETWORK_ERROR');
+  NetworkException({required super.message, String? code})
+    : super(code: code ?? 'NETWORK_ERROR');
 }
 
 /// API related exceptions
 class ApiException extends AppException {
   final int? statusCode;
 
-  ApiException({
-    required super.message,
-    this.statusCode,
-    String? code,
-  }) : super(code: code ?? 'API_ERROR');
+  ApiException({required super.message, this.statusCode, String? code})
+    : super(code: code ?? 'API_ERROR');
 }
 
 /// Authentication related exceptions
 class AuthException extends AppException {
-  AuthException({
-    required super.message,
-    String? code,
-  }) : super(code: code ?? 'AUTH_ERROR');
+  AuthException({required super.message, String? code})
+    : super(code: code ?? 'AUTH_ERROR');
 }
 
 /// Cache related exceptions
 class CacheException extends AppException {
-  CacheException({
-    required super.message,
-    String? code,
-  }) : super(code: code ?? 'CACHE_ERROR');
+  CacheException({required super.message, String? code})
+    : super(code: code ?? 'CACHE_ERROR');
 }
 
 /// Validation related exceptions
 class ValidationException extends AppException {
   final Map<String, String>? errors;
 
-  ValidationException({
-    required super.message,
-    this.errors,
-    String? code,
-  }) : super(code: code ?? 'VALIDATION_ERROR');
+  ValidationException({required super.message, this.errors, String? code})
+    : super(code: code ?? 'VALIDATION_ERROR');
 }
 
 /// Generic app exception
 class GeneralException extends AppException {
-  GeneralException({
-    required super.message,
-    String? code,
-  }) : super(code: code ?? 'GENERAL_ERROR');
+  GeneralException({required super.message, String? code})
+    : super(code: code ?? 'GENERAL_ERROR');
 }

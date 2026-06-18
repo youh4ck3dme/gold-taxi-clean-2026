@@ -55,8 +55,8 @@ class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
     notifyListeners();
     _subscription = stream.asBroadcastStream().listen(
-          (dynamic _) => notifyListeners(),
-        );
+      (dynamic _) => notifyListeners(),
+    );
   }
 
   @override
@@ -75,10 +75,17 @@ final appRouter = GoRouter(
     final isWelcome = state.matchedLocation == '/welcome';
 
     // Feature Flags Check
-    if (state.matchedLocation.startsWith('/blog') && !FeatureFlags.blogEnabled) return '/';
-    if (state.matchedLocation.startsWith('/products') && !FeatureFlags.productsEnabled) return '/';
-    if (state.matchedLocation.startsWith('/events') && !FeatureFlags.eventsEnabled) return '/';
-    if (state.matchedLocation.startsWith('/insolvency') && !FeatureFlags.insolvencyEnabled) return '/';
+    if (state.matchedLocation.startsWith('/blog') && !FeatureFlags.blogEnabled)
+      return '/';
+    if (state.matchedLocation.startsWith('/products') &&
+        !FeatureFlags.productsEnabled)
+      return '/';
+    if (state.matchedLocation.startsWith('/events') &&
+        !FeatureFlags.eventsEnabled)
+      return '/';
+    if (state.matchedLocation.startsWith('/insolvency') &&
+        !FeatureFlags.insolvencyEnabled)
+      return '/';
 
     if (authState is Authenticated) {
       final user = authState.user;
@@ -112,9 +119,18 @@ final appRouter = GoRouter(
       },
       routes: [
         GoRoute(path: '/', builder: (context, state) => const HomePage()),
-        GoRoute(path: '/services', builder: (context, state) => const ServicesPage()),
-        GoRoute(path: '/products', builder: (context, state) => const ProductsPage()),
-        GoRoute(path: '/events', builder: (context, state) => const EventsPage()),
+        GoRoute(
+          path: '/services',
+          builder: (context, state) => const ServicesPage(),
+        ),
+        GoRoute(
+          path: '/products',
+          builder: (context, state) => const ProductsPage(),
+        ),
+        GoRoute(
+          path: '/events',
+          builder: (context, state) => const EventsPage(),
+        ),
         GoRoute(path: '/blog', builder: (context, state) => const BlogPage()),
         GoRoute(
           path: '/map',
@@ -158,7 +174,10 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(path: '/cart', builder: (context, state) => const CartPage()),
-    GoRoute(path: '/checkout', builder: (context, state) => const CheckoutPage()),
+    GoRoute(
+      path: '/checkout',
+      builder: (context, state) => const CheckoutPage(),
+    ),
     GoRoute(
       path: '/order-confirmation',
       builder: (context, state) {
@@ -177,7 +196,10 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(path: '/profile', builder: (context, state) => const ProfilePage()),
-    GoRoute(path: '/profile/edit', builder: (context, state) => const EditProfilePage()),
+    GoRoute(
+      path: '/profile/edit',
+      builder: (context, state) => const EditProfilePage(),
+    ),
     GoRoute(
       path: '/driver',
       builder: (context, state) => BlocProvider(
@@ -185,7 +207,10 @@ final appRouter = GoRouter(
         child: const DriverDashboardPage(),
       ),
     ),
-    GoRoute(path: '/admin', builder: (context, state) => const AdminDashboardPage()),
+    GoRoute(
+      path: '/admin',
+      builder: (context, state) => const AdminDashboardPage(),
+    ),
     GoRoute(
       path: '/driver/onboarding',
       builder: (context, state) => BlocProvider(
@@ -244,7 +269,10 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(path: '/faq', builder: (context, state) => const FaqPage()),
-    GoRoute(path: '/insolvency', builder: (context, state) => const InsolvencyDashboardPage()),
+    GoRoute(
+      path: '/insolvency',
+      builder: (context, state) => const InsolvencyDashboardPage(),
+    ),
   ],
   errorBuilder: (context, state) {
     return Scaffold(

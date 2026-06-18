@@ -31,9 +31,14 @@ class BookingsRepository {
     }
 
     try {
-      final bookedSlots = await _remoteDataSource.fetchBookedSlots(serviceId, date);
+      final bookedSlots = await _remoteDataSource.fetchBookedSlots(
+        serviceId,
+        date,
+      );
       // Filter out already booked slots
-      return _allTimeSlots.where((slot) => !bookedSlots.contains(slot)).toList();
+      return _allTimeSlots
+          .where((slot) => !bookedSlots.contains(slot))
+          .toList();
     } catch (_) {
       return _allTimeSlots; // Return all on failure or return empty depending on API strictness
     }

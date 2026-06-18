@@ -27,7 +27,10 @@ class ApiService {
   final AuthInterceptor _authInterceptor;
 
   ApiService(this._authInterceptor, {Dio? dio, bool enableMockMode = false}) {
-    assert(!enableMockMode || kDebugMode, 'Mock mode is only allowed in debug/test builds.');
+    assert(
+      !enableMockMode || kDebugMode,
+      'Mock mode is only allowed in debug/test builds.',
+    );
     if (dio != null) {
       _dio = dio;
     } else {
@@ -75,7 +78,9 @@ class ApiService {
     Response response,
     ResponseInterceptorHandler handler,
   ) async {
-    _logger.i('🟢 [API] ${response.statusCode} ${response.requestOptions.path}');
+    _logger.i(
+      '🟢 [API] ${response.statusCode} ${response.requestOptions.path}',
+    );
     handler.next(response);
   }
 
@@ -238,11 +243,7 @@ class ApiService {
     int page = 1,
     int perPage = 10,
   }) async {
-    final queryParams = {
-      'page': page,
-      'per_page': perPage,
-      '_embed': 1,
-    };
+    final queryParams = {'page': page, 'per_page': perPage, '_embed': 1};
 
     // 1. Check WordPress CPT route
     final wpCptRoute = '/wp-json/wp/v2/$cptName';
@@ -250,7 +251,9 @@ class ApiService {
       try {
         final response = await get(wpCptRoute, queryParameters: queryParams);
         if (response is List) {
-          return response.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+          return response
+              .map((item) => Map<String, dynamic>.from(item as Map))
+              .toList();
         }
       } catch (e) {
         _logger.w('CPT fetch failed from $wpCptRoute: $e. Using fallback...');
@@ -263,20 +266,27 @@ class ApiService {
       try {
         final response = await get(jetRoute, queryParameters: queryParams);
         if (response is List) {
-          return response.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+          return response
+              .map((item) => Map<String, dynamic>.from(item as Map))
+              .toList();
         }
       } catch (e) {
-        _logger.w('JetEngine fetch failed from $jetRoute: $e. Using fallback...');
+        _logger.w(
+          'JetEngine fetch failed from $jetRoute: $e. Using fallback...',
+        );
       }
     }
 
     // 3. Fallback to standard posts filtered by type
     const postsRoute = '/wp-json/wp/v2/posts';
-    final fallbackParams = Map<String, dynamic>.from(queryParams)..['type'] = cptName;
+    final fallbackParams = Map<String, dynamic>.from(queryParams)
+      ..['type'] = cptName;
     try {
       final response = await get(postsRoute, queryParameters: fallbackParams);
       if (response is List) {
-        return response.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+        return response
+            .map((item) => Map<String, dynamic>.from(item as Map))
+            .toList();
       }
     } catch (e) {
       _logger.e('All fallbacks failed for CPT $cptName: $e');
@@ -286,13 +296,23 @@ class ApiService {
   }
 
   // Typed CPT getters
-  Future<List<BookingModel>> getBookings({int page = 1, int perPage = 10}) async {
+  Future<List<BookingModel>> getBookings({
+    int page = 1,
+    int perPage = 10,
+  }) async {
     final raw = await fetchCptData('booking', page: page, perPage: perPage);
     return raw.map((json) => BookingModel.fromJson(json)).toList();
   }
 
-  Future<List<NotificationModel>> getNotifications({int page = 1, int perPage = 10}) async {
-    final raw = await fetchCptData('notification', page: page, perPage: perPage);
+  Future<List<NotificationModel>> getNotifications({
+    int page = 1,
+    int perPage = 10,
+  }) async {
+    final raw = await fetchCptData(
+      'notification',
+      page: page,
+      perPage: perPage,
+    );
     return raw.map((json) => NotificationModel.fromJson(json)).toList();
   }
 
@@ -301,7 +321,10 @@ class ApiService {
     return raw.map((json) => FaqModel.fromJson(json)).toList();
   }
 
-  Future<List<InvoiceModel>> getInvoices({int page = 1, int perPage = 100}) async {
+  Future<List<InvoiceModel>> getInvoices({
+    int page = 1,
+    int perPage = 100,
+  }) async {
     final raw = await fetchCptData('invoice', page: page, perPage: perPage);
     return raw.map((json) => InvoiceModel.fromJson(json)).toList();
   }

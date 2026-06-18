@@ -9,9 +9,7 @@ void main() {
   }
 
   final content = envFile.readAsStringSync();
-  final requiredKeys = [
-    'baseUrl',
-  ];
+  final requiredKeys = ['baseUrl'];
 
   var missing = false;
   for (final key in requiredKeys) {

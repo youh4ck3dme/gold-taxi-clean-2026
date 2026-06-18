@@ -27,15 +27,17 @@ class ProfileCubit extends Cubit<ProfileState> {
       }
 
       if (isClosed) return;
-      emit(ProfileLoaded(
-        user: user,
-        orders: orders,
-        bookings: bookings,
-        driverRecord: driverRecord,
-        driverStats: driverStats,
-        driverDocs: driverDocs,
-        activeRole: user.isDriver ? 'driver' : 'customer',
-      ));
+      emit(
+        ProfileLoaded(
+          user: user,
+          orders: orders,
+          bookings: bookings,
+          driverRecord: driverRecord,
+          driverStats: driverStats,
+          driverDocs: driverDocs,
+          activeRole: user.isDriver ? 'driver' : 'customer',
+        ),
+      );
     } catch (e) {
       if (isClosed) return;
       emit(ProfileError(e.toString()));
@@ -48,7 +50,9 @@ class ProfileCubit extends Cubit<ProfileState> {
       // Allow switching if user has the role OR if user is admin (demo purposes)
       bool canSwitch = false;
       if (newRole == 'admin' && currentState.user.isAdmin) canSwitch = true;
-      if (newRole == 'driver' && (currentState.user.isDriver || currentState.user.isAdmin)) canSwitch = true;
+      if (newRole == 'driver' &&
+          (currentState.user.isDriver || currentState.user.isAdmin))
+        canSwitch = true;
       if (newRole == 'customer') canSwitch = true;
 
       if (canSwitch) {
@@ -71,12 +75,14 @@ class ProfileCubit extends Cubit<ProfileState> {
           phone: phone,
           savedAddresses: savedAddresses,
         );
-        emit(ProfileLoaded(
-          user: updatedUser,
-          orders: currentState.orders,
-          bookings: currentState.bookings,
-          driverRecord: currentState.driverRecord,
-        ));
+        emit(
+          ProfileLoaded(
+            user: updatedUser,
+            orders: currentState.orders,
+            bookings: currentState.bookings,
+            driverRecord: currentState.driverRecord,
+          ),
+        );
       } catch (e) {
         emit(ProfileError(e.toString()));
       }
@@ -100,14 +106,18 @@ class ProfileCubit extends Cubit<ProfileState> {
           isOnline: isOnline,
         );
         // Refresh profile to update driver record
-        final updatedDriverRecord = await _profileRepository.getDriverRecord(currentState.user.id);
-        emit(ProfileLoaded(
-          user: currentState.user,
-          orders: currentState.orders,
-          bookings: currentState.bookings,
-          driverRecord: updatedDriverRecord,
-          driverStats: currentState.driverStats,
-        ));
+        final updatedDriverRecord = await _profileRepository.getDriverRecord(
+          currentState.user.id,
+        );
+        emit(
+          ProfileLoaded(
+            user: currentState.user,
+            orders: currentState.orders,
+            bookings: currentState.bookings,
+            driverRecord: updatedDriverRecord,
+            driverStats: currentState.driverStats,
+          ),
+        );
       } catch (e) {
         emit(ProfileError(e.toString()));
       }

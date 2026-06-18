@@ -33,7 +33,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _chatCubit = getIt<ChatCubit>()..initChat(widget.rideId);
-    
+
     // Get current user ID (assuming AuthCubit has it)
     final authState = context.read<AuthCubit>().state;
     if (authState is Authenticated) {
@@ -43,16 +43,16 @@ class _ChatPageState extends State<ChatPage> {
 
   void _sendMessage() {
     if (_messageController.text.trim().isEmpty) return;
-    
+
     _chatCubit.sendMessage(
       rideId: widget.rideId,
       senderId: _currentUserId,
       receiverId: widget.driverId,
       message: _messageController.text.trim(),
     );
-    
+
     _messageController.clear();
-    
+
     // Scroll to bottom after sending
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
@@ -71,7 +71,7 @@ class _ChatPageState extends State<ChatPage> {
       callerId: _currentUserId,
       receiverId: widget.driverId,
     );
-    
+
     if (proxyNumber != null && mounted) {
       final Uri url = Uri.parse('tel:$proxyNumber');
       if (await canLaunchUrl(url)) {
@@ -79,7 +79,11 @@ class _ChatPageState extends State<ChatPage> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Nepodarilo sa otvoriť vytáčanie pre číslo $proxyNumber')),
+            SnackBar(
+              content: Text(
+                'Nepodarilo sa otvoriť vytáčanie pre číslo $proxyNumber',
+              ),
+            ),
           );
         }
       }
@@ -97,9 +101,9 @@ class _ChatPageState extends State<ChatPage> {
             BlocConsumer<ChatCubit, ChatState>(
               listener: (context, state) {
                 if (state is ChatError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
                 } else if (state is ChatLoaded && state.isCalling) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -115,11 +119,14 @@ class _ChatPageState extends State<ChatPage> {
                   isCalling = state.isCalling;
                 }
                 return IconButton(
-                  icon: isCalling 
+                  icon: isCalling
                       ? const SizedBox(
-                          width: 20, 
-                          height: 20, 
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.black,
+                          ),
                         )
                       : const Icon(Icons.phone),
                   onPressed: isCalling ? null : _initiateMaskedCall,
@@ -140,7 +147,7 @@ class _ChatPageState extends State<ChatPage> {
                     return Center(child: Text(state.message));
                   } else if (state is ChatLoaded) {
                     final messages = state.messages;
-                    
+
                     if (messages.isEmpty) {
                       return const Center(
                         child: Text(
@@ -158,21 +165,32 @@ class _ChatPageState extends State<ChatPage> {
                       itemBuilder: (context, index) {
                         final msg = messages[index];
                         final isMe = msg.senderId == _currentUserId;
-                        
+
                         return Align(
-                          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                          alignment: isMe
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               color: isMe ? Colors.black : Colors.grey[200],
                               borderRadius: BorderRadius.circular(20).copyWith(
-                                bottomRight: isMe ? const Radius.circular(4) : null,
-                                bottomLeft: !isMe ? const Radius.circular(4) : null,
+                                bottomRight: isMe
+                                    ? const Radius.circular(4)
+                                    : null,
+                                bottomLeft: !isMe
+                                    ? const Radius.circular(4)
+                                    : null,
                               ),
                             ),
                             child: Column(
-                              crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                              crossAxisAlignment: isMe
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   msg.message,
@@ -185,7 +203,9 @@ class _ChatPageState extends State<ChatPage> {
                                 Text(
                                   DateFormat('HH:mm').format(msg.createdAt),
                                   style: TextStyle(
-                                    color: isMe ? Colors.white70 : Colors.black54,
+                                    color: isMe
+                                        ? Colors.white70
+                                        : Colors.black54,
                                     fontSize: 11,
                                   ),
                                 ),
@@ -196,12 +216,12 @@ class _ChatPageState extends State<ChatPage> {
                       },
                     );
                   }
-                  
+
                   return const SizedBox.shrink();
                 },
               ),
             ),
-            
+
             // Quick Replies
             Container(
               height: 48,
@@ -210,57 +230,62 @@ class _ChatPageState extends State<ChatPage> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  'Som tu',
-                  'Meškám 2 minúty',
-                  'Stojím na dohodnutom mieste',
-                  'Už idem',
-                  'Mám veľký kufor',
-                ].map((reply) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ActionChip(
-                      label: Text(
-                        reply,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      backgroundColor: Colors.grey[100],
-                      side: BorderSide.none,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      onPressed: () {
-                        _chatCubit.sendMessage(
-                          rideId: widget.rideId,
-                          senderId: _currentUserId,
-                          receiverId: widget.driverId,
-                          message: reply,
-                        );
-                        Future.delayed(const Duration(milliseconds: 100), () {
-                          if (_scrollController.hasClients) {
-                            _scrollController.animateTo(
-                              _scrollController.position.maxScrollExtent,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOut,
+                children:
+                    [
+                      'Som tu',
+                      'Meškám 2 minúty',
+                      'Stojím na dohodnutom mieste',
+                      'Už idem',
+                      'Mám veľký kufor',
+                    ].map((reply) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ActionChip(
+                          label: Text(
+                            reply,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          backgroundColor: Colors.grey[100],
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          onPressed: () {
+                            _chatCubit.sendMessage(
+                              rideId: widget.rideId,
+                              senderId: _currentUserId,
+                              receiverId: widget.driverId,
+                              message: reply,
                             );
-                          }
-                        });
-                      },
-                    ),
-                  );
-                }).toList(),
+                            Future.delayed(
+                              const Duration(milliseconds: 100),
+                              () {
+                                if (_scrollController.hasClients) {
+                                  _scrollController.animateTo(
+                                    _scrollController.position.maxScrollExtent,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeOut,
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      );
+                    }).toList(),
               ),
             ),
-            
+
             // Input field
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12).copyWith(
-                bottom: MediaQuery.of(context).padding.bottom + 12,
-              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ).copyWith(bottom: MediaQuery.of(context).padding.bottom + 12),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -268,7 +293,7 @@ class _ChatPageState extends State<ChatPage> {
                     color: Color.fromRGBO(0, 0, 0, 0.05),
                     offset: Offset(0, -2),
                     blurRadius: 10,
-                  )
+                  ),
                 ],
               ),
               child: Row(
@@ -284,7 +309,10 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                         filled: true,
                         fillColor: Colors.grey[100],
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
                       ),
                       textCapitalization: TextCapitalization.sentences,
                       onSubmitted: (_) => _sendMessage(),
@@ -295,7 +323,11 @@ class _ChatPageState extends State<ChatPage> {
                     backgroundColor: Colors.black,
                     radius: 24,
                     child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       onPressed: _sendMessage,
                     ),
                   ),

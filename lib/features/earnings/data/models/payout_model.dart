@@ -1,13 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Status of a payout request
-enum PayoutStatus {
-  pending,
-  inTransit,
-  paid,
-  failed,
-  cancelled,
-}
+enum PayoutStatus { pending, inTransit, paid, failed, cancelled }
 
 /// Model for driver payout requests
 class PayoutModel extends Equatable {
@@ -42,14 +36,14 @@ class PayoutModel extends Equatable {
       stripePayoutId: json['stripe_payout_id'] as String?,
       bankAccountLast4: json['bank_account_last4'] as String?,
       status: _parsePayoutStatus(json['status'] as String?),
-      requestedAt: json['requested_at'] != null 
-          ? DateTime.parse(json['requested_at'] as String) 
+      requestedAt: json['requested_at'] != null
+          ? DateTime.parse(json['requested_at'] as String)
           : DateTime.now(),
-      completedAt: json['completed_at'] != null 
-          ? DateTime.parse(json['completed_at'] as String) 
+      completedAt: json['completed_at'] != null
+          ? DateTime.parse(json['completed_at'] as String)
           : null,
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at'] as String) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
     );
   }
@@ -89,10 +83,12 @@ class PayoutModel extends Equatable {
   bool get isCompleted => status == PayoutStatus.paid;
 
   /// Check if payout is in progress
-  bool get isInProgress => status == PayoutStatus.pending || status == PayoutStatus.inTransit;
+  bool get isInProgress =>
+      status == PayoutStatus.pending || status == PayoutStatus.inTransit;
 
   /// Check if payout failed
-  bool get hasFailed => status == PayoutStatus.failed || status == PayoutStatus.cancelled;
+  bool get hasFailed =>
+      status == PayoutStatus.failed || status == PayoutStatus.cancelled;
 
   @override
   List<Object?> get props => [

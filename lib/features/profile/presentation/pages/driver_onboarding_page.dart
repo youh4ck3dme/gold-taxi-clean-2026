@@ -39,7 +39,9 @@ class _DriverOnboardingPageState extends State<DriverOnboardingPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Súbor je príliš veľký. Maximálna veľkosť je 5 MB.'),
+              content: Text(
+                'Súbor je príliš veľký. Maximálna veľkosť je 5 MB.',
+              ),
               backgroundColor: Colors.redAccent,
             ),
           );
@@ -62,7 +64,9 @@ class _DriverOnboardingPageState extends State<DriverOnboardingPage> {
   }
 
   Future<void> _submitDocuments() async {
-    if (_profilePhoto == null || _idCardPhoto == null || _licensePhoto == null) {
+    if (_profilePhoto == null ||
+        _idCardPhoto == null ||
+        _licensePhoto == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Nahrajte prosím všetky tri dokumenty.'),
@@ -81,13 +85,13 @@ class _DriverOnboardingPageState extends State<DriverOnboardingPage> {
 
       if (mounted) {
         await context.read<ProfileCubit>().uploadDriverDocuments(
-              profilePhotoBytes: profileBytes,
-              profilePhotoName: _profilePhoto!.name,
-              idCardBytes: idCardBytes,
-              idCardName: _idCardPhoto!.name,
-              licenseBytes: licenseBytes,
-              licenseName: _licensePhoto!.name,
-            );
+          profilePhotoBytes: profileBytes,
+          profilePhotoName: _profilePhoto!.name,
+          idCardBytes: idCardBytes,
+          idCardName: _idCardPhoto!.name,
+          licenseBytes: licenseBytes,
+          licenseName: _licensePhoto!.name,
+        );
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -164,22 +168,34 @@ class _DriverOnboardingPageState extends State<DriverOnboardingPage> {
                     steps: [
                       Step(
                         isActive: _currentStep >= 0,
-                        state: _profilePhoto != null ? StepState.complete : StepState.indexed,
+                        state: _profilePhoto != null
+                            ? StepState.complete
+                            : StepState.indexed,
                         title: const Text('Profilová fotografia'),
-                        subtitle: const Text('Obrázok tváre pre klientsku aplikáciu'),
+                        subtitle: const Text(
+                          'Obrázok tváre pre klientsku aplikáciu',
+                        ),
                         content: _buildUploadBox(0, _profilePhoto),
                       ),
                       Step(
                         isActive: _currentStep >= 1,
-                        state: _idCardPhoto != null ? StepState.complete : StepState.indexed,
+                        state: _idCardPhoto != null
+                            ? StepState.complete
+                            : StepState.indexed,
                         title: const Text('Občiansky preukaz'),
-                        subtitle: const Text('Fotka prednej strany občianskeho preukazu'),
+                        subtitle: const Text(
+                          'Fotka prednej strany občianskeho preukazu',
+                        ),
                         content: _buildUploadBox(1, _idCardPhoto),
                       ),
                       Step(
                         isActive: _currentStep >= 2,
-                        state: _licensePhoto != null ? StepState.complete : StepState.indexed,
-                        title: const Text('Technický preukaz / Taxikárska licencia'),
+                        state: _licensePhoto != null
+                            ? StepState.complete
+                            : StepState.indexed,
+                        title: const Text(
+                          'Technický preukaz / Taxikárska licencia',
+                        ),
                         subtitle: const Text('Oprávnenie vykonávať taxislužbu'),
                         content: _buildUploadBox(2, _licensePhoto),
                       ),
@@ -218,11 +234,18 @@ class _DriverOnboardingPageState extends State<DriverOnboardingPage> {
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.cloud_upload_outlined, size: 48, color: Colors.grey[600]),
+                        Icon(
+                          Icons.cloud_upload_outlined,
+                          size: 48,
+                          color: Colors.grey[600],
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           'Kliknite pre nahratie fotografie',
-                          style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         const Text(
                           'Max. 5 MB, formáty: JPG, PNG',
@@ -254,7 +277,10 @@ class _DriverOnboardingPageState extends State<DriverOnboardingPage> {
                       if (step == 2) _licensePhoto = null;
                     });
                   },
-                  child: const Text('Zmazať', style: TextStyle(color: Colors.redAccent)),
+                  child: const Text(
+                    'Zmazať',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
                 ),
               ],
             ),

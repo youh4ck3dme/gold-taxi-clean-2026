@@ -20,8 +20,8 @@ class PlacesSearchCubit extends Cubit<PlacesSearchState> {
   PlacesSearchCubit({
     required this._placesRepository,
     required RecentPlacesRepository recentPlacesRepository,
-  })  : _recentPlacesRepository = recentPlacesRepository,
-        super(PlacesSearchInitial()) {
+  }) : _recentPlacesRepository = recentPlacesRepository,
+       super(PlacesSearchInitial()) {
     _initSearchDebounce();
   }
 
@@ -30,7 +30,9 @@ class PlacesSearchCubit extends Cubit<PlacesSearchState> {
   }
 
   void _initSearchDebounce() {
-    _searchSubject.debounceTime(const Duration(milliseconds: 300)).listen((query) async {
+    _searchSubject.debounceTime(const Duration(milliseconds: 300)).listen((
+      query,
+    ) async {
       if (query.isEmpty) {
         await loadInitialData();
         return;
@@ -38,7 +40,10 @@ class PlacesSearchCubit extends Cubit<PlacesSearchState> {
 
       emit(PlacesSearchLoading());
       try {
-        final results = await _placesRepository.autocomplete(query, _currentLocation);
+        final results = await _placesRepository.autocomplete(
+          query,
+          _currentLocation,
+        );
         emit(PlacesSearchLoaded(results: results, isSearching: true));
       } catch (e) {
         emit(PlacesSearchError(message: e.toString()));
@@ -58,12 +63,14 @@ class PlacesSearchCubit extends Cubit<PlacesSearchState> {
       final homePlace = await _recentPlacesRepository.getPinnedPlace('home');
       final workPlace = await _recentPlacesRepository.getPinnedPlace('work');
 
-      emit(PlacesSearchLoaded(
-        results: recentPlaces,
-        isSearching: false,
-        homePlace: homePlace,
-        workPlace: workPlace,
-      ));
+      emit(
+        PlacesSearchLoaded(
+          results: recentPlaces,
+          isSearching: false,
+          homePlace: homePlace,
+          workPlace: workPlace,
+        ),
+      );
     } catch (e) {
       emit(PlacesSearchError(message: e.toString()));
     }
@@ -77,7 +84,10 @@ class PlacesSearchCubit extends Cubit<PlacesSearchState> {
       }
 
       emit(PlacesSearchLoading());
-      final details = await _placesRepository.getPlaceDetails(place.placeId, _currentLocation);
+      final details = await _placesRepository.getPlaceDetails(
+        place.placeId,
+        _currentLocation,
+      );
       await _recentPlacesRepository.saveRecentPlace(details);
 
       await loadInitialData();
@@ -92,7 +102,10 @@ class PlacesSearchCubit extends Cubit<PlacesSearchState> {
     try {
       PlaceModel placeToSave = place;
       if (place.lat == null || place.lng == null) {
-        placeToSave = await _placesRepository.getPlaceDetails(place.placeId, _currentLocation);
+        placeToSave = await _placesRepository.getPlaceDetails(
+          place.placeId,
+          _currentLocation,
+        );
       }
       await _recentPlacesRepository.savePinnedPlace(type, placeToSave);
       await loadInitialData();

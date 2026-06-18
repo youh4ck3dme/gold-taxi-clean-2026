@@ -15,7 +15,9 @@ void main() {
     await getIt.reset();
   });
 
-  testWidgets('Production Auth - Login should use Supabase, not Mock', (WidgetTester tester) async {
+  testWidgets('Production Auth - Login should use Supabase, not Mock', (
+    WidgetTester tester,
+  ) async {
     // 1. Initialize service locator in Supabase mode
     await setupServiceLocator(mode: BackendMode.supabase);
 
@@ -33,7 +35,9 @@ void main() {
     expect(authCubit, isA<AuthCubit>());
   });
 
-  testWidgets('Production Config - MOCK_MODE is disabled', (WidgetTester tester) async {
+  testWidgets('Production Config - MOCK_MODE is disabled', (
+    WidgetTester tester,
+  ) async {
     final config = AppConfig(
       environment: AppEnvironment.prod,
       supabaseUrl: 'https://nscxuxhapaabtsiduxlu.supabase.co',

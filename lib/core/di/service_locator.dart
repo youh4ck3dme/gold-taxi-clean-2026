@@ -81,157 +81,245 @@ enum BackendMode { mock, supabase }
 final getIt = GetIt.instance;
 
 /// Setup Service Locator (Dependency Injection)
-Future<void> setupServiceLocator({BackendMode mode = BackendMode.supabase}) async {
-  assert(mode != BackendMode.mock || kDebugMode, 'Mock mode is not allowed outside debug/test builds.');
+Future<void> setupServiceLocator({
+  BackendMode mode = BackendMode.supabase,
+}) async {
+  assert(
+    mode != BackendMode.mock || kDebugMode,
+    'Mock mode is not allowed outside debug/test builds.',
+  );
   // Register services as singletons
-  getIt.registerLazySingleton<LocalStorageService>(() => SecureStorageService());
-  getIt.registerLazySingleton<AuthInterceptor>(() => AuthInterceptor(getIt<LocalStorageService>()));
+  getIt.registerLazySingleton<LocalStorageService>(
+    () => SecureStorageService(),
+  );
+  getIt.registerLazySingleton<AuthInterceptor>(
+    () => AuthInterceptor(getIt<LocalStorageService>()),
+  );
   if (mode == BackendMode.mock) {
-    getIt.registerSingleton<ApiService>(MockApiService(getIt<AuthInterceptor>()));
+    getIt.registerSingleton<ApiService>(
+      MockApiService(getIt<AuthInterceptor>()),
+    );
   } else {
     getIt.registerSingleton<ApiService>(ApiService(getIt<AuthInterceptor>()));
   }
   getIt.registerLazySingleton<Connectivity>(() => Connectivity());
   getIt.registerLazySingleton<CartCubit>(() => CartCubit());
-  getIt.registerLazySingleton<InsolvencyPredictorService>(() => InsolvencyPredictorService());
+  getIt.registerLazySingleton<InsolvencyPredictorService>(
+    () => InsolvencyPredictorService(),
+  );
   getIt.registerLazySingleton<NotificationService>(() => NotificationService());
   getIt.registerLazySingleton<DeepLinkService>(() => DeepLinkService());
-  getIt.registerLazySingleton<AnalyticsService>(() => AnalyticsService(
-        isEnabled: true,
-      ));
+  getIt.registerLazySingleton<AnalyticsService>(
+    () => AnalyticsService(isEnabled: true),
+  );
 
   // Driver Position Repository (in-memory mock; swap for Supabase Realtime when ready)
-  getIt.registerLazySingleton<DriverPositionRepository>(() => DriverPositionRepository());
-  getIt.registerFactory<MapCubit>(() => MapCubit(getIt<DriverPositionRepository>()));
+  getIt.registerLazySingleton<DriverPositionRepository>(
+    () => DriverPositionRepository(),
+  );
+  getIt.registerFactory<MapCubit>(
+    () => MapCubit(getIt<DriverPositionRepository>()),
+  );
 
   // Driver Profile Service for Supabase
-  getIt.registerLazySingleton<DriverProfileService>(() => DriverProfileService());
+  getIt.registerLazySingleton<DriverProfileService>(
+    () => DriverProfileService(),
+  );
 
   // Register repositories
   if (mode == BackendMode.supabase) {
-    getIt.registerLazySingleton<AuthRepository>(() => SupabaseAuthRepository(
-          Supabase.instance.client,
-          getIt<LocalStorageService>(),
-        ));
+    getIt.registerLazySingleton<AuthRepository>(
+      () => SupabaseAuthRepository(
+        Supabase.instance.client,
+        getIt<LocalStorageService>(),
+      ),
+    );
   } else {
-    getIt.registerLazySingleton<AuthRepository>(() => MockAuthRepository(
-          getIt<LocalStorageService>(),
-        ));
+    getIt.registerLazySingleton<AuthRepository>(
+      () => MockAuthRepository(getIt<LocalStorageService>()),
+    );
   }
-  getIt.registerLazySingleton<BlogRepository>(() => BlogRepository(
-        getIt<BlogRemoteDataSource>(),
-        getIt<BlogLocalDataSource>(),
-        getIt<Connectivity>(),
-      ));
-  getIt.registerLazySingleton<ProductsRepository>(() => ProductsRepository(
-        getIt<ProductsRemoteDataSource>(),
-        getIt<ProductsLocalDataSource>(),
-        getIt<Connectivity>(),
-      ));
-  getIt.registerLazySingleton<ServicesRepository>(() => ServicesRepository(
-        getIt<ServicesRemoteDataSource>(),
-        getIt<ServicesLocalDataSource>(),
-        getIt<Connectivity>(),
-      ));
-  getIt.registerLazySingleton<EventsRepository>(() => EventsRepository(
-        getIt<EventsRemoteDataSource>(),
-        getIt<EventsLocalDataSource>(),
-        getIt<Connectivity>(),
-      ));
-  getIt.registerLazySingleton<ReviewsRepository>(() => ReviewsRepository(
-        getIt<ReviewsRemoteDataSource>(),
-        getIt<ReviewsLocalDataSource>(),
-        getIt<Connectivity>(),
-      ));
-  getIt.registerLazySingleton<BookingsRepository>(() => BookingsRepository(
-        getIt<BookingsRemoteDataSource>(),
-        getIt<Connectivity>(),
-      ));
+  getIt.registerLazySingleton<BlogRepository>(
+    () => BlogRepository(
+      getIt<BlogRemoteDataSource>(),
+      getIt<BlogLocalDataSource>(),
+      getIt<Connectivity>(),
+    ),
+  );
+  getIt.registerLazySingleton<ProductsRepository>(
+    () => ProductsRepository(
+      getIt<ProductsRemoteDataSource>(),
+      getIt<ProductsLocalDataSource>(),
+      getIt<Connectivity>(),
+    ),
+  );
+  getIt.registerLazySingleton<ServicesRepository>(
+    () => ServicesRepository(
+      getIt<ServicesRemoteDataSource>(),
+      getIt<ServicesLocalDataSource>(),
+      getIt<Connectivity>(),
+    ),
+  );
+  getIt.registerLazySingleton<EventsRepository>(
+    () => EventsRepository(
+      getIt<EventsRemoteDataSource>(),
+      getIt<EventsLocalDataSource>(),
+      getIt<Connectivity>(),
+    ),
+  );
+  getIt.registerLazySingleton<ReviewsRepository>(
+    () => ReviewsRepository(
+      getIt<ReviewsRemoteDataSource>(),
+      getIt<ReviewsLocalDataSource>(),
+      getIt<Connectivity>(),
+    ),
+  );
+  getIt.registerLazySingleton<BookingsRepository>(
+    () => BookingsRepository(
+      getIt<BookingsRemoteDataSource>(),
+      getIt<Connectivity>(),
+    ),
+  );
 
   if (mode == BackendMode.supabase) {
-    getIt.registerLazySingleton<ProfileRepository>(() => SupabaseProfileRepository(Supabase.instance.client));
+    getIt.registerLazySingleton<ProfileRepository>(
+      () => SupabaseProfileRepository(Supabase.instance.client),
+    );
   } else {
-    getIt.registerLazySingleton<ProfileRepository>(() => MockProfileRepository());
+    getIt.registerLazySingleton<ProfileRepository>(
+      () => MockProfileRepository(),
+    );
   }
 
-  getIt.registerLazySingleton<SearchRepository>(() => SearchRepository(
-        getIt<ApiService>(),
-        getIt<Connectivity>(),
-      ));
+  getIt.registerLazySingleton<SearchRepository>(
+    () => SearchRepository(getIt<ApiService>(), getIt<Connectivity>()),
+  );
 
   // Places Search
   getIt.registerLazySingleton<PlacesRepository>(() => PlacesRepository());
-  getIt.registerLazySingleton<RecentPlacesRepository>(() => RecentPlacesRepository());
+  getIt.registerLazySingleton<RecentPlacesRepository>(
+    () => RecentPlacesRepository(),
+  );
   // Ride Repository (Swappable)
   if (mode == BackendMode.supabase) {
-    getIt.registerLazySingleton<RideRepository>(() => SupabaseRideRepository(Supabase.instance.client));
+    getIt.registerLazySingleton<RideRepository>(
+      () => SupabaseRideRepository(Supabase.instance.client),
+    );
   } else {
     getIt.registerLazySingleton<RideRepository>(() => MockRideRepository());
   }
 
-  getIt.registerLazySingleton<FaqRepository>(() => FaqRepository(
-        Supabase.instance.client,
-        getIt<Connectivity>(),
-      ));
+  getIt.registerLazySingleton<FaqRepository>(
+    () => FaqRepository(Supabase.instance.client, getIt<Connectivity>()),
+  );
 
   // Chat Repository
   if (mode == BackendMode.supabase) {
-    getIt.registerLazySingleton<ChatRepository>(() => ChatRepository(Supabase.instance.client));
+    getIt.registerLazySingleton<ChatRepository>(
+      () => ChatRepository(Supabase.instance.client),
+    );
   } else {
     // For now we use the same since ChatRepository expects SupabaseClient.
     // If we build a MockChatRepository, we can swap it here.
-    getIt.registerLazySingleton<ChatRepository>(() => ChatRepository(Supabase.instance.client));
+    getIt.registerLazySingleton<ChatRepository>(
+      () => ChatRepository(Supabase.instance.client),
+    );
   }
 
   // Earnings Repository
   if (mode == BackendMode.supabase) {
-    getIt.registerLazySingleton<EarningsRepository>(() => SupabaseEarningsRepository(
-      supabase: Supabase.instance.client,
-    ));
+    getIt.registerLazySingleton<EarningsRepository>(
+      () => SupabaseEarningsRepository(supabase: Supabase.instance.client),
+    );
   } else {
-    getIt.registerLazySingleton<EarningsRepository>(() => MockEarningsRepository());
+    getIt.registerLazySingleton<EarningsRepository>(
+      () => MockEarningsRepository(),
+    );
   }
 
   // Promo Repository
   if (mode == BackendMode.supabase) {
-    getIt.registerLazySingleton<PromoRepository>(() => SupabasePromoRepository(Supabase.instance.client));
+    getIt.registerLazySingleton<PromoRepository>(
+      () => SupabasePromoRepository(Supabase.instance.client),
+    );
   } else {
     getIt.registerLazySingleton<PromoRepository>(() => MockPromoRepository());
   }
 
   // Register Data Sources
-  getIt.registerLazySingleton<BlogRemoteDataSource>(() => BlogRemoteDataSource(Supabase.instance.client));
+  getIt.registerLazySingleton<BlogRemoteDataSource>(
+    () => BlogRemoteDataSource(Supabase.instance.client),
+  );
   getIt.registerLazySingleton<BlogLocalDataSource>(() => BlogLocalDataSource());
-  getIt.registerLazySingleton<ProductsRemoteDataSource>(() => ProductsRemoteDataSource(Supabase.instance.client));
-  getIt.registerLazySingleton<ProductsLocalDataSource>(() => ProductsLocalDataSource());
-  getIt.registerLazySingleton<ServicesRemoteDataSource>(() => ServicesRemoteDataSource(getIt<ApiService>()));
-  getIt.registerLazySingleton<ServicesLocalDataSource>(() => ServicesLocalDataSource());
-  getIt.registerLazySingleton<EventsRemoteDataSource>(() => EventsRemoteDataSource(getIt<ApiService>()));
-  getIt.registerLazySingleton<EventsLocalDataSource>(() => EventsLocalDataSource());
-  getIt.registerLazySingleton<ReviewsRemoteDataSource>(() => ReviewsRemoteDataSource(getIt<ApiService>()));
-  getIt.registerLazySingleton<ReviewsLocalDataSource>(() => ReviewsLocalDataSource());
-  getIt.registerLazySingleton<BookingsRemoteDataSource>(() => BookingsRemoteDataSource(getIt<ApiService>()));
+  getIt.registerLazySingleton<ProductsRemoteDataSource>(
+    () => ProductsRemoteDataSource(Supabase.instance.client),
+  );
+  getIt.registerLazySingleton<ProductsLocalDataSource>(
+    () => ProductsLocalDataSource(),
+  );
+  getIt.registerLazySingleton<ServicesRemoteDataSource>(
+    () => ServicesRemoteDataSource(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<ServicesLocalDataSource>(
+    () => ServicesLocalDataSource(),
+  );
+  getIt.registerLazySingleton<EventsRemoteDataSource>(
+    () => EventsRemoteDataSource(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<EventsLocalDataSource>(
+    () => EventsLocalDataSource(),
+  );
+  getIt.registerLazySingleton<ReviewsRemoteDataSource>(
+    () => ReviewsRemoteDataSource(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<ReviewsLocalDataSource>(
+    () => ReviewsLocalDataSource(),
+  );
+  getIt.registerLazySingleton<BookingsRemoteDataSource>(
+    () => BookingsRemoteDataSource(getIt<ApiService>()),
+  );
 
   // Register Cubits / Blocs
-  getIt.registerLazySingleton<AuthCubit>(() => AuthCubit(getIt<AuthRepository>()));
-  getIt.registerFactory<InsolvencyCubit>(() => InsolvencyCubit(getIt<InsolvencyPredictorService>(), getIt<ApiService>()));
+  getIt.registerLazySingleton<AuthCubit>(
+    () => AuthCubit(getIt<AuthRepository>()),
+  );
+  getIt.registerFactory<InsolvencyCubit>(
+    () => InsolvencyCubit(
+      getIt<InsolvencyPredictorService>(),
+      getIt<ApiService>(),
+    ),
+  );
   getIt.registerFactory<BlogBloc>(() => BlogBloc(getIt<BlogRepository>()));
-  getIt.registerFactory<ProductsBloc>(() => ProductsBloc(getIt<ProductsRepository>()));
-  getIt.registerFactory<ServicesBloc>(() => ServicesBloc(getIt<ServicesRepository>()));
-  getIt.registerFactory<EventsBloc>(() => EventsBloc(getIt<EventsRepository>()));
-  getIt.registerFactory<ReviewsBloc>(() => ReviewsBloc(getIt<ReviewsRepository>()));
-  getIt.registerFactory<BookingsBloc>(() => BookingsBloc(getIt<BookingsRepository>()));
-  getIt.registerFactory<ProfileCubit>(() => ProfileCubit(getIt<ProfileRepository>()));
-  getIt.registerFactory<SearchBloc>(() => SearchBloc(getIt<SearchRepository>()));
+  getIt.registerFactory<ProductsBloc>(
+    () => ProductsBloc(getIt<ProductsRepository>()),
+  );
+  getIt.registerFactory<ServicesBloc>(
+    () => ServicesBloc(getIt<ServicesRepository>()),
+  );
+  getIt.registerFactory<EventsBloc>(
+    () => EventsBloc(getIt<EventsRepository>()),
+  );
+  getIt.registerFactory<ReviewsBloc>(
+    () => ReviewsBloc(getIt<ReviewsRepository>()),
+  );
+  getIt.registerFactory<BookingsBloc>(
+    () => BookingsBloc(getIt<BookingsRepository>()),
+  );
+  getIt.registerFactory<ProfileCubit>(
+    () => ProfileCubit(getIt<ProfileRepository>()),
+  );
+  getIt.registerFactory<SearchBloc>(
+    () => SearchBloc(getIt<SearchRepository>()),
+  );
   getIt.registerFactory<FaqBloc>(() => FaqBloc(getIt<FaqRepository>()));
-  getIt.registerFactory<RideCubit>(() => RideCubit(
-        getIt<RideRepository>(),
-        getIt<PromoRepository>(),
-      ));
-  getIt.registerFactory<PlacesSearchCubit>(() => PlacesSearchCubit(
-        placesRepository: getIt<PlacesRepository>(),
-        recentPlacesRepository: getIt<RecentPlacesRepository>(),
-      ));
+  getIt.registerFactory<RideCubit>(
+    () => RideCubit(getIt<RideRepository>(), getIt<PromoRepository>()),
+  );
+  getIt.registerFactory<PlacesSearchCubit>(
+    () => PlacesSearchCubit(
+      placesRepository: getIt<PlacesRepository>(),
+      recentPlacesRepository: getIt<RecentPlacesRepository>(),
+    ),
+  );
   getIt.registerFactory<ChatCubit>(() => ChatCubit(getIt<ChatRepository>()));
 }
-

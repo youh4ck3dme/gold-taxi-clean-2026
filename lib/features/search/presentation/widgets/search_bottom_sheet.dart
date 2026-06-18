@@ -6,13 +6,16 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class SearchBottomSheet extends StatefulWidget {
   final LatLng? currentLocation;
-  
+
   const SearchBottomSheet({super.key, this.currentLocation});
 
   @override
   State<SearchBottomSheet> createState() => _SearchBottomSheetState();
 
-  static Future<PlaceModel?> show(BuildContext context, {LatLng? currentLocation}) {
+  static Future<PlaceModel?> show(
+    BuildContext context, {
+    LatLng? currentLocation,
+  }) {
     return showModalBottomSheet<PlaceModel>(
       context: context,
       isScrollControlled: true,
@@ -32,7 +35,9 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
   void initState() {
     super.initState();
     if (widget.currentLocation != null) {
-      context.read<PlacesSearchCubit>().setCurrentLocation(widget.currentLocation!);
+      context.read<PlacesSearchCubit>().setCurrentLocation(
+        widget.currentLocation!,
+      );
     }
     context.read<PlacesSearchCubit>().loadInitialData();
   }
@@ -44,7 +49,9 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
   }
 
   void _onPlaceSelected(PlaceModel place) async {
-    final fullPlace = await context.read<PlacesSearchCubit>().selectPlace(place);
+    final fullPlace = await context.read<PlacesSearchCubit>().selectPlace(
+      place,
+    );
     if (mounted && fullPlace != null) {
       Navigator.of(context).pop(fullPlace);
     }
@@ -70,7 +77,7 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Search Input
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -108,7 +115,12 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
                 if (state is PlacesSearchLoading) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is PlacesSearchError) {
-                  return Center(child: Text(state.message, style: const TextStyle(color: Colors.red)));
+                  return Center(
+                    child: Text(
+                      state.message,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
                 } else if (state is PlacesSearchLoaded) {
                   return _buildContent(state);
                 }
@@ -128,7 +140,8 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
       }
       return ListView.builder(
         itemCount: state.results.length,
-        itemBuilder: (context, index) => _buildResultTile(state.results[index], true),
+        itemBuilder: (context, index) =>
+            _buildResultTile(state.results[index], true),
       );
     } else {
       // Show Pinned & Recent
@@ -139,9 +152,23 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
-                Expanded(child: _buildQuickChip('home', state.homePlace, Icons.home, 'Domov')),
+                Expanded(
+                  child: _buildQuickChip(
+                    'home',
+                    state.homePlace,
+                    Icons.home,
+                    'Domov',
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildQuickChip('work', state.workPlace, Icons.work, 'Práca')),
+                Expanded(
+                  child: _buildQuickChip(
+                    'work',
+                    state.workPlace,
+                    Icons.work,
+                    'Práca',
+                  ),
+                ),
               ],
             ),
           ),
@@ -149,7 +176,13 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
           if (state.results.isNotEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text('Nedávne miesta', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+              child: Text(
+                'Nedávne miesta',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
+              ),
             ),
           ...state.results.map((place) => _buildResultTile(place, false)),
         ],
@@ -160,10 +193,15 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
   Widget _buildResultTile(PlaceModel place, bool highlight) {
     return ListTile(
       leading: const Icon(Icons.location_on, color: Colors.grey),
-      title: highlight ? _highlightText(place.primaryText, _searchController.text) : Text(place.primaryText),
+      title: highlight
+          ? _highlightText(place.primaryText, _searchController.text)
+          : Text(place.primaryText),
       subtitle: Text(place.secondaryText),
       trailing: place.distanceInMeters != null
-          ? Text('${(place.distanceInMeters! / 1000).toStringAsFixed(1)} km', style: const TextStyle(color: Colors.grey))
+          ? Text(
+              '${(place.distanceInMeters! / 1000).toStringAsFixed(1)} km',
+              style: const TextStyle(color: Colors.grey),
+            )
           : null,
       onTap: () => _onPlaceSelected(place),
     );
@@ -171,13 +209,13 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
 
   Widget _highlightText(String text, String query) {
     if (query.isEmpty) return Text(text);
-    
+
     final lowerText = text.toLowerCase();
     final lowerQuery = query.toLowerCase();
     final index = lowerText.indexOf(lowerQuery);
-    
+
     if (index == -1) return Text(text);
-    
+
     return RichText(
       text: TextSpan(
         style: const TextStyle(color: Colors.black),
@@ -193,7 +231,12 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
     );
   }
 
-  Widget _buildQuickChip(String type, PlaceModel? place, IconData icon, String label) {
+  Widget _buildQuickChip(
+    String type,
+    PlaceModel? place,
+    IconData icon,
+    String label,
+  ) {
     return InkWell(
       onTap: () {
         if (place != null) {
@@ -202,12 +245,16 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
           // Trigger search and save
           _searchController.text = label;
           // Context: we could ask user to search and save this
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Vyhľadaj a podrž pre uloženie ako $label')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Vyhľadaj a podrž pre uloženie ako $label')),
+          );
         }
       },
       onLongPress: () {
         // Edit mode (normally would show a dialog or special save state)
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Editácia $label (Zatiaľ len demo)')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Editácia $label (Zatiaľ len demo)')),
+        );
       },
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -223,7 +270,10 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    label,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Text(
                     place?.primaryText ?? 'Pridať',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),

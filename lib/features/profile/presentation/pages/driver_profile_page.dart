@@ -18,7 +18,7 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
 
   final _vehicleTypeController = TextEditingController();
   final _vehiclePlateController = TextEditingController();
-  
+
   List<String> _selectedServiceClasses = [];
   bool _isOnline = false;
 
@@ -33,7 +33,9 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
     final record = state.driverRecord ?? const {};
     _vehicleTypeController.text = record['vehicle_type'] as String? ?? '';
     _vehiclePlateController.text = record['vehicle_plate'] as String? ?? '';
-    _selectedServiceClasses = List<String>.from(record['service_classes'] ?? ['standard']);
+    _selectedServiceClasses = List<String>.from(
+      record['service_classes'] ?? ['standard'],
+    );
     _isOnline = record['is_online'] as bool? ?? false;
   }
 
@@ -50,14 +52,14 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
       }
 
       await context.read<ProfileCubit>().updateDriverProfile(
-            vehicleType: _vehicleTypeController.text.trim(),
-            vehiclePlate: _vehiclePlateController.text.trim(),
-            serviceClasses: _selectedServiceClasses,
-            isOnline: _isOnline,
-          );
-      
+        vehicleType: _vehicleTypeController.text.trim(),
+        vehiclePlate: _vehiclePlateController.text.trim(),
+        serviceClasses: _selectedServiceClasses,
+        isOnline: _isOnline,
+      );
+
       if (!context.mounted) return;
-      
+
       setState(() {
         _isEditing = false;
       });
@@ -97,20 +99,33 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                     CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.green.shade100,
-                      child: Icon(Icons.local_taxi, size: 55, color: Colors.green.shade900),
+                      child: Icon(
+                        Icons.local_taxi,
+                        size: 55,
+                        color: Colors.green.shade900,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       user.name,
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       user.email,
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.green.shade50,
                         borderRadius: BorderRadius.circular(20),
@@ -118,7 +133,11 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                       ),
                       child: Text(
                         'Vodič',
-                        style: TextStyle(color: Colors.green.shade900, fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(
+                          color: Colors.green.shade900,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ],
@@ -150,7 +169,9 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                   Expanded(
                     child: _buildStatCard(
                       'Rating',
-                      averageRating != null ? '${(averageRating as num).toStringAsFixed(1)} ★' : '–',
+                      averageRating != null
+                          ? '${(averageRating as num).toStringAsFixed(1)} ★'
+                          : '–',
                       Icons.star,
                       Colors.amber,
                     ),
@@ -163,7 +184,9 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
               // Online / Offline Status Card
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -174,12 +197,20 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                         children: [
                           const Text(
                             'Prevádzkový stav',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            _isOnline ? 'Ste online a prijímate jazdy' : 'Ste offline',
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                            _isOnline
+                                ? 'Ste online a prijímate jazdy'
+                                : 'Ste offline',
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -192,11 +223,11 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                           });
                           // Save state instantly to backend as well to match drivers flow
                           context.read<ProfileCubit>().updateDriverProfile(
-                                vehicleType: _vehicleTypeController.text.trim(),
-                                vehiclePlate: _vehiclePlateController.text.trim(),
-                                serviceClasses: _selectedServiceClasses,
-                                isOnline: val,
-                              );
+                            vehicleType: _vehicleTypeController.text.trim(),
+                            vehiclePlate: _vehiclePlateController.text.trim(),
+                            serviceClasses: _selectedServiceClasses,
+                            isOnline: val,
+                          );
                         },
                       ),
                     ],
@@ -208,7 +239,9 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
               // Vehicle Details Card
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
@@ -219,16 +252,25 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.directions_car_filled_outlined, color: Colors.green),
+                              Icon(
+                                Icons.directions_car_filled_outlined,
+                                color: Colors.green,
+                              ),
                               SizedBox(width: 8),
                               Text(
                                 'Údaje o vozidle',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),
                           IconButton(
-                            icon: Icon(_isEditing ? Icons.close : Icons.edit, size: 20),
+                            icon: Icon(
+                              _isEditing ? Icons.close : Icons.edit,
+                              size: 20,
+                            ),
                             onPressed: () {
                               setState(() {
                                 if (_isEditing) {
@@ -252,7 +294,9 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                                   labelText: 'Typ vozidla (značka / model)',
                                   prefixIcon: Icon(Icons.car_repair),
                                 ),
-                                validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte model vozidla' : null,
+                                validator: (v) => v == null || v.trim().isEmpty
+                                    ? 'Zadajte model vozidla'
+                                    : null,
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
@@ -262,24 +306,49 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                                   prefixIcon: Icon(Icons.pin),
                                   hintText: 'napr. KE-123AB',
                                 ),
-                                validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte ŠPZ vozidla' : null,
+                                validator: (v) => v == null || v.trim().isEmpty
+                                    ? 'Zadajte ŠPZ vozidla'
+                                    : null,
                               ),
                               const SizedBox(height: 20),
                               const Text(
                                 'Triedy služieb',
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
                               ),
                               const SizedBox(height: 8),
-                              _buildServiceCheckbox('standard', 'Štandard (Standard)'),
-                              _buildServiceCheckbox('comfort', 'Komfort (Comfort)'),
-                              _buildServiceCheckbox('premium', 'Prémiová (Premium)'),
+                              _buildServiceCheckbox(
+                                'standard',
+                                'Štandard (Standard)',
+                              ),
+                              _buildServiceCheckbox(
+                                'comfort',
+                                'Komfort (Comfort)',
+                              ),
+                              _buildServiceCheckbox(
+                                'premium',
+                                'Prémiová (Premium)',
+                              ),
                             ],
                           ),
                         ),
                       ] else ...[
-                        _buildInfoRow('Model vozidla', _vehicleTypeController.text.isNotEmpty ? _vehicleTypeController.text : 'Neuvedené'),
+                        _buildInfoRow(
+                          'Model vozidla',
+                          _vehicleTypeController.text.isNotEmpty
+                              ? _vehicleTypeController.text
+                              : 'Neuvedené',
+                        ),
                         const SizedBox(height: 16),
-                        _buildInfoRow('EČV (ŠPZ)', _vehiclePlateController.text.isNotEmpty ? _vehiclePlateController.text : 'Neuvedené'),
+                        _buildInfoRow(
+                          'EČV (ŠPZ)',
+                          _vehiclePlateController.text.isNotEmpty
+                              ? _vehiclePlateController.text
+                              : 'Neuvedené',
+                        ),
                         const SizedBox(height: 16),
                         _buildServiceClassesRow(_selectedServiceClasses),
                       ],
@@ -295,24 +364,34 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
                     backgroundColor: Colors.green.shade600,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: () => _saveChanges(context),
-                  child: const Text('Uložiť zmeny', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Uložiť zmeny',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
-              
+
               const SizedBox(height: 32),
-              
+
               // Logout button at bottom
               OutlinedButton.icon(
                 icon: const Icon(Icons.logout, color: Colors.redAccent),
-                label: const Text('Odhlásiť sa', style: TextStyle(color: Colors.redAccent)),
+                label: const Text(
+                  'Odhlásiť sa',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
                 onPressed: () => getIt<AuthCubit>().logout(),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.redAccent),
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -322,7 +401,12 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -374,7 +458,10 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
       children: [
         Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
       ],
     );
   }
@@ -383,7 +470,10 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Triedy služieb', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const Text(
+          'Triedy služieb',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 6),
         Wrap(
           spacing: 8,
@@ -401,7 +491,14 @@ class _DriverProfilePageState extends State<DriverProfilePage> {
               color = Colors.deepPurple;
             }
             return Chip(
-              label: Text(label, style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold)),
+              label: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               backgroundColor: color,
               padding: const EdgeInsets.symmetric(horizontal: 4),
             );

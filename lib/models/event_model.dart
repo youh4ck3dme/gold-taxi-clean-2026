@@ -46,7 +46,8 @@ class EventModel extends BaseWordPressModel {
     this.price,
   });
 
-  factory EventModel.fromJson(Map<String, dynamic> json) => _$EventModelFromJson(json);
+  factory EventModel.fromJson(Map<String, dynamic> json) =>
+      _$EventModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$EventModelToJson(this);
 
@@ -77,5 +78,13 @@ class EventModel extends BaseWordPressModel {
   }
 
   @override
-  List<Object?> get props => [...super.props, startDate, endDate, location, category, images, price];
+  List<Object?> get props => [
+    ...super.props,
+    startDate,
+    endDate,
+    location,
+    category,
+    images,
+    price,
+  ];
 }

@@ -12,7 +12,8 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -59,11 +60,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             return Stack(
               children: [
                 // 1. Abstraktna bodkovana mapa v pozadi
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: DotGridPainter(),
-                  ),
-                ),
+                Positioned.fill(child: CustomPaint(painter: DotGridPainter())),
 
                 // 2. Ambientne zlate svetlo (Aura)
                 Positioned.fill(
@@ -161,7 +158,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 color: Colors.black87,
                 blurRadius: 80,
                 offset: Offset(0, 40),
-              )
+              ),
             ],
           ),
           child: Form(
@@ -171,9 +168,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               children: [
                 _buildStaggeredWidget(index: 1, child: _buildLogoSection()),
                 const SizedBox(height: 40),
-                _buildStaggeredWidget(index: 2, child: _buildForm(context, isLoading)),
+                _buildStaggeredWidget(
+                  index: 2,
+                  child: _buildForm(context, isLoading),
+                ),
                 const SizedBox(height: 24),
-                _buildStaggeredWidget(index: 3, child: _buildFooter(context, isLoading)),
+                _buildStaggeredWidget(
+                  index: 3,
+                  child: _buildFooter(context, isLoading),
+                ),
               ],
             ),
           ),
@@ -189,9 +192,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         SizedBox(
           width: 56,
           height: 56,
-          child: CustomPaint(
-            painter: GoldMonogramPainter(),
-          ),
+          child: CustomPaint(painter: GoldMonogramPainter()),
         ),
         const SizedBox(width: 16),
         const Column(
@@ -346,7 +347,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               ),
             ),
           ],
-        )
+        ),
       ],
     );
   }
@@ -357,7 +358,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       decoration: BoxDecoration(
         color: const Color(0xFFC59B47).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC59B47).withValues(alpha: 0.3)),
+        border: Border.all(
+          color: const Color(0xFFC59B47).withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         children: [
@@ -372,8 +375,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           ),
           const SizedBox(height: 8),
           TextButton.icon(
-            onPressed: isLoading ? null : () => context.read<AuthCubit>().magicLogin(),
-            icon: const Icon(Icons.auto_awesome_rounded, color: Color(0xFFC59B47), size: 18),
+            onPressed: isLoading
+                ? null
+                : () => context.read<AuthCubit>().magicLogin(),
+            icon: const Icon(
+              Icons.auto_awesome_rounded,
+              color: Color(0xFFC59B47),
+              size: 18,
+            ),
             label: const Text(
               'INVESTOR DEMO MODE',
               style: TextStyle(
@@ -393,20 +402,26 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     final double end = start + 0.5;
 
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.2),
-        end: Offset.zero,
-      ).animate(
-        CurvedAnimation(
-          parent: _animationController,
-          curve: Interval(start.clamp(0.0, 1.0), end.clamp(0.0, 1.0), curve: Curves.easeOutCubic),
-        ),
-      ),
+      position: Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Interval(
+                start.clamp(0.0, 1.0),
+                end.clamp(0.0, 1.0),
+                curve: Curves.easeOutCubic,
+              ),
+            ),
+          ),
       child: FadeTransition(
         opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
           CurvedAnimation(
             parent: _animationController,
-            curve: Interval(start.clamp(0.0, 1.0), end.clamp(0.0, 1.0), curve: Curves.easeOut),
+            curve: Interval(
+              start.clamp(0.0, 1.0),
+              end.clamp(0.0, 1.0),
+              curve: Curves.easeOut,
+            ),
           ),
         ),
         child: child,
@@ -472,8 +487,21 @@ class _GoldTextFieldState extends State<GoldTextField> {
           width: 1,
         ),
         boxShadow: _isFocused
-            ? [const BoxShadow(color: Color(0x0DC59B47), blurRadius: 15, spreadRadius: 2)]
-            : [const BoxShadow(color: Colors.black54, blurRadius: 5, offset: Offset(0, 2), blurStyle: BlurStyle.inner)],
+            ? [
+                const BoxShadow(
+                  color: Color(0x0DC59B47),
+                  blurRadius: 15,
+                  spreadRadius: 2,
+                ),
+              ]
+            : [
+                const BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 5,
+                  offset: Offset(0, 2),
+                  blurStyle: BlurStyle.inner,
+                ),
+              ],
       ),
       child: TextFormField(
         controller: widget.controller,
@@ -495,7 +523,9 @@ class _GoldTextFieldState extends State<GoldTextField> {
           suffixIcon: widget.isPassword
               ? IconButton(
                   icon: Icon(
-                    widget.obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    widget.obscureText
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
                     color: Colors.white30,
                     size: 20,
                   ),
@@ -530,12 +560,18 @@ class _GoldButtonState extends State<GoldButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: widget.isLoading ? null : (_) => setState(() => _isPressed = true),
-      onTapUp: widget.isLoading ? null : (_) {
-        setState(() => _isPressed = false);
-        widget.onPressed();
-      },
-      onTapCancel: widget.isLoading ? null : () => setState(() => _isPressed = false),
+      onTapDown: widget.isLoading
+          ? null
+          : (_) => setState(() => _isPressed = true),
+      onTapUp: widget.isLoading
+          ? null
+          : (_) {
+              setState(() => _isPressed = false);
+              widget.onPressed();
+            },
+      onTapCancel: widget.isLoading
+          ? null
+          : () => setState(() => _isPressed = false),
       child: AnimatedScale(
         scale: _isPressed ? 0.96 : 1.0,
         duration: const Duration(milliseconds: 150),
@@ -554,7 +590,7 @@ class _GoldButtonState extends State<GoldButton> {
                 color: Color(0x66C59B47),
                 blurRadius: 20,
                 offset: Offset(0, 8),
-              )
+              ),
             ],
           ),
           alignment: Alignment.center,
@@ -564,7 +600,9 @@ class _GoldButtonState extends State<GoldButton> {
                   height: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF050505)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF050505),
+                    ),
                   ),
                 )
               : Text(
@@ -587,7 +625,12 @@ class GoldOutlineButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onPressed;
 
-  const GoldOutlineButton({super.key, required this.text, required this.icon, required this.onPressed});
+  const GoldOutlineButton({
+    super.key,
+    required this.text,
+    required this.icon,
+    required this.onPressed,
+  });
 
   @override
   State<GoldOutlineButton> createState() => _GoldOutlineButtonState();
@@ -613,7 +656,9 @@ class _GoldOutlineButtonState extends State<GoldOutlineButton> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: _isPressed ? const Color(0x1AFFFFFF) : const Color(0x05FFFFFF),
+            color: _isPressed
+                ? const Color(0x1AFFFFFF)
+                : const Color(0x05FFFFFF),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: const Color(0x1AFFFFFF), width: 1),
           ),
@@ -692,7 +737,8 @@ class DotGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0x1AFFFFFF) // Priesvitna biela pre tichy vzhlad
+      ..color =
+          const Color(0x1AFFFFFF) // Priesvitna biela pre tichy vzhlad
       ..style = PaintingStyle.fill;
 
     const double spacing = 16.0;
@@ -702,7 +748,7 @@ class DotGridPainter extends CustomPainter {
       for (double x = 0; x < size.width; x += spacing) {
         // Vytvorenie abstraktneho vzoru (niektore body preskocime pre "mapovy" feel)
         if ((x + y) % 3 != 0) {
-           canvas.drawCircle(Offset(x, y), radius, paint);
+          canvas.drawCircle(Offset(x, y), radius, paint);
         }
       }
     }

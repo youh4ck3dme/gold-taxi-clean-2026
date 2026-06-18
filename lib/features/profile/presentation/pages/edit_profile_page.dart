@@ -78,8 +78,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       AppTextField(
                         controller: _nameController,
                         labelText: 'Celé meno',
-                        validator: (value) =>
-                            value == null || value.isEmpty ? 'Prosím zadajte meno' : null,
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Prosím zadajte meno'
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       AppTextField(
@@ -104,9 +105,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
 }
-

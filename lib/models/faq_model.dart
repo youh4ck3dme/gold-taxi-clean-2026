@@ -19,19 +19,24 @@ class FaqModel extends Equatable {
     final acf = json['acf'] as Map<String, dynamic>? ?? {};
 
     T getField<T>(String key, T defaultValue) {
-      return (json[key] ?? meta[key] ?? jetMeta[key] ?? acf[key]) as T? ?? defaultValue;
+      return (json[key] ?? meta[key] ?? jetMeta[key] ?? acf[key]) as T? ??
+          defaultValue;
     }
 
     String question = getField<String>('question', '');
     if (question.isEmpty) {
       final titleObj = json['title'];
-      question = titleObj is Map ? (titleObj['rendered'] as String? ?? '') : (titleObj as String? ?? '');
+      question = titleObj is Map
+          ? (titleObj['rendered'] as String? ?? '')
+          : (titleObj as String? ?? '');
     }
 
     String answer = getField<String>('answer', '');
     if (answer.isEmpty) {
       final contentObj = json['content'];
-      answer = contentObj is Map ? (contentObj['rendered'] as String? ?? '') : (contentObj as String? ?? '');
+      answer = contentObj is Map
+          ? (contentObj['rendered'] as String? ?? '')
+          : (contentObj as String? ?? '');
     }
 
     return FaqModel(

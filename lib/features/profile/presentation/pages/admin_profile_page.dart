@@ -30,7 +30,10 @@ class AdminProfilePage extends StatelessWidget {
             ],
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 24.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -41,20 +44,33 @@ class AdminProfilePage extends StatelessWidget {
                       CircleAvatar(
                         radius: 50,
                         backgroundColor: Colors.red.shade100,
-                        child: Icon(Icons.admin_panel_settings, size: 55, color: Colors.red.shade900),
+                        child: Icon(
+                          Icons.admin_panel_settings,
+                          size: 55,
+                          color: Colors.red.shade900,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Text(
                         user.name,
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         user.email,
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.red.shade50,
                           borderRadius: BorderRadius.circular(20),
@@ -62,7 +78,11 @@ class AdminProfilePage extends StatelessWidget {
                         ),
                         child: Text(
                           'Administrátor',
-                          style: TextStyle(color: Colors.red.shade900, fontWeight: FontWeight.bold, fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.red.shade900,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -73,7 +93,9 @@ class AdminProfilePage extends StatelessWidget {
                 // Quick Navigation Card
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
@@ -81,18 +103,27 @@ class AdminProfilePage extends StatelessWidget {
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.dashboard_customize_outlined, color: Colors.redAccent),
+                            Icon(
+                              Icons.dashboard_customize_outlined,
+                              color: Colors.redAccent,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Ovládací panel',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Máte prístup do administrátorskej sekcie na monitorovanie jázd a celkového chodu systému.',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 13,
+                          ),
                         ),
                         const Divider(height: 32),
                         ElevatedButton.icon(
@@ -100,10 +131,18 @@ class AdminProfilePage extends StatelessWidget {
                             backgroundColor: Colors.redAccent.shade400,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           icon: const Icon(Icons.analytics_outlined),
-                          label: const Text('Otvoriť Admin Dashboard', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                          label: const Text(
+                            'Otvoriť Admin Dashboard',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           onPressed: () => context.push('/admin'),
                         ),
                       ],
@@ -115,7 +154,9 @@ class AdminProfilePage extends StatelessWidget {
                 // Account settings card
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
@@ -127,14 +168,20 @@ class AdminProfilePage extends StatelessWidget {
                             SizedBox(width: 8),
                             Text(
                               'Zabezpečenie účtu',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
                         const Divider(height: 24),
                         _buildInfoRow('Identifikačné číslo (ID)', user.id),
                         const SizedBox(height: 16),
-                        _buildInfoRow('Úroveň oprávnení', 'Super Administrátor'),
+                        _buildInfoRow(
+                          'Úroveň oprávnení',
+                          'Super Administrátor',
+                        ),
                       ],
                     ),
                   ),
@@ -153,7 +200,10 @@ class AdminProfilePage extends StatelessWidget {
       children: [
         Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+        ),
       ],
     );
   }

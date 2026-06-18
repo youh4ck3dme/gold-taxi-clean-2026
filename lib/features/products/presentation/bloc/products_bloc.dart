@@ -10,7 +10,10 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     on<FetchProducts>(_onFetchProducts);
   }
 
-  Future<void> _onFetchProducts(FetchProducts event, Emitter<ProductsState> emit) async {
+  Future<void> _onFetchProducts(
+    FetchProducts event,
+    Emitter<ProductsState> emit,
+  ) async {
     if (state is! ProductsLoaded || event.isRefresh || event.search != null) {
       emit(ProductsLoading());
     }

@@ -17,12 +17,16 @@ class AuthInterceptor extends QueuedInterceptor {
     if (options.path.contains('wp-json/wc/v3')) {
       final key = ApiConstants.wooCommerceConsumerKey;
       final secret = ApiConstants.wooCommerceConsumerSecret;
-      debugPrint('AuthInterceptor: WooCommerce request detected! Path: ${options.path}, Key: $key, Secret: $secret');
+      debugPrint(
+        'AuthInterceptor: WooCommerce request detected! Path: ${options.path}, Key: $key, Secret: $secret',
+      );
       if (key.isNotEmpty && secret.isNotEmpty) {
         options.queryParameters['consumer_key'] = key;
         options.queryParameters['consumer_secret'] = secret;
       } else {
-        debugPrint('AuthInterceptor: Warning! WooCommerce key or secret is empty!');
+        debugPrint(
+          'AuthInterceptor: Warning! WooCommerce key or secret is empty!',
+        );
       }
     } else {
       final token = await _storage.getToken();
@@ -34,10 +38,7 @@ class AuthInterceptor extends QueuedInterceptor {
   }
 
   @override
-  void onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
       await _storage.deleteToken();
     }

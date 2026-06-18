@@ -77,40 +77,58 @@ class RideCubit extends Cubit<RideState> {
   Timer? _simulationTimer;
 
   RideCubit(this._rideRepository, this._promoRepository)
-      : super(RideState(status: RideStatus.requested));
+    : super(RideState(status: RideStatus.requested));
 
   Future<void> checkZoneAndSurge(LatLng pickup) async {
-    emit(state.copyWith(
-      isCheckingZone: true,
-      errorMessage: null,
-      isInZone: true,
-      surgeMultiplier: 1.0,
-    ));
+    emit(
+      state.copyWith(
+        isCheckingZone: true,
+        errorMessage: null,
+        isInZone: true,
+        surgeMultiplier: 1.0,
+      ),
+    );
     try {
-      final inZone = await _rideRepository.checkLocationInZone(pickup.latitude, pickup.longitude);
+      final inZone = await _rideRepository.checkLocationInZone(
+        pickup.latitude,
+        pickup.longitude,
+      );
       if (!inZone) {
-        emit(state.copyWith(
-          isCheckingZone: false,
-          isInZone: false,
-          errorMessage: 'V tejto oblasti zatiaľ nejazdíme',
-        ));
+        emit(
+          state.copyWith(
+            isCheckingZone: false,
+            isInZone: false,
+            errorMessage: 'V tejto oblasti zatiaľ nejazdíme',
+          ),
+        );
         return;
       }
-      final multiplier = await _rideRepository.getSurgeMultiplier(pickup.latitude, pickup.longitude);
-      emit(state.copyWith(
-        isCheckingZone: false,
-        isInZone: true,
-        surgeMultiplier: multiplier,
-      ));
+      final multiplier = await _rideRepository.getSurgeMultiplier(
+        pickup.latitude,
+        pickup.longitude,
+      );
+      emit(
+        state.copyWith(
+          isCheckingZone: false,
+          isInZone: true,
+          surgeMultiplier: multiplier,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        isCheckingZone: false,
-        errorMessage: 'Nepodarilo sa overiť polohu: $e',
-      ));
+      emit(
+        state.copyWith(
+          isCheckingZone: false,
+          errorMessage: 'Nepodarilo sa overiť polohu: $e',
+        ),
+      );
     }
   }
 
-  Future<void> validateAndApplyPromo(String code, String userId, double rideAmount) async {
+  Future<void> validateAndApplyPromo(
+    String code,
+    String userId,
+    double rideAmount,
+  ) async {
     emit(state.copyWith(clearPromoError: true));
     try {
       final result = await _promoRepository.validatePromoCode(
@@ -119,27 +137,17 @@ class RideCubit extends Cubit<RideState> {
         rideAmount: rideAmount,
       );
       if (result.isValid) {
-        emit(state.copyWith(
-          appliedPromo: result,
-          clearPromoError: true,
-        ));
+        emit(state.copyWith(appliedPromo: result, clearPromoError: true));
       } else {
-        emit(state.copyWith(
-          promoError: result.errorMessage ?? 'Neplatný kód',
-        ));
+        emit(state.copyWith(promoError: result.errorMessage ?? 'Neplatný kód'));
       }
     } catch (e) {
-      emit(state.copyWith(
-        promoError: 'Chyba overenia: $e',
-      ));
+      emit(state.copyWith(promoError: 'Chyba overenia: $e'));
     }
   }
 
   void removePromoCode() {
-    emit(state.copyWith(
-      clearPromo: true,
-      clearPromoError: true,
-    ));
+    emit(state.copyWith(clearPromo: true, clearPromoError: true));
   }
 
   Future<void> requestRide({
@@ -171,7 +179,7 @@ class RideCubit extends Cubit<RideState> {
 
     try {
       final createdRide = await _rideRepository.createRide(ride);
-      
+
       // Use promo code in repository if one is applied
       if (state.appliedPromo != null) {
         await _promoRepository.usePromoCode(
@@ -189,20 +197,26 @@ class RideCubit extends Cubit<RideState> {
         vehicleType: createdRide.serviceType.name,
       );
 
-      emit(state.copyWith(
-        status: RideStatus.requested,
-        currentRide: createdRide,
-        clearPromo: true,
-        clearPromoError: true,
-      ));
+      emit(
+        state.copyWith(
+          status: RideStatus.requested,
+          currentRide: createdRide,
+          clearPromo: true,
+          clearPromoError: true,
+        ),
+      );
       _subscribeToRide(createdRide.id);
-      
+
       // For demo, we still trigger the simulation if it's a mock repo
       if (_rideRepository is MockRideRepository) {
         startRideSimulation(createdRide.id);
       }
     } catch (e, stack) {
-      await getIt<AnalyticsService>().recordError(e, stack, reason: 'Failed to create ride request');
+      await getIt<AnalyticsService>().recordError(
+        e,
+        stack,
+        reason: 'Failed to create ride request',
+      );
       emit(state.copyWith(errorMessage: e.toString()));
     }
   }
@@ -215,7 +229,9 @@ class RideCubit extends Cubit<RideState> {
         if (ride.driverId != null && _rideRepository is! MockRideRepository) {
           if (state.driver == null || state.driver!.driverId != ride.driverId) {
             try {
-              driver = await getIt<DriverProfileService>().getDriverProfile(ride.driverId!);
+              driver = await getIt<DriverProfileService>().getDriverProfile(
+                ride.driverId!,
+              );
             } catch (_) {
               // Ignore profile fetch failure
             }
@@ -225,11 +241,13 @@ class RideCubit extends Cubit<RideState> {
         } else {
           driver = state.driver;
         }
-        emit(state.copyWith(
-          status: ride.status,
-          currentRide: ride,
-          driver: driver,
-        ));
+        emit(
+          state.copyWith(
+            status: ride.status,
+            currentRide: ride,
+            driver: driver,
+          ),
+        );
       }
     });
   }
@@ -255,7 +273,7 @@ class RideCubit extends Cubit<RideState> {
         serviceType: 'Standard',
         lastUpdated: DateTime.now(),
       );
-      
+
       await _rideRepository.acceptRide(rideId, 'sim_driver_id');
       emit(state.copyWith(driver: mockDriver));
 
@@ -282,7 +300,12 @@ class RideCubit extends Cubit<RideState> {
 
     // Enforce transitions
     if (!_isValidTransition(state.status, newStatus)) {
-      emit(state.copyWith(errorMessage: 'Neplatný prechod stavu: ${state.status.name} -> ${newStatus.name}'));
+      emit(
+        state.copyWith(
+          errorMessage:
+              'Neplatný prechod stavu: ${state.status.name} -> ${newStatus.name}',
+        ),
+      );
       return;
     }
 
@@ -295,7 +318,7 @@ class RideCubit extends Cubit<RideState> {
 
   bool _isValidTransition(RideStatus current, RideStatus next) {
     if (next == RideStatus.cancelled) return current.canCancel;
-    
+
     switch (current) {
       case RideStatus.requested:
         return next == RideStatus.accepted;
@@ -324,16 +347,16 @@ class RideCubit extends Cubit<RideState> {
       return;
     }
     final uuid = const Uuid().v4();
-    final newStop = RideStop(
-      id: uuid,
-      location: location,
-    );
-    final updatedStops = List<RideStop>.from(state.intermediateStops)..add(newStop);
+    final newStop = RideStop(id: uuid, location: location);
+    final updatedStops = List<RideStop>.from(state.intermediateStops)
+      ..add(newStop);
     emit(state.copyWith(intermediateStops: updatedStops));
   }
 
   void removeIntermediateStop(String stopId) {
-    final updatedStops = state.intermediateStops.where((s) => s.id != stopId).toList();
+    final updatedStops = state.intermediateStops
+        .where((s) => s.id != stopId)
+        .toList();
     emit(state.copyWith(intermediateStops: updatedStops));
   }
 
@@ -351,10 +374,7 @@ class RideCubit extends Cubit<RideState> {
   void toggleWaitTime(String stopId, bool enabled, int minutes) {
     final updatedStops = state.intermediateStops.map((s) {
       if (s.id == stopId) {
-        return s.copyWith(
-          isWaitingEnabled: enabled,
-          waitingMinutes: minutes,
-        );
+        return s.copyWith(isWaitingEnabled: enabled, waitingMinutes: minutes);
       }
       return s;
     }).toList();

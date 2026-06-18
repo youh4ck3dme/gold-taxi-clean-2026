@@ -26,11 +26,13 @@ class FaqRepository {
             .select()
             .neq('id', '')
             .order('order_index', ascending: true);
-            
+
         final faqs = (response as List)
-            .map((json) => FaqModel.fromSupabaseJson(json as Map<String, dynamic>))
+            .map(
+              (json) => FaqModel.fromSupabaseJson(json as Map<String, dynamic>),
+            )
             .toList();
-            
+
         await _cacheFaqs(faqs);
         return faqs;
       } catch (_) {
@@ -54,7 +56,9 @@ class FaqRepository {
     final faqsJson = box.get('faqs') as List?;
     if (faqsJson != null) {
       return faqsJson
-          .map((json) => FaqModel.fromJson(Map<String, dynamic>.from(json as Map)))
+          .map(
+            (json) => FaqModel.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     }
     return [];

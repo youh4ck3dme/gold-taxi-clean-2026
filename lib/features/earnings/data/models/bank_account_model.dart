@@ -89,16 +89,16 @@ class BankAccountModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        driverId,
-        stripeAccountId,
-        bankAccountId,
-        bankAccountLast4,
-        bankName,
-        accountHolderName,
-        accountHolderType,
-        currency,
-        status,
-        payoutEnabled,
-      ];
+    id,
+    driverId,
+    stripeAccountId,
+    bankAccountId,
+    bankAccountLast4,
+    bankName,
+    accountHolderName,
+    accountHolderType,
+    currency,
+    status,
+    payoutEnabled,
+  ];
 }

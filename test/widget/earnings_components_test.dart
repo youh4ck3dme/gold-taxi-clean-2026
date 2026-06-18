@@ -110,33 +110,53 @@ void main() {
     test('PaymentStatus fromJson handles all cases', () {
       // Test via fromJson which uses the parsing internally
       final completed = EarningsModel.fromJson(const {
-        'id': '1', 'ride_id': '1', 'driver_id': '1',
-        'total_amount': 1, 'app_fee': 0.15, 'net_amount': 0.85,
-        'payment_status': 'completed', 'payment_method': 'cash',
+        'id': '1',
+        'ride_id': '1',
+        'driver_id': '1',
+        'total_amount': 1,
+        'app_fee': 0.15,
+        'net_amount': 0.85,
+        'payment_status': 'completed',
+        'payment_method': 'cash',
         'created_at': '2024-01-01T00:00:00Z',
       });
       expect(completed.paymentStatus, PaymentStatus.completed);
 
       final pending = EarningsModel.fromJson(const {
-        'id': '1', 'ride_id': '1', 'driver_id': '1',
-        'total_amount': 1, 'app_fee': 0.15, 'net_amount': 0.85,
-        'payment_status': 'pending', 'payment_method': 'cash',
+        'id': '1',
+        'ride_id': '1',
+        'driver_id': '1',
+        'total_amount': 1,
+        'app_fee': 0.15,
+        'net_amount': 0.85,
+        'payment_status': 'pending',
+        'payment_method': 'cash',
         'created_at': '2024-01-01T00:00:00Z',
       });
       expect(pending.paymentStatus, PaymentStatus.pending);
 
       final failed = EarningsModel.fromJson(const {
-        'id': '1', 'ride_id': '1', 'driver_id': '1',
-        'total_amount': 1, 'app_fee': 0.15, 'net_amount': 0.85,
-        'payment_status': 'failed', 'payment_method': 'cash',
+        'id': '1',
+        'ride_id': '1',
+        'driver_id': '1',
+        'total_amount': 1,
+        'app_fee': 0.15,
+        'net_amount': 0.85,
+        'payment_status': 'failed',
+        'payment_method': 'cash',
         'created_at': '2024-01-01T00:00:00Z',
       });
       expect(failed.paymentStatus, PaymentStatus.failed);
 
       final refunded = EarningsModel.fromJson(const {
-        'id': '1', 'ride_id': '1', 'driver_id': '1',
-        'total_amount': 1, 'app_fee': 0.15, 'net_amount': 0.85,
-        'payment_status': 'refunded', 'payment_method': 'cash',
+        'id': '1',
+        'ride_id': '1',
+        'driver_id': '1',
+        'total_amount': 1,
+        'app_fee': 0.15,
+        'net_amount': 0.85,
+        'payment_status': 'refunded',
+        'payment_method': 'cash',
         'created_at': '2024-01-01T00:00:00Z',
       });
       expect(refunded.paymentStatus, PaymentStatus.refunded);
@@ -144,25 +164,40 @@ void main() {
 
     test('PaymentMethod fromJson handles all cases', () {
       final cash = EarningsModel.fromJson(const {
-        'id': '1', 'ride_id': '1', 'driver_id': '1',
-        'total_amount': 1, 'app_fee': 0.15, 'net_amount': 0.85,
-        'payment_status': 'completed', 'payment_method': 'cash',
+        'id': '1',
+        'ride_id': '1',
+        'driver_id': '1',
+        'total_amount': 1,
+        'app_fee': 0.15,
+        'net_amount': 0.85,
+        'payment_status': 'completed',
+        'payment_method': 'cash',
         'created_at': '2024-01-01T00:00:00Z',
       });
       expect(cash.paymentMethod, PaymentMethod.cash);
 
       final card = EarningsModel.fromJson(const {
-        'id': '1', 'ride_id': '1', 'driver_id': '1',
-        'total_amount': 1, 'app_fee': 0.15, 'net_amount': 0.85,
-        'payment_status': 'completed', 'payment_method': 'card',
+        'id': '1',
+        'ride_id': '1',
+        'driver_id': '1',
+        'total_amount': 1,
+        'app_fee': 0.15,
+        'net_amount': 0.85,
+        'payment_status': 'completed',
+        'payment_method': 'card',
         'created_at': '2024-01-01T00:00:00Z',
       });
       expect(card.paymentMethod, PaymentMethod.card);
 
       final stripe = EarningsModel.fromJson(const {
-        'id': '1', 'ride_id': '1', 'driver_id': '1',
-        'total_amount': 1, 'app_fee': 0.15, 'net_amount': 0.85,
-        'payment_status': 'completed', 'payment_method': 'stripe',
+        'id': '1',
+        'ride_id': '1',
+        'driver_id': '1',
+        'total_amount': 1,
+        'app_fee': 0.15,
+        'net_amount': 0.85,
+        'payment_status': 'completed',
+        'payment_method': 'stripe',
         'created_at': '2024-01-01T00:00:00Z',
       });
       expect(stripe.paymentMethod, PaymentMethod.stripe);
@@ -171,11 +206,61 @@ void main() {
 
   group('Payout Model Tests', () {
     test('PayoutStatus fromJson handles all cases', () {
-      expect(PayoutModel.fromJson(const {'id': '1', 'driver_id': '1', 'amount': 1, 'status': 'paid', 'requested_at': '2024-01-01T00:00:00Z', 'created_at': '2024-01-01T00:00:00Z'}).status, PayoutStatus.paid);
-      expect(PayoutModel.fromJson(const {'id': '1', 'driver_id': '1', 'amount': 1, 'status': 'in_transit', 'requested_at': '2024-01-01T00:00:00Z', 'created_at': '2024-01-01T00:00:00Z'}).status, PayoutStatus.inTransit);
-      expect(PayoutModel.fromJson(const {'id': '1', 'driver_id': '1', 'amount': 1, 'status': 'pending', 'requested_at': '2024-01-01T00:00:00Z', 'created_at': '2024-01-01T00:00:00Z'}).status, PayoutStatus.pending);
-      expect(PayoutModel.fromJson(const {'id': '1', 'driver_id': '1', 'amount': 1, 'status': 'failed', 'requested_at': '2024-01-01T00:00:00Z', 'created_at': '2024-01-01T00:00:00Z'}).status, PayoutStatus.failed);
-      expect(PayoutModel.fromJson(const {'id': '1', 'driver_id': '1', 'amount': 1, 'status': 'cancelled', 'requested_at': '2024-01-01T00:00:00Z', 'created_at': '2024-01-01T00:00:00Z'}).status, PayoutStatus.cancelled);
+      expect(
+        PayoutModel.fromJson(const {
+          'id': '1',
+          'driver_id': '1',
+          'amount': 1,
+          'status': 'paid',
+          'requested_at': '2024-01-01T00:00:00Z',
+          'created_at': '2024-01-01T00:00:00Z',
+        }).status,
+        PayoutStatus.paid,
+      );
+      expect(
+        PayoutModel.fromJson(const {
+          'id': '1',
+          'driver_id': '1',
+          'amount': 1,
+          'status': 'in_transit',
+          'requested_at': '2024-01-01T00:00:00Z',
+          'created_at': '2024-01-01T00:00:00Z',
+        }).status,
+        PayoutStatus.inTransit,
+      );
+      expect(
+        PayoutModel.fromJson(const {
+          'id': '1',
+          'driver_id': '1',
+          'amount': 1,
+          'status': 'pending',
+          'requested_at': '2024-01-01T00:00:00Z',
+          'created_at': '2024-01-01T00:00:00Z',
+        }).status,
+        PayoutStatus.pending,
+      );
+      expect(
+        PayoutModel.fromJson(const {
+          'id': '1',
+          'driver_id': '1',
+          'amount': 1,
+          'status': 'failed',
+          'requested_at': '2024-01-01T00:00:00Z',
+          'created_at': '2024-01-01T00:00:00Z',
+        }).status,
+        PayoutStatus.failed,
+      );
+      expect(
+        PayoutModel.fromJson(const {
+          'id': '1',
+          'driver_id': '1',
+          'amount': 1,
+          'status': 'cancelled',
+          'requested_at': '2024-01-01T00:00:00Z',
+          'created_at': '2024-01-01T00:00:00Z',
+        }).status,
+        PayoutStatus.cancelled,
+      );
     });
 
     test('PayoutModel status helpers work correctly', () {
@@ -267,13 +352,25 @@ void main() {
     });
 
     test('calculateAppFee with custom percentage', () {
-      expect(EarningsRepository.calculateAppFee(100.0, appFeePercentage: 20.0), 20.0);
-      expect(EarningsRepository.calculateAppFee(100.0, appFeePercentage: 10.0), 10.0);
+      expect(
+        EarningsRepository.calculateAppFee(100.0, appFeePercentage: 20.0),
+        20.0,
+      );
+      expect(
+        EarningsRepository.calculateAppFee(100.0, appFeePercentage: 10.0),
+        10.0,
+      );
     });
 
     test('calculateNetEarnings with custom percentage', () {
-      expect(EarningsRepository.calculateNetEarnings(100.0, appFeePercentage: 20.0), 80.0);
-      expect(EarningsRepository.calculateNetEarnings(100.0, appFeePercentage: 10.0), 90.0);
+      expect(
+        EarningsRepository.calculateNetEarnings(100.0, appFeePercentage: 20.0),
+        80.0,
+      );
+      expect(
+        EarningsRepository.calculateNetEarnings(100.0, appFeePercentage: 10.0),
+        90.0,
+      );
     });
   });
 
@@ -289,7 +386,7 @@ void main() {
       final formatted25 = currencyFormat.format(25.50);
       final formatted100 = currencyFormat.format(100.0);
       final formatted1234 = currencyFormat.format(1234.56);
-      
+
       // Check that values contain the expected components
       expect(formatted25, contains('25,50'));
       expect(formatted25, contains('€'));

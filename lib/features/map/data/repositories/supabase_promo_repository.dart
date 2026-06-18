@@ -58,7 +58,7 @@ class SupabasePromoRepository implements PromoRepository {
   }) async {
     try {
       final cleanCode = code.trim().toUpperCase();
-      
+
       // 1. Try to find a standard promo code
       final promoResponse = await _supabase
           .from('promo_codes')

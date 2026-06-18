@@ -27,7 +27,9 @@ class ProductDetailPage extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => const SizedBox(
                   height: 300,
-                  child: Center(child: Icon(Icons.image_not_supported, size: 60)),
+                  child: Center(
+                    child: Icon(Icons.image_not_supported, size: 60),
+                  ),
                 ),
               ),
             Padding(
@@ -37,7 +39,10 @@ class ProductDetailPage extends StatelessWidget {
                 children: [
                   Text(
                     product.name,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -52,11 +57,15 @@ class ProductDetailPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        (product.stock ?? 0) > 0 ? 'Na sklade (${product.stock} ks)' : 'Vypredané',
+                        (product.stock ?? 0) > 0
+                            ? 'Na sklade (${product.stock} ks)'
+                            : 'Vypredané',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: (product.stock ?? 0) > 0 ? Colors.green : Colors.red,
+                          color: (product.stock ?? 0) > 0
+                              ? Colors.green
+                              : Colors.red,
                         ),
                       ),
                     ],
@@ -74,7 +83,10 @@ class ProductDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    product.description.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ''),
+                    product.description.replaceAll(
+                      RegExp(r'<[^>]*>|&[^;]+;'),
+                      '',
+                    ),
                     style: const TextStyle(fontSize: 15, height: 1.4),
                   ),
                   const SizedBox(height: 32),
@@ -85,7 +97,9 @@ class ProductDetailPage extends StatelessWidget {
                             context.read<CartCubit>().addProduct(product);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('${product.name} pridaný do košíka!'),
+                                content: Text(
+                                  '${product.name} pridaný do košíka!',
+                                ),
                                 action: SnackBarAction(
                                   label: 'Zobraziť košík',
                                   onPressed: () {

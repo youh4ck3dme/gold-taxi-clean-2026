@@ -80,7 +80,7 @@ class SupabaseAuthRepository implements AuthRepository {
   UserModel _userModelFromSupabaseUser(User user) {
     final email = user.email ?? '';
     final metadata = user.userMetadata ?? {};
-    
+
     final name = metadata['full_name'] ?? metadata['name'] ?? email;
     final avatarUrl = metadata['avatar_url'] ?? metadata['picture'];
     final roleStr = metadata['role'] ?? 'customer';
@@ -90,7 +90,9 @@ class SupabaseAuthRepository implements AuthRepository {
       name: name,
       email: email,
       profilePictureUrl: avatarUrl,
-      role: roleStr == 'admin' ? UserRole.admin : (roleStr == 'driver' ? UserRole.driver : UserRole.customer),
+      role: roleStr == 'admin'
+          ? UserRole.admin
+          : (roleStr == 'driver' ? UserRole.driver : UserRole.customer),
       isActive: true,
     );
   }
@@ -134,7 +136,8 @@ class MockAuthRepository implements AuthRepository {
       id: "mock-user-id",
       name: "Mock Taxi Admin",
       email: "admin@goldtaxi.sk",
-      profilePictureUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150",
+      profilePictureUrl:
+          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150",
       role: UserRole.admin,
       isActive: true,
     );
@@ -147,7 +150,8 @@ class MockAuthRepository implements AuthRepository {
       id: "investor-demo-id",
       name: "Investor Demo",
       email: "investor@goldtaxi.sk",
-      profilePictureUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150",
+      profilePictureUrl:
+          "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150",
       role: UserRole.admin,
       isActive: true,
     );

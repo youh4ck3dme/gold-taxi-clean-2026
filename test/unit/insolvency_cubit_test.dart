@@ -6,7 +6,9 @@ import 'package:gold_taxi/core/services/insolvency_predictor_service.dart';
 import 'package:gold_taxi/models/invoice_model.dart';
 
 class MockApiService extends Mock implements ApiService {}
-class MockInsolvencyPredictorService extends Mock implements InsolvencyPredictorService {}
+
+class MockInsolvencyPredictorService extends Mock
+    implements InsolvencyPredictorService {}
 
 void main() {
   late InsolvencyCubit insolvencyCubit;
@@ -46,49 +48,63 @@ void main() {
       expect(insolvencyCubit.state, isA<InsolvencyInitial>());
     });
 
-    test('loadScenario for WordPress fetches real invoices and calls predictor service', () async {
-      when(() => mockApiService.getInvoices()).thenAnswer((_) async => [testInvoice]);
-      when(() => mockPredictorService.analyzeInsolvencyRisk(any(), evaluationDate: any(named: 'evaluationDate')))
-          .thenReturn(testPrediction);
+    test(
+      'loadScenario for WordPress fetches real invoices and calls predictor service',
+      () async {
+        when(
+          () => mockApiService.getInvoices(),
+        ).thenAnswer((_) async => [testInvoice]);
+        when(
+          () => mockPredictorService.analyzeInsolvencyRisk(
+            any(),
+            evaluationDate: any(named: 'evaluationDate'),
+          ),
+        ).thenReturn(testPrediction);
 
-      expectLater(
-        insolvencyCubit.stream,
-        emitsInOrder([
-          isA<InsolvencyLoading>(),
-          isA<InsolvencyLoaded>(),
-        ]),
-      );
+        expectLater(
+          insolvencyCubit.stream,
+          emitsInOrder([isA<InsolvencyLoading>(), isA<InsolvencyLoaded>()]),
+        );
 
-      await insolvencyCubit.loadScenario('Reálne dáta (WordPress)');
-    });
+        await insolvencyCubit.loadScenario('Reálne dáta (WordPress)');
+      },
+    );
 
-    test('loadScenario for mock scenario loads mock data and calls predictor service', () async {
-      when(() => mockPredictorService.analyzeInsolvencyRisk(any(), evaluationDate: any(named: 'evaluationDate')))
-          .thenReturn(testPrediction);
+    test(
+      'loadScenario for mock scenario loads mock data and calls predictor service',
+      () async {
+        when(
+          () => mockPredictorService.analyzeInsolvencyRisk(
+            any(),
+            evaluationDate: any(named: 'evaluationDate'),
+          ),
+        ).thenReturn(testPrediction);
 
-      expectLater(
-        insolvencyCubit.stream,
-        emitsInOrder([
-          isA<InsolvencyLoading>(),
-          isA<InsolvencyLoaded>(),
-        ]),
-      );
+        expectLater(
+          insolvencyCubit.stream,
+          emitsInOrder([isA<InsolvencyLoading>(), isA<InsolvencyLoaded>()]),
+        );
 
-      await insolvencyCubit.loadScenario('Nízke riziko (Dobrá platobná morálka)');
-    });
+        await insolvencyCubit.loadScenario(
+          'Nízke riziko (Dobrá platobná morálka)',
+        );
+      },
+    );
 
-    test('loadScenario emits InsolvencyError when WordPress fetch fails', () async {
-      when(() => mockApiService.getInvoices()).thenThrow(Exception('Network error'));
+    test(
+      'loadScenario emits InsolvencyError when WordPress fetch fails',
+      () async {
+        when(
+          () => mockApiService.getInvoices(),
+        ).thenThrow(Exception('Network error'));
 
-      expectLater(
-        insolvencyCubit.stream,
-        emitsInOrder([
-          isA<InsolvencyLoading>(),
-          isA<InsolvencyError>(),
-        ]),
-      );
+        expectLater(
+          insolvencyCubit.stream,
+          emitsInOrder([isA<InsolvencyLoading>(), isA<InsolvencyError>()]),
+        );
 
-      await insolvencyCubit.loadScenario('Reálne dáta (WordPress)');
-    });
+        await insolvencyCubit.loadScenario('Reálne dáta (WordPress)');
+      },
+    );
   });
 }

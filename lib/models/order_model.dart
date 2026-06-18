@@ -24,7 +24,8 @@ class OrderModel extends Equatable {
       total: json['total'] as String? ?? '0.00',
       currency: json['currency'] as String? ?? 'EUR',
       dateCreated: DateTime.parse(json['date_created'] as String),
-      items: (json['line_items'] as List<dynamic>?)
+      items:
+          (json['line_items'] as List<dynamic>?)
               ?.map((item) => item['name'] as String)
               .toList() ??
           [],

@@ -65,9 +65,7 @@ class ProductModel extends Equatable {
 
   static List<String> _getWpCategories(dynamic categories) {
     if (categories is List) {
-      return categories
-          .map((cat) => cat['name'] as String? ?? '')
-          .toList();
+      return categories.map((cat) => cat['name'] as String? ?? '').toList();
     }
     return [];
   }

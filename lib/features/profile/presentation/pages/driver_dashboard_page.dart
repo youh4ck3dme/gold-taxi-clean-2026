@@ -35,10 +35,18 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
     _rideRepository = getIt<RideRepository>();
   }
 
-  void _updateStatus(String rideId, RideStatus status, {String? cancellationReason}) async {
+  void _updateStatus(
+    String rideId,
+    RideStatus status, {
+    String? cancellationReason,
+  }) async {
     setState(() => _isUpdatingStatus = true);
     try {
-      await _rideRepository.updateRideStatus(rideId, status, cancellationReason: cancellationReason);
+      await _rideRepository.updateRideStatus(
+        rideId,
+        status,
+        cancellationReason: cancellationReason,
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -78,7 +86,10 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
   void _toggleOnline(bool value) async {
     final authState = context.read<AuthCubit>().state;
     if (authState is Authenticated) {
-      await _rideRepository.updateDriverStatus(authState.user.id.toString(), value);
+      await _rideRepository.updateDriverStatus(
+        authState.user.id.toString(),
+        value,
+      );
       setState(() => _isOnline = value);
     }
   }
@@ -95,8 +106,11 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
 
         if (state is ProfileLoaded) {
           final driverId = state.user.id;
-          final verificationStatus = state.driverRecord?['verification_status'] as String? ?? 'pending_verification';
-          final hasDocs = state.driverDocs != null &&
+          final verificationStatus =
+              state.driverRecord?['verification_status'] as String? ??
+              'pending_verification';
+          final hasDocs =
+              state.driverDocs != null &&
               state.driverDocs!['profile_photo_url'] != null &&
               state.driverDocs!['id_card_url'] != null &&
               state.driverDocs!['license_url'] != null;
@@ -122,12 +136,19 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                           color: Colors.orange[50],
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.assignment_late_outlined, size: 80, color: Colors.orange[800]),
+                        child: Icon(
+                          Icons.assignment_late_outlined,
+                          size: 80,
+                          color: Colors.orange[800],
+                        ),
                       ),
                       const SizedBox(height: 24),
                       const Text(
                         'Chýbajúce dokumenty',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       const Text(
@@ -143,7 +164,9 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                           backgroundColor: Colors.amber[800],
                           foregroundColor: Colors.white,
                           minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         onPressed: () => context.go('/driver/onboarding'),
                       ),
@@ -155,7 +178,9 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
           }
 
           if (verificationStatus == 'pending_verification') {
-            return const DriverVerificationStatusPage(status: 'pending_verification');
+            return const DriverVerificationStatusPage(
+              status: 'pending_verification',
+            );
           }
 
           if (verificationStatus == 'suspended') {
@@ -196,7 +221,10 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                       const SizedBox(height: 16),
                       const Text(
                         'Prichádzajúce požiadavky',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Expanded(
@@ -222,7 +250,8 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
   }
 
   Widget _buildRideRequestCard(RideModel ride) {
-    final timeStr = '${ride.createdAt.hour.toString().padLeft(2, '0')}:${ride.createdAt.minute.toString().padLeft(2, '0')}';
+    final timeStr =
+        '${ride.createdAt.hour.toString().padLeft(2, '0')}:${ride.createdAt.minute.toString().padLeft(2, '0')}';
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
@@ -238,11 +267,18 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
               children: [
                 Text(
                   'Žiadosť o jazdu • $timeStr',
-                  style: const TextStyle(color: AppColors.grey500, fontSize: 12, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: AppColors.grey500,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   '${ride.estimatedDistance} km',
-                  style: const TextStyle(color: AppColors.grey500, fontSize: 12),
+                  style: const TextStyle(
+                    color: AppColors.grey500,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -251,7 +287,12 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
               children: [
                 const Icon(Icons.location_on, color: Colors.green, size: 20),
                 const SizedBox(width: 12),
-                Expanded(child: Text(ride.pickupAddress, style: const TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(
+                  child: Text(
+                    ride.pickupAddress,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
               ],
             ),
             const Padding(
@@ -262,10 +303,16 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
               children: [
                 const Icon(Icons.location_on, color: Colors.red, size: 20),
                 const SizedBox(width: 12),
-                Expanded(child: Text(ride.dropoffAddress, style: const TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(
+                  child: Text(
+                    ride.dropoffAddress,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
               ],
             ),
-            if (ride.passengerNote != null && ride.passengerNote!.isNotEmpty) ...[
+            if (ride.passengerNote != null &&
+                ride.passengerNote!.isNotEmpty) ...[
               const SizedBox(height: 12),
               Container(
                 width: double.infinity,
@@ -276,7 +323,10 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                 ),
                 child: Text(
                   'Poznámka: ${ride.passengerNote}',
-                  style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
             ],
@@ -284,8 +334,14 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('${ride.estimatedPrice.toStringAsFixed(2)} €',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.secondary)),
+                Text(
+                  '${ride.estimatedPrice.toStringAsFixed(2)} €',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.secondary,
+                  ),
+                ),
                 const SizedBox.shrink(),
               ],
             ),
@@ -301,8 +357,13 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                    onPressed: _isAcceptingRide ? null : () => _acceptRide(ride),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: _isAcceptingRide
+                        ? null
+                        : () => _acceptRide(ride),
                     child: const Text('Prijať'),
                   ),
                 ),
@@ -321,15 +382,22 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
       try {
         await _rideRepository.acceptRide(ride.id, authState.user.id.toString());
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Jazda prijatá!')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Jazda prijatá!')));
         }
       } catch (e) {
         if (mounted) {
-          final isTaken = e.toString().contains('no longer available') || e.toString().contains('already taken') || e.toString().contains('not found');
+          final isTaken =
+              e.toString().contains('no longer available') ||
+              e.toString().contains('already taken') ||
+              e.toString().contains('not found');
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(isTaken ? 'Jazda už nie je k dispozícii' : 'Chyba: $e')),
+            SnackBar(
+              content: Text(
+                isTaken ? 'Jazda už nie je k dispozícii' : 'Chyba: $e',
+              ),
+            ),
           );
         }
       } finally {
@@ -358,7 +426,11 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
             ),
             child: Column(
               children: [
-                const Icon(Icons.directions_car, color: AppColors.secondary, size: 40),
+                const Icon(
+                  Icons.directions_car,
+                  color: AppColors.secondary,
+                  size: 40,
+                ),
                 const SizedBox(height: 8),
                 const Text(
                   'AKTÍVNA JAZDA',
@@ -385,7 +457,9 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
 
           // Passenger Info Card
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -393,7 +467,11 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                 children: [
                   const Text(
                     'Zákazník',
-                    style: TextStyle(color: AppColors.grey500, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: AppColors.grey500,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   FutureBuilder<String>(
@@ -402,22 +480,32 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                       final name = snapshot.data ?? 'Načítavam...';
                       return Text(
                         name,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       );
                     },
                   ),
-                  if (ride.passengerNote != null && ride.passengerNote!.isNotEmpty) ...[
+                  if (ride.passengerNote != null &&
+                      ride.passengerNote!.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     const Text(
                       'Poznámka k jazde',
-                      style: TextStyle(color: AppColors.grey500, fontSize: 12, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: AppColors.grey500,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isDarkMode ? AppColors.grey800 : AppColors.grey100,
+                        color: isDarkMode
+                            ? AppColors.grey800
+                            : AppColors.grey100,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -434,21 +522,38 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
 
           // Route Card
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.my_location, color: Colors.green, size: 20),
+                      const Icon(
+                        Icons.my_location,
+                        color: Colors.green,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Miesto vyzdvihnutia', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                            Text(ride.pickupAddress, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Miesto vyzdvihnutia',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Text(
+                              ride.pickupAddress,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -460,14 +565,29 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                   ),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, color: Colors.red, size: 20),
+                      const Icon(
+                        Icons.location_on,
+                        color: Colors.red,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Cieľová adresa', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                            Text(ride.dropoffAddress, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Cieľová adresa',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Text(
+                              ride.dropoffAddress,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -481,7 +601,9 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
 
           // Status Control Actions
           if (_isUpdatingStatus)
-            const Center(child: CircularProgressIndicator(color: AppColors.secondary))
+            const Center(
+              child: CircularProgressIndicator(color: AppColors.secondary),
+            )
           else ...[
             if (ride.status == RideStatus.accepted)
               ElevatedButton.icon(
@@ -491,10 +613,16 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                   backgroundColor: AppColors.secondary,
                   foregroundColor: Colors.black,
                   minimumSize: const Size(double.infinity, 54),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
-                onPressed: () => _updateStatus(ride.id, RideStatus.driverArriving),
+                onPressed: () =>
+                    _updateStatus(ride.id, RideStatus.driverArriving),
               ),
             if (ride.status == RideStatus.driverArriving)
               ElevatedButton.icon(
@@ -504,8 +632,13 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 54),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 onPressed: () => _updateStatus(ride.id, RideStatus.inProgress),
               ),
@@ -518,17 +651,26 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                   foregroundColor: AppColors.secondary,
                   minimumSize: const Size(double.infinity, 54),
                   side: const BorderSide(color: AppColors.secondary, width: 2),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 onPressed: () => _updateStatus(ride.id, RideStatus.completed),
               ),
-            if (ride.status == RideStatus.accepted || ride.status == RideStatus.driverArriving) ...[
+            if (ride.status == RideStatus.accepted ||
+                ride.status == RideStatus.driverArriving) ...[
               const SizedBox(height: 12),
               TextButton(
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
                 onPressed: () => _showCancellationDialog(context, ride.id),
-                child: const Text('Zrušiť jazdu', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Zrušiť jazdu',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ],
@@ -543,7 +685,11 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
       builder: (context) => _CancellationDialog(
         rideId: rideId,
         onConfirm: (reason) {
-          _updateStatus(rideId, RideStatus.cancelled, cancellationReason: reason);
+          _updateStatus(
+            rideId,
+            RideStatus.cancelled,
+            cancellationReason: reason,
+          );
         },
       ),
     );
@@ -554,10 +700,7 @@ class _CancellationDialog extends StatefulWidget {
   final String rideId;
   final Function(String reason) onConfirm;
 
-  const _CancellationDialog({
-    required this.rideId,
-    required this.onConfirm,
-  });
+  const _CancellationDialog({required this.rideId, required this.onConfirm});
 
   @override
   State<_CancellationDialog> createState() => _CancellationDialogState();
@@ -625,7 +768,9 @@ class _IncomingRequestsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!isOnline) {
-      return const Center(child: Text('Ste offline. Pre príjem jázd sa zapnite.'));
+      return const Center(
+        child: Text('Ste offline. Pre príjem jázd sa zapnite.'),
+      );
     }
 
     return StreamBuilder<List<RideModel>>(
@@ -636,7 +781,9 @@ class _IncomingRequestsList extends StatelessWidget {
         }
         final rides = snapshot.data ?? [];
         if (rides.isEmpty) {
-          return const Center(child: Text('Momentálne žiadne nové požiadavky.'));
+          return const Center(
+            child: Text('Momentálne žiadne nové požiadavky.'),
+          );
         }
         return ListView.builder(
           itemCount: rides.length,
@@ -703,7 +850,10 @@ class _EarningsButton extends StatelessWidget {
                   children: [
                     Text(
                       'Zárobky',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       'Zobrazte si svoj finančný prehľad',

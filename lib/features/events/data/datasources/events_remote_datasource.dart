@@ -8,7 +8,11 @@ class EventsRemoteDataSource {
   EventsRemoteDataSource(this._apiService);
 
   /// Fetch events from JetEngine API
-  Future<List<EventModel>> fetchEvents({int page = 1, int perPage = 10, String? search}) async {
+  Future<List<EventModel>> fetchEvents({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
     final Map<String, dynamic> queryParams = {
       'page': page,
       'per_page': perPage,
@@ -23,7 +27,9 @@ class EventsRemoteDataSource {
     );
 
     if (response is List) {
-      return response.map((json) => EventModel.fromJson(json as Map<String, dynamic>)).toList();
+      return response
+          .map((json) => EventModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     }
     return [];
   }

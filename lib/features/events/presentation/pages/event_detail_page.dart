@@ -30,7 +30,9 @@ class EventDetailPage extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) => Container(
                   height: 250,
                   color: Colors.grey[300],
-                  child: const Center(child: Icon(Icons.image_not_supported, size: 60)),
+                  child: const Center(
+                    child: Icon(Icons.image_not_supported, size: 60),
+                  ),
                 ),
               )
             else
@@ -50,7 +52,10 @@ class EventDetailPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.blue[50],
                           borderRadius: BorderRadius.circular(20),
@@ -66,7 +71,9 @@ class EventDetailPage extends StatelessWidget {
                       ),
                       if (event.price != null)
                         Text(
-                          event.price == 0 ? 'Zadarmo' : '${event.price!.toStringAsFixed(2)} €',
+                          event.price == 0
+                              ? 'Zadarmo'
+                              : '${event.price!.toStringAsFixed(2)} €',
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -78,14 +85,21 @@ class EventDetailPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     event.title,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const Divider(height: 32),
-                  
+
                   // Date and Time Info
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, color: Colors.blue, size: 20),
+                      const Icon(
+                        Icons.calendar_today,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -93,11 +107,17 @@ class EventDetailPage extends StatelessWidget {
                           children: [
                             Text(
                               'Začiatok: $startDateStr',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                             Text(
                               'Koniec: $endDateStr',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
                             ),
                           ],
                         ),
@@ -111,12 +131,19 @@ class EventDetailPage extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.location_on, color: Colors.red, size: 20),
+                        const Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                          size: 20,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             event.location!,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -133,7 +160,10 @@ class EventDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    event.description.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ''),
+                    event.description.replaceAll(
+                      RegExp(r'<[^>]*>|&[^;]+;'),
+                      '',
+                    ),
                     style: const TextStyle(fontSize: 15, height: 1.4),
                   ),
 
@@ -143,7 +173,9 @@ class EventDetailPage extends StatelessWidget {
                     text: 'Registrovať sa na udalosť',
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Registrácia úspešná (Zástupná akcia)')),
+                        const SnackBar(
+                          content: Text('Registrácia úspešná (Zástupná akcia)'),
+                        ),
                       );
                     },
                   ),

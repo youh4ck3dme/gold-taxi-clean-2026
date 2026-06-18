@@ -18,10 +18,10 @@ class SupabaseEarningsRepository implements EarningsRepository {
   @override
   Future<EarningsSummary> getEarningsSummary(String driverId) async {
     try {
-      final data = await _supabase
-          .rpc('get_driver_earnings_summary', params: {
-            'p_driver_id': driverId,
-          });
+      final data = await _supabase.rpc(
+        'get_driver_earnings_summary',
+        params: {'p_driver_id': driverId},
+      );
 
       if (data == null) {
         return const EarningsSummary(
@@ -41,10 +41,10 @@ class SupabaseEarningsRepository implements EarningsRepository {
   @override
   Future<RideEarningsBreakdown> getRideEarningsBreakdown(String rideId) async {
     try {
-      final data = await _supabase
-          .rpc('get_ride_earnings_breakdown', params: {
-            'p_ride_id': rideId,
-          });
+      final data = await _supabase.rpc(
+        'get_ride_earnings_breakdown',
+        params: {'p_ride_id': rideId},
+      );
 
       if (data == null) {
         throw Exception('No earnings record found');
@@ -126,12 +126,14 @@ class SupabaseEarningsRepository implements EarningsRepository {
     String? bankAccountLast4,
   }) async {
     try {
-      final data = await _supabase
-          .rpc('request_driver_payout', params: {
-            'p_driver_id': driverId,
-            'p_amount': amount,
-            'p_stripe_account_id': stripeAccountId ?? '',
-          });
+      final data = await _supabase.rpc(
+        'request_driver_payout',
+        params: {
+          'p_driver_id': driverId,
+          'p_amount': amount,
+          'p_stripe_account_id': stripeAccountId ?? '',
+        },
+      );
 
       final map = data as Map<String, dynamic>? ?? {};
       return PayoutRequestResponse.fromJson(map);
@@ -159,9 +161,7 @@ class SupabaseEarningsRepository implements EarningsRepository {
   @override
   Future<void> saveDriverBankAccount(BankAccountModel bankAccount) async {
     try {
-      await _supabase
-          .from('driver_bank_accounts')
-          .upsert(bankAccount.toJson());
+      await _supabase.from('driver_bank_accounts').upsert(bankAccount.toJson());
     } catch (e) {
       throw Exception('Failed to save driver bank account: $e');
     }

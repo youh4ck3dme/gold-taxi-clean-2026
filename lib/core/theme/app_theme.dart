@@ -40,9 +40,7 @@ class AppTheme {
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        foregroundColor: AppColors.primary,
-      ),
+      style: TextButton.styleFrom(foregroundColor: AppColors.primary),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -160,14 +158,23 @@ class AppTheme {
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        textStyle: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.5,
+        ),
       ),
     ),
     textTheme: const TextTheme(
       displayLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
-      headlineLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+      headlineLarge: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w900,
+      ),
       titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
-      bodyLarge: TextStyle(color: Color(0xFFB8BEC9), fontWeight: FontWeight.w500),
+      bodyLarge: TextStyle(
+        color: Color(0xFFB8BEC9),
+        fontWeight: FontWeight.w500,
+      ),
       bodyMedium: TextStyle(color: Color(0xFFB8BEC9)),
     ),
   );

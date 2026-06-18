@@ -37,7 +37,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
   void _initializeControllers(ProfileLoaded state) {
     _controllers.name.text = state.user.name;
     _controllers.phone.text = state.user.phone ?? '';
-    
+
     final saved = state.user.savedAddresses;
     _controllers.homeAddress.text = saved['home']?['address'] as String? ?? '';
     _controllers.workAddress.text = saved['work']?['address'] as String? ?? '';
@@ -70,9 +70,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
       // Check if phone has changed and verify via SMS OTP
       if (normalizedPhone != (state.user.phone ?? '')) {
         await profileCubit.sendPhoneOtp(normalizedPhone);
-        
+
         if (!context.mounted) return;
-        
+
         final verified = await SmsVerificationDialog.show(
           context,
           phone: normalizedPhone,
@@ -91,9 +91,11 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
           return;
         }
       }
-      
-      final Map<String, dynamic> existingAddresses = Map.from(state.user.savedAddresses);
-      
+
+      final Map<String, dynamic> existingAddresses = Map.from(
+        state.user.savedAddresses,
+      );
+
       final Map<String, dynamic> homeMap = existingAddresses['home'] != null
           ? Map<String, dynamic>.from(existingAddresses['home'] as Map)
           : {'label': 'Domov', 'lat': 0.0, 'lng': 0.0};
@@ -104,26 +106,22 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
           : {'label': 'Práca', 'lat': 0.0, 'lng': 0.0};
       workMap['address'] = _controllers.workAddress.text.trim();
 
-      final savedAddresses = {
-        'home': homeMap,
-        'work': workMap,
-      };
+      final savedAddresses = {'home': homeMap, 'work': workMap};
 
       await profileCubit.updateCustomerProfile(
-            fullName: _controllers.name.text.trim(),
-            phone: normalizedPhone,
-            savedAddresses: savedAddresses,
-          );
-      
+        fullName: _controllers.name.text.trim(),
+        phone: normalizedPhone,
+        savedAddresses: savedAddresses,
+      );
+
       if (!context.mounted) return;
 
-      
       setState(() {
         _isEditing = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil úspešne uložený')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Profil úspešne uložený')));
     }
   }
 
@@ -153,20 +151,33 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                     CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.amber.shade100,
-                      child: Icon(Icons.person, size: 55, color: Colors.amber.shade900),
+                      child: Icon(
+                        Icons.person,
+                        size: 55,
+                        color: Colors.amber.shade900,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       user.name,
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       user.email,
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.amber.shade50,
                         borderRadius: BorderRadius.circular(20),
@@ -174,7 +185,11 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                       ),
                       child: Text(
                         'Zákazník',
-                        style: TextStyle(color: Colors.amber.shade900, fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(
+                          color: Colors.amber.shade900,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ],
@@ -186,7 +201,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
               Card(
                 color: Colors.amber.shade600,
                 elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Row(
@@ -198,7 +215,10 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                         children: [
                           const Text(
                             'Moje vernostné body',
-                            style: TextStyle(color: Colors.white70, fontSize: 14),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
                           ),
                           Text(
                             '${state.loyaltyPoints} b.',
@@ -217,7 +237,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
               // Referral & Share Card
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
@@ -229,21 +251,31 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                           SizedBox(width: 8),
                           Text(
                             'Odporuč a zarob',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
                       const Divider(height: 24),
                       const Text(
                         'Zdieľaj svoj kód s priateľmi. Ak sa zaregistrujú s tvojím kódom, obaja získate zľavu 5 € na ďalšiu jazdu!',
-                        style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.4),
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 13,
+                          height: 1.4,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(8),
@@ -264,7 +296,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber.shade600,
                               foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
                             onPressed: () {
                               final refCode = user.referralCode;
@@ -281,7 +315,10 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                         const Divider(height: 32),
                         const Text(
                           'Bol si odporúčaný? Zadaj kód priateľa:',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -292,10 +329,14 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                                 decoration: const InputDecoration(
                                   hintText: 'Napr. JOZO50',
                                   isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
                                   border: OutlineInputBorder(),
                                 ),
-                                textCapitalization: TextCapitalization.characters,
+                                textCapitalization:
+                                    TextCapitalization.characters,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -303,21 +344,33 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 16,
+                                ),
                               ),
                               onPressed: () async {
                                 final code = _referredByController.text.trim();
                                 if (code.isEmpty) return;
-                                final error = await context.read<ProfileCubit>().applyReferralCode(code);
+                                final error = await context
+                                    .read<ProfileCubit>()
+                                    .applyReferralCode(code);
                                 if (!context.mounted) return;
                                 if (error != null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(error), backgroundColor: Colors.redAccent),
+                                    SnackBar(
+                                      content: Text(error),
+                                      backgroundColor: Colors.redAccent,
+                                    ),
                                   );
                                 } else {
                                   _referredByController.clear();
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Referenčný kód úspešne uplatnený! Získali ste zľavu 5 €.')),
+                                    const SnackBar(
+                                      content: Text(
+                                        'Referenčný kód úspešne uplatnený! Získali ste zľavu 5 €.',
+                                      ),
+                                    ),
                                   );
                                 }
                               },
@@ -329,11 +382,19 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                         const Divider(height: 32),
                         const Row(
                           children: [
-                            Icon(Icons.check_circle, color: Colors.green, size: 18),
+                            Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 18,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Referenčný kód bol uplatnený',
-                              style: TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
@@ -347,7 +408,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
               // Account Fields section
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
@@ -358,16 +421,25 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.account_circle_outlined, color: Colors.amber),
+                              Icon(
+                                Icons.account_circle_outlined,
+                                color: Colors.amber,
+                              ),
                               SizedBox(width: 8),
                               Text(
                                 'Osobné údaje',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),
                           IconButton(
-                            icon: Icon(_isEditing ? Icons.close : Icons.edit, size: 20),
+                            icon: Icon(
+                              _isEditing ? Icons.close : Icons.edit,
+                              size: 20,
+                            ),
                             onPressed: () {
                               setState(() {
                                 if (_isEditing) {
@@ -391,7 +463,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                                   labelText: 'Celé meno',
                                   prefixIcon: Icon(Icons.person),
                                 ),
-                                validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte meno' : null,
+                                validator: (v) => v == null || v.trim().isEmpty
+                                    ? 'Zadajte meno'
+                                    : null,
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
@@ -420,7 +494,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
               // Saved Addresses section
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
@@ -432,7 +508,10 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                           SizedBox(width: 8),
                           Text(
                             'Uložené adresy',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -457,13 +536,15 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                         _buildAddressRow(
                           Icons.home,
                           'Domov',
-                          user.savedAddresses['home']?['address'] as String? ?? 'Nastaviť adresu',
+                          user.savedAddresses['home']?['address'] as String? ??
+                              'Nastaviť adresu',
                         ),
                         const SizedBox(height: 16),
                         _buildAddressRow(
                           Icons.work,
                           'Práca',
-                          user.savedAddresses['work']?['address'] as String? ?? 'Nastaviť adresu',
+                          user.savedAddresses['work']?['address'] as String? ??
+                              'Nastaviť adresu',
                         ),
                       ],
                     ],
@@ -478,10 +559,15 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                     backgroundColor: Colors.amber.shade600,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: () => _saveChanges(context, state),
-                  child: const Text('Uložiť zmeny', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Uložiť zmeny',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
 
@@ -490,7 +576,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
               if (!user.isDriver) ...[
                 Card(
                   elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
@@ -502,25 +590,38 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                             SizedBox(width: 8),
                             Text(
                               'Chcete u nás jazdiť?',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         const Text(
                           'Zaregistrujte sa ako vodič, nahrajte potrebné dokumenty a začnite zarábať s Gold-Taxi.',
-                          style: TextStyle(color: Colors.grey, fontSize: 13, height: 1.4),
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 13,
+                            height: 1.4,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             minimumSize: const Size(double.infinity, 45),
                           ),
-                          onPressed: () => _showDriverRegistrationDialog(context),
-                          child: const Text('Zaregistrovať sa ako vodič', style: TextStyle(fontWeight: FontWeight.bold)),
+                          onPressed: () =>
+                              _showDriverRegistrationDialog(context),
+                          child: const Text(
+                            'Zaregistrovať sa ako vodič',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ],
                     ),
@@ -552,7 +653,9 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                             contentPadding: EdgeInsets.zero,
                             title: Text('Objednávka #${order['id']}'),
                             subtitle: Text(order['status'] ?? 'Neznámy stav'),
-                            trailing: Text('${order['total']} ${order['currency'] ?? "€"}'),
+                            trailing: Text(
+                              '${order['total']} ${order['currency'] ?? "€"}',
+                            ),
                           );
                         }).toList(),
                       ),
@@ -571,23 +674,30 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                           return ListTile(
                             dense: true,
                             contentPadding: EdgeInsets.zero,
-                            title: Text(booking['title']?['rendered'] ?? 'Rezervácia'),
+                            title: Text(
+                              booking['title']?['rendered'] ?? 'Rezervácia',
+                            ),
                             subtitle: Text(booking['date'] ?? ''),
                           );
                         }).toList(),
                       ),
               ),
               const SizedBox(height: 32),
-              
+
               // Logout button at bottom
               OutlinedButton.icon(
                 icon: const Icon(Icons.logout, color: Colors.redAccent),
-                label: const Text('Odhlásiť sa', style: TextStyle(color: Colors.redAccent)),
+                label: const Text(
+                  'Odhlásiť sa',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
                 onPressed: () => getIt<AuthCubit>().logout(),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.redAccent),
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -618,11 +728,17 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   children: [
                     Icon(icon, color: Colors.amber, size: 20),
                     const SizedBox(width: 8),
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
                 if (itemCount > 0)
-                  Text('$itemCount položiek', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  Text(
+                    '$itemCount položiek',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
               ],
             ),
             const Divider(height: 24),
@@ -639,7 +755,10 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
       children: [
         Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
       ],
     );
   }
@@ -656,9 +775,18 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
               const SizedBox(height: 2),
-              Text(address, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+              Text(
+                address,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
         ),
@@ -687,21 +815,33 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                     children: [
                       TextFormField(
                         controller: vehicleTypeController,
-                        decoration: const InputDecoration(labelText: 'Značka a model vozidla'),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte model vozidla' : null,
+                        decoration: const InputDecoration(
+                          labelText: 'Značka a model vozidla',
+                        ),
+                        validator: (v) => v == null || v.trim().isEmpty
+                            ? 'Zadajte model vozidla'
+                            : null,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: vehiclePlateController,
-                        decoration: const InputDecoration(labelText: 'EČV (ŠPZ) vozidla'),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Zadajte ŠPZ' : null,
+                        decoration: const InputDecoration(
+                          labelText: 'EČV (ŠPZ) vozidla',
+                        ),
+                        validator: (v) => v == null || v.trim().isEmpty
+                            ? 'Zadajte ŠPZ'
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Triedy služieb',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                       CheckboxListTile(
@@ -753,23 +893,28 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   child: const Text('Zrušiť'),
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
                       if (selectedClasses.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Vyberte aspoň jednu triedu služieb')),
+                          const SnackBar(
+                            content: Text('Vyberte aspoň jednu triedu služieb'),
+                          ),
                         );
                         return;
                       }
                       Navigator.pop(dialogContext);
-                      
+
                       // Call cubit to register
                       await context.read<ProfileCubit>().registerAsDriver(
-                            vehicleType: vehicleTypeController.text.trim(),
-                            vehiclePlate: vehiclePlateController.text.trim(),
-                            serviceClasses: selectedClasses,
-                          );
+                        vehicleType: vehicleTypeController.text.trim(),
+                        vehiclePlate: vehiclePlateController.text.trim(),
+                        serviceClasses: selectedClasses,
+                      );
                     }
                   },
                   child: const Text('Registrovať'),

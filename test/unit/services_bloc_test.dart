@@ -38,38 +38,42 @@ void main() {
       expect(servicesBloc.state, isA<ServicesInitial>());
     });
 
-    test('FetchServices emits [ServicesLoading, ServicesLoaded] when repository succeeds', () async {
-      when(() => mockServicesRepository.getServices(
+    test(
+      'FetchServices emits [ServicesLoading, ServicesLoaded] when repository succeeds',
+      () async {
+        when(
+          () => mockServicesRepository.getServices(
             page: any(named: 'page'),
             search: any(named: 'search'),
-          )).thenAnswer((_) async => [testService]);
+          ),
+        ).thenAnswer((_) async => [testService]);
 
-      expectLater(
-        servicesBloc.stream,
-        emitsInOrder([
-          isA<ServicesLoading>(),
-          isA<ServicesLoaded>(),
-        ]),
-      );
+        expectLater(
+          servicesBloc.stream,
+          emitsInOrder([isA<ServicesLoading>(), isA<ServicesLoaded>()]),
+        );
 
-      servicesBloc.add(const FetchServices());
-    });
+        servicesBloc.add(const FetchServices());
+      },
+    );
 
-    test('FetchServices emits [ServicesLoading, ServicesError] when repository throws error', () async {
-      when(() => mockServicesRepository.getServices(
+    test(
+      'FetchServices emits [ServicesLoading, ServicesError] when repository throws error',
+      () async {
+        when(
+          () => mockServicesRepository.getServices(
             page: any(named: 'page'),
             search: any(named: 'search'),
-          )).thenThrow(Exception('API error'));
+          ),
+        ).thenThrow(Exception('API error'));
 
-      expectLater(
-        servicesBloc.stream,
-        emitsInOrder([
-          isA<ServicesLoading>(),
-          isA<ServicesError>(),
-        ]),
-      );
+        expectLater(
+          servicesBloc.stream,
+          emitsInOrder([isA<ServicesLoading>(), isA<ServicesError>()]),
+        );
 
-      servicesBloc.add(const FetchServices());
-    });
+        servicesBloc.add(const FetchServices());
+      },
+    );
   });
 }

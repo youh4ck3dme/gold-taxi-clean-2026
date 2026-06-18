@@ -15,7 +15,7 @@ class MockEarningsRepository implements EarningsRepository {
   Future<EarningsSummary> getEarningsSummary(String driverId) async {
     // Simulate some earnings data
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     return const EarningsSummary(
       today: 45.50,
       thisWeek: 285.75,
@@ -27,18 +27,28 @@ class MockEarningsRepository implements EarningsRepository {
   @override
   Future<RideEarningsBreakdown> getRideEarningsBreakdown(String rideId) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     final totalAmount = 25.0 + _random.nextDouble() * 50;
-    final appFee = EarningsRepository.calculateAppFee(totalAmount, appFeePercentage: _appFeePercentage);
-    final netAmount = EarningsRepository.calculateNetEarnings(totalAmount, appFeePercentage: _appFeePercentage);
-    
+    final appFee = EarningsRepository.calculateAppFee(
+      totalAmount,
+      appFeePercentage: _appFeePercentage,
+    );
+    final netAmount = EarningsRepository.calculateNetEarnings(
+      totalAmount,
+      appFeePercentage: _appFeePercentage,
+    );
+
     return RideEarningsBreakdown(
       rideId: rideId,
       totalAmount: totalAmount,
       appFee: appFee,
       netAmount: netAmount,
       paymentStatus: PaymentStatus.completed,
-      paymentMethod: [PaymentMethod.cash, PaymentMethod.card, PaymentMethod.stripe][_random.nextInt(3)],
+      paymentMethod: [
+        PaymentMethod.cash,
+        PaymentMethod.card,
+        PaymentMethod.stripe,
+      ][_random.nextInt(3)],
     );
   }
 
@@ -50,30 +60,41 @@ class MockEarningsRepository implements EarningsRepository {
     DateTime? toDate,
   }) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     final now = DateTime.now();
     final List<EarningsModel> earnings = [];
-    
+
     for (int i = 0; i < min(limit, 15); i++) {
       final daysAgo = i * 2;
       final date = now.subtract(Duration(days: daysAgo));
       final totalAmount = 15.0 + _random.nextDouble() * 40;
-      final appFee = EarningsRepository.calculateAppFee(totalAmount, appFeePercentage: _appFeePercentage);
-      final netAmount = EarningsRepository.calculateNetEarnings(totalAmount, appFeePercentage: _appFeePercentage);
-      
-      earnings.add(EarningsModel(
-        id: 'earning_${driverId}_$i',
-        rideId: 'ride_$i',
-        driverId: driverId,
-        totalAmount: totalAmount,
-        appFee: appFee,
-        netAmount: netAmount,
-        paymentStatus: PaymentStatus.completed,
-        paymentMethod: [PaymentMethod.cash, PaymentMethod.card][_random.nextInt(2)],
-        createdAt: date,
-      ));
+      final appFee = EarningsRepository.calculateAppFee(
+        totalAmount,
+        appFeePercentage: _appFeePercentage,
+      );
+      final netAmount = EarningsRepository.calculateNetEarnings(
+        totalAmount,
+        appFeePercentage: _appFeePercentage,
+      );
+
+      earnings.add(
+        EarningsModel(
+          id: 'earning_${driverId}_$i',
+          rideId: 'ride_$i',
+          driverId: driverId,
+          totalAmount: totalAmount,
+          appFee: appFee,
+          netAmount: netAmount,
+          paymentStatus: PaymentStatus.completed,
+          paymentMethod: [
+            PaymentMethod.cash,
+            PaymentMethod.card,
+          ][_random.nextInt(2)],
+          createdAt: date,
+        ),
+      );
     }
-    
+
     return earnings;
   }
 
@@ -83,31 +104,33 @@ class MockEarningsRepository implements EarningsRepository {
     int limit = 20,
   }) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     final now = DateTime.now();
     final List<PayoutModel> payouts = [];
-    
+
     for (int i = 0; i < min(limit, 5); i++) {
       final weeksAgo = i * 2;
       final date = now.subtract(Duration(days: weeksAgo * 7));
-      
-      payouts.add(PayoutModel(
-        id: 'payout_${driverId}_$i',
-        driverId: driverId,
-        amount: 200.0 + _random.nextDouble() * 100,
-        stripePayoutId: i.isEven ? 'stripe_payout_$i' : null,
-        bankAccountLast4: '1234',
-        status: [
-          PayoutStatus.paid,
-          PayoutStatus.inTransit,
-          PayoutStatus.pending,
-        ][_random.nextInt(3)],
-        requestedAt: date,
-        completedAt: i.isEven ? date.add(const Duration(days: 2)) : null,
-        createdAt: date,
-      ));
+
+      payouts.add(
+        PayoutModel(
+          id: 'payout_${driverId}_$i',
+          driverId: driverId,
+          amount: 200.0 + _random.nextDouble() * 100,
+          stripePayoutId: i.isEven ? 'stripe_payout_$i' : null,
+          bankAccountLast4: '1234',
+          status: [
+            PayoutStatus.paid,
+            PayoutStatus.inTransit,
+            PayoutStatus.pending,
+          ][_random.nextInt(3)],
+          requestedAt: date,
+          completedAt: i.isEven ? date.add(const Duration(days: 2)) : null,
+          createdAt: date,
+        ),
+      );
     }
-    
+
     return payouts;
   }
 
@@ -119,7 +142,7 @@ class MockEarningsRepository implements EarningsRepository {
     String? bankAccountLast4,
   }) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     return PayoutRequestResponse(
       payoutId: 'payout_${driverId}_${DateTime.now().millisecondsSinceEpoch}',
       status: 'pending',
@@ -132,7 +155,7 @@ class MockEarningsRepository implements EarningsRepository {
   @override
   Future<BankAccountModel?> getDriverBankAccount(String driverId) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    
+
     return _mockBankAccount ??= BankAccountModel(
       id: 'mock_bank_1',
       driverId: driverId,

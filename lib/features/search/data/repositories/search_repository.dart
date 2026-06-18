@@ -21,7 +21,8 @@ class SearchResult {
     this.posts = const [],
   });
 
-  bool get isEmpty => products.isEmpty && services.isEmpty && events.isEmpty && posts.isEmpty;
+  bool get isEmpty =>
+      products.isEmpty && services.isEmpty && events.isEmpty && posts.isEmpty;
 }
 
 class SearchRepository {
@@ -34,17 +35,30 @@ class SearchRepository {
   /// Search across all categories
   Future<SearchResult> searchAll(String query) async {
     final connectivityResult = await _connectivity.checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.none) || query.trim().isEmpty) {
+    if (connectivityResult.contains(ConnectivityResult.none) ||
+        query.trim().isEmpty) {
       return const SearchResult();
     }
 
     try {
       // Parallel API search calls using ApiConstants paths
       final futures = await Future.wait([
-        _apiService.get(ApiConstants.productsEndpoint, queryParameters: {'search': query, 'per_page': 5}),
-        _apiService.get(ApiConstants.servicesEndpoint, queryParameters: {'search': query, 'per_page': 5}),
-        _apiService.get(ApiConstants.eventsEndpoint, queryParameters: {'search': query, 'per_page': 5}),
-        _apiService.get(ApiConstants.postsEndpoint, queryParameters: {'search': query, 'per_page': 5}),
+        _apiService.get(
+          ApiConstants.productsEndpoint,
+          queryParameters: {'search': query, 'per_page': 5},
+        ),
+        _apiService.get(
+          ApiConstants.servicesEndpoint,
+          queryParameters: {'search': query, 'per_page': 5},
+        ),
+        _apiService.get(
+          ApiConstants.eventsEndpoint,
+          queryParameters: {'search': query, 'per_page': 5},
+        ),
+        _apiService.get(
+          ApiConstants.postsEndpoint,
+          queryParameters: {'search': query, 'per_page': 5},
+        ),
       ]);
 
       final productsJson = futures[0] as List? ?? [];
@@ -52,10 +66,18 @@ class SearchRepository {
       final eventsJson = futures[2] as List? ?? [];
       final postsJson = futures[3] as List? ?? [];
 
-      final products = productsJson.map((json) => ProductModel.fromJson(json as Map<String, dynamic>)).toList();
-      final services = servicesJson.map((json) => ServiceModel.fromJson(json as Map<String, dynamic>)).toList();
-      final events = eventsJson.map((json) => EventModel.fromJson(json as Map<String, dynamic>)).toList();
-      final posts = postsJson.map((json) => PostModel.fromJson(json as Map<String, dynamic>)).toList();
+      final products = productsJson
+          .map((json) => ProductModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+      final services = servicesJson
+          .map((json) => ServiceModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+      final events = eventsJson
+          .map((json) => EventModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+      final posts = postsJson
+          .map((json) => PostModel.fromJson(json as Map<String, dynamic>))
+          .toList();
 
       return SearchResult(
         products: products,

@@ -93,7 +93,7 @@ class MockProfileRepository implements ProfileRepository {
         'total': '8.20',
         'date_created': '2026-06-13T09:15:00Z',
         'status': 'completed',
-      }
+      },
     ];
   }
 
@@ -106,11 +106,7 @@ class MockProfileRepository implements ProfileRepository {
   @override
   Future<Map<String, dynamic>> getDriverStats(String driverId) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return {
-      'ridesCount': 42,
-      'totalEarnings': 256.40,
-      'averageRating': 4.9,
-    };
+    return {'ridesCount': 42, 'totalEarnings': 256.40, 'averageRating': 4.9};
   }
 
   @override
@@ -147,7 +143,9 @@ class MockProfileRepository implements ProfileRepository {
     await Future.delayed(const Duration(milliseconds: 500));
     final ext = fileName.split('.').last.toLowerCase();
     if (ext != 'jpg' && ext != 'jpeg' && ext != 'png') {
-      throw Exception('Nepodporovaný formát súboru. Nahrajte iba JPG, JPEG alebo PNG.');
+      throw Exception(
+        'Nepodporovaný formát súboru. Nahrajte iba JPG, JPEG alebo PNG.',
+      );
     }
     if (bytes.length > 5 * 1024 * 1024) {
       throw Exception('Súbor je príliš veľký. Maximálna veľkosť je 5 MB.');
@@ -200,7 +198,10 @@ class MockProfileRepository implements ProfileRepository {
       throw Exception('Už ste zadali referenčný kód.');
     }
 
-    if (cleanCode == 'MICHAL80' || cleanCode == 'JOZO50' || cleanCode == 'TAXI5' || cleanCode.startsWith('GOLD')) {
+    if (cleanCode == 'MICHAL80' ||
+        cleanCode == 'JOZO50' ||
+        cleanCode == 'TAXI5' ||
+        cleanCode.startsWith('GOLD')) {
       _currentUser = UserModel(
         id: _currentUser.id,
         name: _currentUser.name,

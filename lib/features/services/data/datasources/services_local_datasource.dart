@@ -17,7 +17,10 @@ class ServicesLocalDataSource {
     final servicesJson = box.get('cached_services') as List?;
     if (servicesJson != null) {
       return servicesJson
-          .map((json) => ServiceModel.fromJson(Map<String, dynamic>.from(json as Map)))
+          .map(
+            (json) =>
+                ServiceModel.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     }
     return [];

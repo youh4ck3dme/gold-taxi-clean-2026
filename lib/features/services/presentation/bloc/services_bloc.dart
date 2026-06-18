@@ -10,7 +10,10 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
     on<FetchServices>(_onFetchServices);
   }
 
-  Future<void> _onFetchServices(FetchServices event, Emitter<ServicesState> emit) async {
+  Future<void> _onFetchServices(
+    FetchServices event,
+    Emitter<ServicesState> emit,
+  ) async {
     if (state is! ServicesLoaded || event.isRefresh || event.search != null) {
       emit(ServicesLoading());
     }

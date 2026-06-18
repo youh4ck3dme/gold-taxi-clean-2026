@@ -8,10 +8,18 @@ class ProductsRepository {
   final ProductsLocalDataSource _localDataSource;
   final Connectivity _connectivity;
 
-  ProductsRepository(this._remoteDataSource, this._localDataSource, this._connectivity);
+  ProductsRepository(
+    this._remoteDataSource,
+    this._localDataSource,
+    this._connectivity,
+  );
 
   /// Fetch products from remote API or fallback to local cache
-  Future<List<ProductModel>> getProducts({int page = 1, int perPage = 10, String? search}) async {
+  Future<List<ProductModel>> getProducts({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
     final connectivityResult = await _connectivity.checkConnectivity();
     final isOnline = !connectivityResult.contains(ConnectivityResult.none);
 

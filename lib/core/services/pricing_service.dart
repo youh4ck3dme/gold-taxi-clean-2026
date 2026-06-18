@@ -25,10 +25,11 @@ class PricingService {
         break;
     }
 
-    double fare = (baseFare + (distanceInKm * pricePerKm)) * multiplier * surgeMultiplier;
+    double fare =
+        (baseFare + (distanceInKm * pricePerKm)) * multiplier * surgeMultiplier;
 
     if (isAirport) fare += 5.0; // Airport fee
-    if (isNight) fare += 2.0;   // Night fee
+    if (isNight) fare += 2.0; // Night fee
 
     return fare < minimumFare ? minimumFare : fare;
   }

@@ -51,13 +51,15 @@ class _EventsPageState extends State<EventsPage> {
                     ),
                     textInputAction: TextInputAction.search,
                     onFieldSubmitted: (value) {
-                      context.read<EventsBloc>().add(FetchEvents(search: value));
+                      context.read<EventsBloc>().add(
+                        FetchEvents(search: value),
+                      );
                     },
                     validator: null,
                     hintText: 'Názov udalosti, kategória...',
                     keyboardType: TextInputType.text,
                   );
-                }
+                },
               ),
             ),
             Expanded(
@@ -70,31 +72,40 @@ class _EventsPageState extends State<EventsPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Chyba: ${state.message}', style: const TextStyle(color: Colors.red)),
+                          Text(
+                            'Chyba: ${state.message}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
-                              context.read<EventsBloc>().add(FetchEvents(
-                                search: _searchController.text,
-                                isRefresh: true,
-                              ));
+                              context.read<EventsBloc>().add(
+                                FetchEvents(
+                                  search: _searchController.text,
+                                  isRefresh: true,
+                                ),
+                              );
                             },
                             child: const Text('Skúsiť znova'),
-                          )
+                          ),
                         ],
                       ),
                     );
                   } else if (state is EventsLoaded) {
                     final events = state.events;
                     if (events.isEmpty) {
-                      return const Center(child: Text('Nenašli sa žiadne udalosti.'));
+                      return const Center(
+                        child: Text('Nenašli sa žiadne udalosti.'),
+                      );
                     }
                     return RefreshIndicator(
                       onRefresh: () async {
-                        context.read<EventsBloc>().add(FetchEvents(
-                          search: _searchController.text,
-                          isRefresh: true,
-                        ));
+                        context.read<EventsBloc>().add(
+                          FetchEvents(
+                            search: _searchController.text,
+                            isRefresh: true,
+                          ),
+                        );
                       },
                       child: ListView.builder(
                         itemCount: events.length,
@@ -170,7 +181,9 @@ class _EventCard extends StatelessWidget {
                       ),
                       if (event.price != null)
                         Text(
-                          event.price == 0 ? 'Zadarmo' : '${event.price!.toStringAsFixed(2)} €',
+                          event.price == 0
+                              ? 'Zadarmo'
+                              : '${event.price!.toStringAsFixed(2)} €',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -182,13 +195,19 @@ class _EventCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     event.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    event.description.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ''),
+                    event.description.replaceAll(
+                      RegExp(r'<[^>]*>|&[^;]+;'),
+                      '',
+                    ),
                     style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -196,20 +215,35 @@ class _EventCard extends StatelessWidget {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Icon(Icons.access_time, size: 16, color: Colors.grey),
+                      const Icon(
+                        Icons.access_time,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         startDateStr,
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
                       ),
-                      if (event.location != null && event.location!.isNotEmpty) ...[
+                      if (event.location != null &&
+                          event.location!.isNotEmpty) ...[
                         const SizedBox(width: 16),
-                        const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                        const Icon(
+                          Icons.location_on,
+                          size: 16,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             event.location!,
-                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),

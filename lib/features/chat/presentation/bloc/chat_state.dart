@@ -15,15 +15,9 @@ class ChatLoaded extends ChatState {
   final List<ChatMessageModel> messages;
   final bool isCalling;
 
-  const ChatLoaded({
-    this.messages = const [],
-    this.isCalling = false,
-  });
+  const ChatLoaded({this.messages = const [], this.isCalling = false});
 
-  ChatLoaded copyWith({
-    List<ChatMessageModel>? messages,
-    bool? isCalling,
-  }) {
+  ChatLoaded copyWith({List<ChatMessageModel>? messages, bool? isCalling}) {
     return ChatLoaded(
       messages: messages ?? this.messages,
       isCalling: isCalling ?? this.isCalling,

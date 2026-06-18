@@ -12,7 +12,11 @@ abstract class RideRepository {
   Future<RideModel> createRide(RideModel ride);
 
   /// Update ride status (enforcing transitions should be handled in implementation or Cubit)
-  Future<void> updateRideStatus(String rideId, RideStatus status, {String? cancellationReason});
+  Future<void> updateRideStatus(
+    String rideId,
+    RideStatus status, {
+    String? cancellationReason,
+  });
 
   /// [Driver] Get stream of all active ride requests
   Stream<List<RideModel>> getActiveRequests();
@@ -33,7 +37,12 @@ abstract class RideRepository {
   Stream<List<Map<String, dynamic>>> watchDriverLocation(String rideId);
 
   /// Update driver location
-  Future<void> updateDriverLocation(String driverId, double lat, double lng, {double? heading});
+  Future<void> updateDriverLocation(
+    String driverId,
+    double lat,
+    double lng, {
+    double? heading,
+  });
 
   /// Check if the location is in an operating zone
   Future<bool> checkLocationInZone(double lat, double lng);

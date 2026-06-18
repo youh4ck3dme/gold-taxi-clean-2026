@@ -76,40 +76,62 @@ class _HomePageState extends State<HomePage> {
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 16.0,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (isDriver)
-                            DriverHomeView(userName: userName, avatarUrl: avatarUrl)
+                            DriverHomeView(
+                              userName: userName,
+                              avatarUrl: avatarUrl,
+                            )
                           else if (isAdmin)
-                            AdminHomeView(userName: userName, avatarUrl: avatarUrl)
+                            AdminHomeView(
+                              userName: userName,
+                              avatarUrl: avatarUrl,
+                            )
                           else
-                            CustomerHomeView(userName: userName, avatarUrl: avatarUrl),
+                            CustomerHomeView(
+                              userName: userName,
+                              avatarUrl: avatarUrl,
+                            ),
 
                           // Common Elements below the role-specific dashboard
                           const SizedBox(height: 28),
-                          
+
                           // Support / FAQs Button
                           ListTile(
                             onTap: () => context.push('/faq'),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(
-                                color: isDarkMode ? AppColors.grey800 : AppColors.grey200,
+                                color: isDarkMode
+                                    ? AppColors.grey800
+                                    : AppColors.grey200,
                               ),
                             ),
                             tileColor: surfaceColor,
                             leading: const CircleAvatar(
                               backgroundColor: Colors.teal,
-                              child: Icon(Icons.help_outline, color: AppColors.white),
+                              child: Icon(
+                                Icons.help_outline,
+                                color: AppColors.white,
+                              ),
                             ),
                             title: const Text(
                               'Centrum podpory & FAQ',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: const Text('Máte otázky? Sme tu pre vás.'),
+                            subtitle: const Text(
+                              'Máte otázky? Sme tu pre vás.',
+                            ),
                             trailing: const Icon(Icons.chevron_right),
                           ),
                           const SizedBox(height: 12),
@@ -117,23 +139,33 @@ class _HomePageState extends State<HomePage> {
                           // Insolvency Monitoring Button
                           ListTile(
                             onTap: () => context.push('/insolvency'),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(
-                                color: isDarkMode ? AppColors.grey800 : AppColors.grey200,
+                                color: isDarkMode
+                                    ? AppColors.grey800
+                                    : AppColors.grey200,
                               ),
                             ),
                             tileColor: surfaceColor,
                             leading: const CircleAvatar(
                               backgroundColor: Colors.redAccent,
-                              child: Icon(Icons.analytics_outlined, color: AppColors.white),
+                              child: Icon(
+                                Icons.analytics_outlined,
+                                color: AppColors.white,
+                              ),
                             ),
                             title: const Text(
                               'Monitoring úpadku',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: const Text('Predikcia platobnej neschopnosti a morálka'),
+                            subtitle: const Text(
+                              'Predikcia platobnej neschopnosti a morálka',
+                            ),
                             trailing: const Icon(Icons.chevron_right),
                           ),
                           const SizedBox(height: 12),

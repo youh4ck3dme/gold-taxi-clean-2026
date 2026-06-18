@@ -61,7 +61,8 @@ class ReviewsList extends StatelessWidget {
               const SizedBox(height: 12),
               BlocBuilder<ReviewsBloc, ReviewsState>(
                 builder: (context, state) {
-                  if (state is ReviewsLoading || state is ReviewSubmissionInProgress) {
+                  if (state is ReviewsLoading ||
+                      state is ReviewSubmissionInProgress) {
                     return const Center(
                       child: Padding(
                         padding: EdgeInsets.all(24.0),
@@ -75,7 +76,8 @@ class ReviewsList extends StatelessWidget {
                         style: const TextStyle(color: Colors.red),
                       ),
                     );
-                  } else if (state is ReviewsLoaded || state is ReviewSubmissionSuccess) {
+                  } else if (state is ReviewsLoaded ||
+                      state is ReviewSubmissionSuccess) {
                     final reviews = state is ReviewsLoaded
                         ? state.reviews
                         : (reviewsBloc.state as ReviewsLoaded).reviews;
@@ -103,7 +105,9 @@ class ReviewsList extends StatelessWidget {
                       itemCount: reviews.length,
                       itemBuilder: (context, index) {
                         final review = reviews[index];
-                        final dateStr = DateFormat('dd.MM.yyyy').format(review.date);
+                        final dateStr = DateFormat(
+                          'dd.MM.yyyy',
+                        ).format(review.date);
                         return Container(
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(12),
@@ -115,12 +119,15 @@ class ReviewsList extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: Text(
                                       review.authorName,
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -128,16 +135,25 @@ class ReviewsList extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   Text(
                                     dateStr,
-                                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                                    style: TextStyle(
+                                      color: Colors.grey[500],
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 6),
-                              RatingStars(rating: review.rating.toDouble(), size: 14),
+                              RatingStars(
+                                rating: review.rating.toDouble(),
+                                size: 14,
+                              ),
                               const SizedBox(height: 8),
                               Text(
                                 review.comment,
-                                style: const TextStyle(fontSize: 14, height: 1.3),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  height: 1.3,
+                                ),
                               ),
                             ],
                           ),

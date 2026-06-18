@@ -179,10 +179,7 @@ void main() {
 
         expectLater(
           authCubit.stream,
-          emitsInOrder([
-            isA<AuthLoading>(),
-            isA<AuthError>(),
-          ]),
+          emitsInOrder([isA<AuthLoading>(), isA<AuthError>()]),
         );
 
         await authCubit.signInWithGoogle();

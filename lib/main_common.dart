@@ -17,16 +17,18 @@ Future<void> mainCommon(AppConfig config) async {
 
   // Enforce security check: mock mode must never run in production environment
   if (config.environment == AppEnvironment.prod && config.enableMockMode) {
-    throw StateError('Security violation: Mock mode cannot be enabled in a production environment.');
+    throw StateError(
+      'Security violation: Mock mode cannot be enabled in a production environment.',
+    );
   }
 
   // Initialize Hive for local storage
   await Hive.initFlutter();
 
-
-
   // 2. Setup Service Locator (Dependency Injection)
-  final backendMode = config.enableMockMode ? BackendMode.mock : BackendMode.supabase;
+  final backendMode = config.enableMockMode
+      ? BackendMode.mock
+      : BackendMode.supabase;
   await setupServiceLocator(mode: backendMode);
   debugPrint('🏗️ Service Locator initialized in $backendMode mode.');
 

@@ -17,7 +17,10 @@ class ReviewsLocalDataSource {
     final reviewsJson = box.get('reviews_$postId') as List?;
     if (reviewsJson != null) {
       return reviewsJson
-          .map((json) => ReviewModel.fromJson(Map<String, dynamic>.from(json as Map)))
+          .map(
+            (json) =>
+                ReviewModel.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     }
     return [];

@@ -106,8 +106,9 @@ class DriverPositionRepository {
 
   /// Update a driver's position in the local store.
   Future<void> updateDriverPosition(DriverPositionModel position) async {
-    final index =
-        _mockDrivers.indexWhere((d) => d.driverId == position.driverId);
+    final index = _mockDrivers.indexWhere(
+      (d) => d.driverId == position.driverId,
+    );
     if (index >= 0) {
       _mockDrivers[index] = position;
     } else {
@@ -128,9 +129,9 @@ class DriverPositionRepository {
   Stream<DriverPositionModel?> getDriverPositionStream(String driverId) {
     return _allController.stream.map(
       (drivers) => drivers.cast<DriverPositionModel?>().firstWhere(
-            (d) => d?.driverId == driverId,
-            orElse: () => null,
-          ),
+        (d) => d?.driverId == driverId,
+        orElse: () => null,
+      ),
     );
   }
 
@@ -143,24 +144,35 @@ class DriverPositionRepository {
   }) async {
     final drivers = List<DriverPositionModel>.from(_availableDrivers);
 
-    drivers.sort((a, b) =>
-        _calculateDistance(a.lat, a.lng, lat, lng)
-            .compareTo(_calculateDistance(b.lat, b.lng, lat, lng)));
+    drivers.sort(
+      (a, b) => _calculateDistance(
+        a.lat,
+        a.lng,
+        lat,
+        lng,
+      ).compareTo(_calculateDistance(b.lat, b.lng, lat, lng)),
+    );
 
     return drivers
-        .where((d) =>
-            _calculateDistance(d.lat, d.lng, lat, lng) <= maxDistanceKm)
+        .where(
+          (d) => _calculateDistance(d.lat, d.lng, lat, lng) <= maxDistanceKm,
+        )
         .take(limit)
         .toList();
   }
 
   /// Haversine formula — distance in kilometres between two coordinates.
   double _calculateDistance(
-      double lat1, double lng1, double lat2, double lng2) {
+    double lat1,
+    double lng1,
+    double lat2,
+    double lng2,
+  ) {
     const R = 6371.0;
     final dLat = _toRadians(lat2 - lat1);
     final dLng = _toRadians(lng2 - lng1);
-    final a = sin(dLat / 2) * sin(dLat / 2) +
+    final a =
+        sin(dLat / 2) * sin(dLat / 2) +
         cos(_toRadians(lat1)) *
             cos(_toRadians(lat2)) *
             sin(dLng / 2) *

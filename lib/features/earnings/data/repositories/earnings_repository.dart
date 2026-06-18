@@ -39,14 +39,19 @@ abstract class EarningsRepository {
   Future<void> saveDriverBankAccount(BankAccountModel bankAccount);
 
   /// Calculate net earnings from total amount (apply app fee)
-  static double calculateNetEarnings(double totalAmount, {double appFeePercentage = 15.0}) {
+  static double calculateNetEarnings(
+    double totalAmount, {
+    double appFeePercentage = 15.0,
+  }) {
     final feeAmount = totalAmount * (appFeePercentage / 100);
     return totalAmount - feeAmount;
   }
 
   /// Calculate app fee from total amount
-  static double calculateAppFee(double totalAmount, {double appFeePercentage = 15.0}) {
+  static double calculateAppFee(
+    double totalAmount, {
+    double appFeePercentage = 15.0,
+  }) {
     return totalAmount * (appFeePercentage / 100);
   }
 }
-

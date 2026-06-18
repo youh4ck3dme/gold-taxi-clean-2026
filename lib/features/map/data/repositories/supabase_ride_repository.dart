@@ -31,7 +31,11 @@ class SupabaseRideRepository implements RideRepository {
 
   @override
   Future<RideModel> createRide(RideModel ride) async {
-    final response = await _client.from('rides').insert(ride.toDbJson()).select().single();
+    final response = await _client
+        .from('rides')
+        .insert(ride.toDbJson())
+        .select()
+        .single();
     return RideModel.fromJson(response);
   }
 
@@ -47,10 +51,10 @@ class SupabaseRideRepository implements RideRepository {
         params: {'p_ride_id': rideId, 'p_reason': cancellationReason},
       );
     } else {
-      await _client.rpc('update_ride_status', params: {
-        'p_ride_id': rideId,
-        'p_new_status': status.dbValue,
-      });
+      await _client.rpc(
+        'update_ride_status',
+        params: {'p_ride_id': rideId, 'p_new_status': status.dbValue},
+      );
     }
   }
 
@@ -66,9 +70,10 @@ class SupabaseRideRepository implements RideRepository {
 
   @override
   Future<RideModel> acceptRide(String rideId, String driverId) async {
-    final response = await _client.rpc('accept_ride', params: {
-      'p_ride_id': rideId,
-    }).select().single();
+    final response = await _client
+        .rpc('accept_ride', params: {'p_ride_id': rideId})
+        .select()
+        .single();
     return RideModel.fromJson(response);
   }
 
@@ -81,10 +86,12 @@ class SupabaseRideRepository implements RideRepository {
         .map((data) {
           final activeRides = data
               .map((json) => RideModel.fromJson(json))
-              .where((ride) =>
-                  ride.status == RideStatus.accepted ||
-                  ride.status == RideStatus.driverArriving ||
-                  ride.status == RideStatus.inProgress)
+              .where(
+                (ride) =>
+                    ride.status == RideStatus.accepted ||
+                    ride.status == RideStatus.driverArriving ||
+                    ride.status == RideStatus.inProgress,
+              )
               .toList();
           return activeRides.isEmpty ? null : activeRides.first;
         });
@@ -153,10 +160,10 @@ class SupabaseRideRepository implements RideRepository {
   @override
   Future<bool> checkLocationInZone(double lat, double lng) async {
     try {
-      final response = await _client.rpc('check_location_in_zone', params: {
-        'p_lat': lat,
-        'p_lng': lng,
-      });
+      final response = await _client.rpc(
+        'check_location_in_zone',
+        params: {'p_lat': lat, 'p_lng': lng},
+      );
       return response as bool? ?? false;
     } catch (_) {
       return false;
@@ -166,10 +173,10 @@ class SupabaseRideRepository implements RideRepository {
   @override
   Future<double> getSurgeMultiplier(double lat, double lng) async {
     try {
-      final response = await _client.rpc('calculate_surge_pricing', params: {
-        'p_lat': lat,
-        'p_lng': lng,
-      });
+      final response = await _client.rpc(
+        'calculate_surge_pricing',
+        params: {'p_lat': lat, 'p_lng': lng},
+      );
       if (response is num) {
         return response.toDouble();
       }

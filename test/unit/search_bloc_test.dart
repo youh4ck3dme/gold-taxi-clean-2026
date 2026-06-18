@@ -13,8 +13,9 @@ void main() {
 
   setUp(() {
     mockSearchRepository = MockSearchRepository();
-    when(() => mockSearchRepository.getSearchHistory())
-        .thenAnswer((_) async => <String>[]);
+    when(
+      () => mockSearchRepository.getSearchHistory(),
+    ).thenAnswer((_) async => <String>[]);
     searchBloc = SearchBloc(mockSearchRepository);
   });
 
@@ -28,61 +29,54 @@ void main() {
       expect((searchBloc.state as SearchInitial).history, isEmpty);
     });
 
-    test('LoadSearchHistory emits SearchInitial with history when repository succeeds', () async {
-      when(() => mockSearchRepository.getSearchHistory())
-          .thenAnswer((_) async => ['shuttle', 'airport']);
+    test(
+      'LoadSearchHistory emits SearchInitial with history when repository succeeds',
+      () async {
+        when(
+          () => mockSearchRepository.getSearchHistory(),
+        ).thenAnswer((_) async => ['shuttle', 'airport']);
 
-      expectLater(
-        searchBloc.stream,
-        emitsInOrder([
-          isA<SearchInitial>(),
-        ]),
-      );
+        expectLater(searchBloc.stream, emitsInOrder([isA<SearchInitial>()]));
 
-      searchBloc.add(LoadSearchHistory());
-    });
+        searchBloc.add(LoadSearchHistory());
+      },
+    );
 
     test('SearchQueryChanged with empty query emits SearchInitial', () async {
-      when(() => mockSearchRepository.getSearchHistory())
-          .thenAnswer((_) async => []);
+      when(
+        () => mockSearchRepository.getSearchHistory(),
+      ).thenAnswer((_) async => []);
 
-      expectLater(
-        searchBloc.stream,
-        emitsInOrder([
-          isA<SearchInitial>(),
-        ]),
-      );
+      expectLater(searchBloc.stream, emitsInOrder([isA<SearchInitial>()]));
 
       searchBloc.add(const SearchQueryChanged(''));
     });
 
-    test('SearchQueryChanged with query emits [SearchLoading, SearchSuccess] when repository succeeds', () async {
-      when(() => mockSearchRepository.searchAll(any()))
-          .thenAnswer((_) async => const SearchResult());
-      when(() => mockSearchRepository.addToSearchHistory(any()))
-          .thenAnswer((_) async => {});
+    test(
+      'SearchQueryChanged with query emits [SearchLoading, SearchSuccess] when repository succeeds',
+      () async {
+        when(
+          () => mockSearchRepository.searchAll(any()),
+        ).thenAnswer((_) async => const SearchResult());
+        when(
+          () => mockSearchRepository.addToSearchHistory(any()),
+        ).thenAnswer((_) async => {});
 
-      expectLater(
-        searchBloc.stream,
-        emitsInOrder([
-          isA<SearchLoading>(),
-          isA<SearchSuccess>(),
-        ]),
-      );
+        expectLater(
+          searchBloc.stream,
+          emitsInOrder([isA<SearchLoading>(), isA<SearchSuccess>()]),
+        );
 
-      searchBloc.add(const SearchQueryChanged('airport'));
-    });
+        searchBloc.add(const SearchQueryChanged('airport'));
+      },
+    );
 
     test('ClearHistory emits SearchInitial with empty list', () async {
-      when(() => mockSearchRepository.clearSearchHistory())
-          .thenAnswer((_) async => {});
+      when(
+        () => mockSearchRepository.clearSearchHistory(),
+      ).thenAnswer((_) async => {});
 
-      expectLater(
-        searchBloc.stream,
-        emitsInOrder([
-          isA<SearchInitial>(),
-        ]),
-      );
+      expectLater(searchBloc.stream, emitsInOrder([isA<SearchInitial>()]));
 
       searchBloc.add(ClearHistory());
     });

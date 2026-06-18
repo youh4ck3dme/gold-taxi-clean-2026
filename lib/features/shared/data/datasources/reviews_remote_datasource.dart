@@ -15,7 +15,9 @@ class ReviewsRemoteDataSource {
     );
 
     if (response is List) {
-      return response.map((json) => ReviewModel.fromJson(json as Map<String, dynamic>)).toList();
+      return response
+          .map((json) => ReviewModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     }
     return [];
   }

@@ -52,7 +52,10 @@ class AppTextField extends StatelessWidget {
         suffixIcon: suffixIcon,
         labelStyle: const TextStyle(color: AppColors.grey500),
         hintStyle: const TextStyle(color: AppColors.grey400),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.grey300),

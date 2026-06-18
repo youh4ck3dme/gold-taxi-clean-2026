@@ -40,7 +40,7 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                           title: state.driver!.name,
                           rotation: state.driver!.bearing,
                           isAvailable: false,
-                        )
+                        ),
                       }
                     : {},
               ),
@@ -51,7 +51,10 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                 left: 20,
                 right: 20,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black87,
                     borderRadius: BorderRadius.circular(30),
@@ -96,7 +99,9 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.1),
@@ -121,12 +126,18 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                         const SizedBox(height: 16),
                         const Text(
                           'Hľadáme najbližšieho vodiča...',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         const Text(
                           'Vaša požiadavka bola odoslaná.',
-                          style: TextStyle(color: AppColors.grey600, fontSize: 13),
+                          style: TextStyle(
+                            color: AppColors.grey600,
+                            fontSize: 13,
+                          ),
                         ),
                         const SizedBox(height: 16),
                       ],
@@ -135,7 +146,9 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundImage: NetworkImage(state.driver!.avatar),
+                              backgroundImage: NetworkImage(
+                                state.driver!.avatar,
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -151,18 +164,23 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                                   ),
                                   Text(
                                     '${state.driver!.carModel} • ${state.driver!.carPlate}',
-                                    style: const TextStyle(color: AppColors.grey600),
+                                    style: const TextStyle(
+                                      color: AppColors.grey600,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                             IconButton(
                               onPressed: () {
-                                context.push('/chat', extra: {
-                                  'rideId': state.currentRide?.id ?? '',
-                                  'driverId': state.driver?.driverId ?? '',
-                                  'driverName': state.driver?.name ?? 'Vodič',
-                                });
+                                context.push(
+                                  '/chat',
+                                  extra: {
+                                    'rideId': state.currentRide?.id ?? '',
+                                    'driverId': state.driver?.driverId ?? '',
+                                    'driverName': state.driver?.name ?? 'Vodič',
+                                  },
+                                );
                               },
                               icon: const Icon(Icons.chat, color: Colors.green),
                             ),
@@ -184,7 +202,10 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
                             },
                             child: const Text(
                               'Zrušiť jazdu',
-                              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -205,7 +226,9 @@ class _ActiveRidePageState extends State<ActiveRidePage> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('Cieľ dosiahnutý!'),
-        content: const Text('Dúfame, že ste mali príjemnú jazdu. Vaša platba bude spracovaná automaticky.'),
+        content: const Text(
+          'Dúfame, že ste mali príjemnú jazdu. Vaša platba bude spracovaná automaticky.',
+        ),
         actions: [
           TextButton(
             onPressed: () {

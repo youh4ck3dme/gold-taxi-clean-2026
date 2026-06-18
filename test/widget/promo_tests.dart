@@ -17,7 +17,9 @@ import 'package:gold_taxi/core/di/service_locator.dart';
 import 'package:gold_taxi/models/ride_status.dart';
 
 class MockRideCubit extends Mock implements RideCubit {}
+
 class MockProfileCubit extends Mock implements ProfileCubit {}
+
 class MockAuthCubit extends Mock implements AuthCubit {}
 
 void main() {
@@ -36,50 +38,66 @@ void main() {
     mockAuthCubit = MockAuthCubit();
 
     // Default stubbing
-    when(() => mockRideCubit.state).thenReturn(RideState(status: RideStatus.requested));
-    when(() => mockRideCubit.stream).thenAnswer((_) => Stream.value(RideState(status: RideStatus.requested)));
-    
-    when(() => mockAuthCubit.state).thenReturn(const Authenticated(
-      UserModel(
-        id: 'dev_user_123',
-        name: 'Developer',
-        email: 'dev@localhost',
-        role: UserRole.customer,
-        referralCode: 'JOZO50',
-      ),
-    ));
-    when(() => mockAuthCubit.stream).thenAnswer((_) => Stream.value(const Authenticated(
-      UserModel(
-        id: 'dev_user_123',
-        name: 'Developer',
-        email: 'dev@localhost',
-        role: UserRole.customer,
-        referralCode: 'JOZO50',
-      ),
-    )));
+    when(
+      () => mockRideCubit.state,
+    ).thenReturn(RideState(status: RideStatus.requested));
+    when(
+      () => mockRideCubit.stream,
+    ).thenAnswer((_) => Stream.value(RideState(status: RideStatus.requested)));
 
-    when(() => mockProfileCubit.state).thenReturn(const ProfileLoaded(
-      user: UserModel(
-        id: 'dev_user_123',
-        name: 'Developer',
-        email: 'dev@localhost',
-        role: UserRole.customer,
-        referralCode: 'JOZO50',
+    when(() => mockAuthCubit.state).thenReturn(
+      const Authenticated(
+        UserModel(
+          id: 'dev_user_123',
+          name: 'Developer',
+          email: 'dev@localhost',
+          role: UserRole.customer,
+          referralCode: 'JOZO50',
+        ),
       ),
-      orders: [],
-      bookings: [],
-    ));
-    when(() => mockProfileCubit.stream).thenAnswer((_) => Stream.value(const ProfileLoaded(
-      user: UserModel(
-        id: 'dev_user_123',
-        name: 'Developer',
-        email: 'dev@localhost',
-        role: UserRole.customer,
-        referralCode: 'JOZO50',
+    );
+    when(() => mockAuthCubit.stream).thenAnswer(
+      (_) => Stream.value(
+        const Authenticated(
+          UserModel(
+            id: 'dev_user_123',
+            name: 'Developer',
+            email: 'dev@localhost',
+            role: UserRole.customer,
+            referralCode: 'JOZO50',
+          ),
+        ),
       ),
-      orders: [],
-      bookings: [],
-    )));
+    );
+
+    when(() => mockProfileCubit.state).thenReturn(
+      const ProfileLoaded(
+        user: UserModel(
+          id: 'dev_user_123',
+          name: 'Developer',
+          email: 'dev@localhost',
+          role: UserRole.customer,
+          referralCode: 'JOZO50',
+        ),
+        orders: [],
+        bookings: [],
+      ),
+    );
+    when(() => mockProfileCubit.stream).thenAnswer(
+      (_) => Stream.value(
+        const ProfileLoaded(
+          user: UserModel(
+            id: 'dev_user_123',
+            name: 'Developer',
+            email: 'dev@localhost',
+            role: UserRole.customer,
+            referralCode: 'JOZO50',
+          ),
+          orders: [],
+          bookings: [],
+        ),
+      ),
+    );
 
     when(() => mockRideCubit.checkZoneAndSurge(any())).thenAnswer((_) async {});
 
@@ -92,116 +110,140 @@ void main() {
   });
 
   group('Promo & Referral UI Tests', () {
-    testWidgets('1. RideRequestPage displays "Zadať kód" button and opens PromoDialog', (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(800, 1200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      '1. RideRequestPage displays "Zadať kód" button and opens PromoDialog',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MultiBlocProvider(
-              providers: [
-                BlocProvider<RideCubit>.value(value: mockRideCubit),
-                BlocProvider<AuthCubit>.value(value: mockAuthCubit),
-              ],
-              child: const RideRequestPage(
-                destination: LocationModel(
-                  name: 'Aupark Košice',
-                  address: 'Námestie osloboditeľov 1, 040 01 Košice',
-                  position: LatLng(48.7186, 21.2625),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: MultiBlocProvider(
+                providers: [
+                  BlocProvider<RideCubit>.value(value: mockRideCubit),
+                  BlocProvider<AuthCubit>.value(value: mockAuthCubit),
+                ],
+                child: const RideRequestPage(
+                  destination: LocationModel(
+                    name: 'Aupark Košice',
+                    address: 'Námestie osloboditeľov 1, 040 01 Košice',
+                    position: LatLng(48.7186, 21.2625),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Verify page has "Zadať kód" button
-      expect(find.text('Zadať kód'), findsOneWidget);
+        // Verify page has "Zadať kód" button
+        expect(find.text('Zadať kód'), findsOneWidget);
 
-      // Tap "Zadať kód" to open dialog
-      await tester.tap(find.text('Zadať kód'));
-      await tester.pumpAndSettle();
+        // Tap "Zadať kód" to open dialog
+        await tester.tap(find.text('Zadať kód'));
+        await tester.pumpAndSettle();
 
-      // Verify Dialog opens
-      expect(find.text('Zadať promo kód'), findsOneWidget);
-      expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('Použiť'), findsOneWidget);
+        // Verify Dialog opens
+        expect(find.text('Zadať promo kód'), findsOneWidget);
+        expect(find.byType(TextField), findsOneWidget);
+        expect(find.text('Použiť'), findsOneWidget);
 
-      // Enter code and submit
-      await tester.enterText(find.byType(TextField), 'TAXI5');
-      
-      when(() => mockRideCubit.validateAndApplyPromo('TAXI5', 'dev_user_123', any()))
-          .thenAnswer((_) async {});
+        // Enter code and submit
+        await tester.enterText(find.byType(TextField), 'TAXI5');
 
-      await tester.tap(find.text('Použiť'));
-      await tester.pumpAndSettle();
+        when(
+          () => mockRideCubit.validateAndApplyPromo(
+            'TAXI5',
+            'dev_user_123',
+            any(),
+          ),
+        ).thenAnswer((_) async {});
 
-      // Verify validateAndApplyPromo is called
-      verify(() => mockRideCubit.validateAndApplyPromo('TAXI5', 'dev_user_123', any())).called(1);
-    });
+        await tester.tap(find.text('Použiť'));
+        await tester.pumpAndSettle();
 
-    testWidgets('2. CustomerProfilePage renders referral code and share button', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MultiBlocProvider(
-              providers: [
-                BlocProvider<ProfileCubit>.value(value: mockProfileCubit),
-                BlocProvider<AuthCubit>.value(value: mockAuthCubit),
-              ],
-              child: const CustomerProfilePage(),
+        // Verify validateAndApplyPromo is called
+        verify(
+          () => mockRideCubit.validateAndApplyPromo(
+            'TAXI5',
+            'dev_user_123',
+            any(),
+          ),
+        ).called(1);
+      },
+    );
+
+    testWidgets(
+      '2. CustomerProfilePage renders referral code and share button',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: MultiBlocProvider(
+                providers: [
+                  BlocProvider<ProfileCubit>.value(value: mockProfileCubit),
+                  BlocProvider<AuthCubit>.value(value: mockAuthCubit),
+                ],
+                child: const CustomerProfilePage(),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Verify "Odporuč a zarob" card elements are displayed
-      expect(find.text('Odporuč a zarob'), findsOneWidget);
-      expect(find.text('JOZO50'), findsOneWidget);
-      expect(find.text('Zdieľať'), findsOneWidget);
+        // Verify "Odporuč a zarob" card elements are displayed
+        expect(find.text('Odporuč a zarob'), findsOneWidget);
+        expect(find.text('JOZO50'), findsOneWidget);
+        expect(find.text('Zdieľať'), findsOneWidget);
 
-      // Verify referred_by input field is displayed when referredBy is null
-      expect(find.text('Bol si odporúčaný? Zadaj kód priateľa:'), findsOneWidget);
-      expect(find.text('Uplatniť'), findsOneWidget);
-    });
+        // Verify referred_by input field is displayed when referredBy is null
+        expect(
+          find.text('Bol si odporúčaný? Zadaj kód priateľa:'),
+          findsOneWidget,
+        );
+        expect(find.text('Uplatniť'), findsOneWidget);
+      },
+    );
 
-    testWidgets('3. CustomerProfilePage handles applying referral code successfully', (WidgetTester tester) async {
-      when(() => mockProfileCubit.applyReferralCode('MICHAL80'))
-          .thenAnswer((_) async => null);
+    testWidgets(
+      '3. CustomerProfilePage handles applying referral code successfully',
+      (WidgetTester tester) async {
+        when(
+          () => mockProfileCubit.applyReferralCode('MICHAL80'),
+        ).thenAnswer((_) async => null);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MultiBlocProvider(
-              providers: [
-                BlocProvider<ProfileCubit>.value(value: mockProfileCubit),
-                BlocProvider<AuthCubit>.value(value: mockAuthCubit),
-              ],
-              child: const CustomerProfilePage(),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: MultiBlocProvider(
+                providers: [
+                  BlocProvider<ProfileCubit>.value(value: mockProfileCubit),
+                  BlocProvider<AuthCubit>.value(value: mockAuthCubit),
+                ],
+                child: const CustomerProfilePage(),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      final inputField = find.ancestor(
-        of: find.text('Napr. JOZO50'),
-        matching: find.byType(TextField),
-      );
-      
-      await tester.enterText(inputField, 'MICHAL80');
-      await tester.pumpAndSettle();
+        final inputField = find.ancestor(
+          of: find.text('Napr. JOZO50'),
+          matching: find.byType(TextField),
+        );
 
-      await tester.tap(find.text('Uplatniť'));
-      await tester.pumpAndSettle();
+        await tester.enterText(inputField, 'MICHAL80');
+        await tester.pumpAndSettle();
 
-      verify(() => mockProfileCubit.applyReferralCode('MICHAL80')).called(1);
-    });
+        await tester.tap(find.text('Uplatniť'));
+        await tester.pumpAndSettle();
+
+        verify(() => mockProfileCubit.applyReferralCode('MICHAL80')).called(1);
+      },
+    );
   });
 }

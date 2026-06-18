@@ -32,14 +32,19 @@ class FaqPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Chyba: ${state.message}', style: const TextStyle(color: Colors.red)),
+                    Text(
+                      'Chyba: ${state.message}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<FaqBloc>().add(const FetchFaqs(isRefresh: true));
+                        context.read<FaqBloc>().add(
+                          const FetchFaqs(isRefresh: true),
+                        );
                       },
                       child: const Text('Skúsiť znova'),
-                    )
+                    ),
                   ],
                 ),
               );
@@ -82,14 +87,22 @@ class FaqPage extends StatelessWidget {
                             child: ExpansionTile(
                               title: Text(
                                 faq.question,
-                                style: const TextStyle(fontWeight: FontWeight.w500),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
-                                    faq.answer.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ''),
-                                    style: const TextStyle(fontSize: 15, height: 1.4),
+                                    faq.answer.replaceAll(
+                                      RegExp(r'<[^>]*>|&[^;]+;'),
+                                      '',
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      height: 1.4,
+                                    ),
                                   ),
                                 ),
                               ],

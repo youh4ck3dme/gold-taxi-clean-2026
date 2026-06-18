@@ -11,10 +11,7 @@ class BookingsRemoteDataSource {
   Future<List<String>> fetchBookedSlots(int serviceId, String date) async {
     final response = await _apiService.get(
       ApiConstants.bookingsEndpoint,
-      queryParameters: {
-        'service_id': serviceId,
-        'date': date,
-      },
+      queryParameters: {'service_id': serviceId, 'date': date},
     );
 
     if (response is List) {

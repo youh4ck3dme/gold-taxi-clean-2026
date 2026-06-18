@@ -17,10 +17,7 @@ class AnimatedPriceText extends StatelessWidget {
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeOutQuint,
       builder: (context, animatedValue, child) {
-        return Text(
-          "${animatedValue.toStringAsFixed(2)} €",
-          style: style,
-        );
+        return Text("${animatedValue.toStringAsFixed(2)} €", style: style);
       },
     );
   }

@@ -22,7 +22,8 @@ class NotificationModel extends Equatable {
     final acf = json['acf'] as Map<String, dynamic>? ?? {};
 
     T getField<T>(String key, T defaultValue) {
-      return (json[key] ?? meta[key] ?? jetMeta[key] ?? acf[key]) as T? ?? defaultValue;
+      return (json[key] ?? meta[key] ?? jetMeta[key] ?? acf[key]) as T? ??
+          defaultValue;
     }
 
     String title = '';
@@ -36,11 +37,15 @@ class NotificationModel extends Equatable {
     String message = getField<String>('message', '');
     if (message.isEmpty) {
       final contentObj = json['content'];
-      message = contentObj is Map ? (contentObj['rendered'] as String? ?? '') : (contentObj as String? ?? '');
+      message = contentObj is Map
+          ? (contentObj['rendered'] as String? ?? '')
+          : (contentObj as String? ?? '');
     }
 
     dynamic rawIsRead = getField<dynamic>('is_read', false);
-    bool isRead = rawIsRead is bool ? rawIsRead : (rawIsRead.toString() == 'true' || rawIsRead.toString() == '1');
+    bool isRead = rawIsRead is bool
+        ? rawIsRead
+        : (rawIsRead.toString() == 'true' || rawIsRead.toString() == '1');
 
     return NotificationModel(
       id: json['id'] as int? ?? 0,

@@ -34,7 +34,8 @@ class MockPromoRepository implements PromoRepository {
         calculatedDiscount: double.parse(discount.toStringAsFixed(2)),
         isValid: true,
       );
-    } else if (cleanCode.length >= 6 && RegExp(r'^[A-Z]{4}\d{2}$').hasMatch(cleanCode)) {
+    } else if (cleanCode.length >= 6 &&
+        RegExp(r'^[A-Z]{4}\d{2}$').hasMatch(cleanCode)) {
       // Mock referral code validation
       if (cleanCode == 'MYRE12' || cleanCode == 'SELF99') {
         return PromoCodeModel(
@@ -46,7 +47,7 @@ class MockPromoRepository implements PromoRepository {
           errorMessage: 'Nemôžete použiť vlastný referenčný kód',
         );
       }
-      
+
       final discount = rideAmount > 5.0 ? 5.0 : rideAmount;
       return PromoCodeModel(
         id: 'referral_$cleanCode',

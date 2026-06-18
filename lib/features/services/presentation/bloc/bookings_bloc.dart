@@ -11,17 +11,26 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
     on<SubmitBooking>(_onSubmitBooking);
   }
 
-  Future<void> _onFetchAvailableSlots(FetchAvailableSlots event, Emitter<BookingsState> emit) async {
+  Future<void> _onFetchAvailableSlots(
+    FetchAvailableSlots event,
+    Emitter<BookingsState> emit,
+  ) async {
     emit(BookingsLoading());
     try {
-      final slots = await _bookingsRepository.getAvailableSlots(event.serviceId, event.date);
+      final slots = await _bookingsRepository.getAvailableSlots(
+        event.serviceId,
+        event.date,
+      );
       emit(BookingsSlotsLoaded(availableSlots: slots));
     } catch (e) {
       emit(BookingsError(e.toString()));
     }
   }
 
-  Future<void> _onSubmitBooking(SubmitBooking event, Emitter<BookingsState> emit) async {
+  Future<void> _onSubmitBooking(
+    SubmitBooking event,
+    Emitter<BookingsState> emit,
+  ) async {
     emit(BookingSubmissionInProgress());
     try {
       final booking = await _bookingsRepository.bookSlot(

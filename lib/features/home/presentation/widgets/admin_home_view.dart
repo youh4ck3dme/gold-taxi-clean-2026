@@ -10,11 +10,7 @@ class AdminHomeView extends StatelessWidget {
   final String userName;
   final String? avatarUrl;
 
-  const AdminHomeView({
-    super.key,
-    required this.userName,
-    this.avatarUrl,
-  });
+  const AdminHomeView({super.key, required this.userName, this.avatarUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +32,11 @@ class AdminHomeView extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 28,
-                          color: Colors.white,
-                          letterSpacing: -0.5,
-                        ),
+                      fontWeight: FontWeight.w900,
+                      fontSize: 28,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   const Text(
@@ -48,11 +44,11 @@ class AdminHomeView extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                          color: AppColors.luxuryGold,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12,
-                          letterSpacing: 1.5,
-                        ),
+                      color: AppColors.luxuryGold,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12,
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ],
               ),
@@ -71,10 +67,12 @@ class AdminHomeView extends StatelessWidget {
                 child: CircleAvatar(
                   radius: 26,
                   backgroundColor: AppColors.deepBlack,
-                  foregroundImage: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                  foregroundImage:
+                      (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
                       ? NetworkImage(avatarUrl!)
                       : null,
-                  onForegroundImageError: (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+                  onForegroundImageError:
+                      (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
                       ? (exception, stackTrace) {
                           debugPrint('Error loading admin avatar: $exception');
                         }
@@ -114,7 +112,9 @@ class AdminHomeView extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     backgroundColor: AppColors.luxuryGold,
                     foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                 ),
               ),
@@ -129,7 +129,9 @@ class AdminHomeView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   foregroundColor: Colors.white,
                   side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ),
@@ -140,21 +142,38 @@ class AdminHomeView extends StatelessWidget {
         // Live Statistics Stream
         const Text(
           'Živý prehľad platformy',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+          ),
         ),
         const SizedBox(height: 16),
 
         StreamBuilder<List<RideModel>>(
           stream: rideRepository.getAllRides(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator(color: AppColors.luxuryGold));
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColors.luxuryGold),
+              );
             }
 
             final rides = snapshot.data ?? [];
-            final activeRides = rides.where((r) => r.status != RideStatus.completed && r.status != RideStatus.cancelled).length;
-            final requestedRides = rides.where((r) => r.status == RideStatus.requested).length;
-            final completedToday = rides.where((r) => r.status == RideStatus.completed).length;
+            final activeRides = rides
+                .where(
+                  (r) =>
+                      r.status != RideStatus.completed &&
+                      r.status != RideStatus.cancelled,
+                )
+                .length;
+            final requestedRides = rides
+                .where((r) => r.status == RideStatus.requested)
+                .length;
+            final completedToday = rides
+                .where((r) => r.status == RideStatus.completed)
+                .length;
 
             return GridView.count(
               shrinkWrap: true,

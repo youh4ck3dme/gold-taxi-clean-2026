@@ -36,7 +36,11 @@ class MockRideRepository implements RideRepository {
   }
 
   @override
-  Future<void> updateRideStatus(String rideId, RideStatus status, {String? cancellationReason}) async {
+  Future<void> updateRideStatus(
+    String rideId,
+    RideStatus status, {
+    String? cancellationReason,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 500));
     final index = _mockRides.indexWhere((r) => r.id == rideId);
     if (index != -1) {
@@ -85,19 +89,25 @@ class MockRideRepository implements RideRepository {
 
   @override
   Stream<RideModel?> getDriverActiveRide(String driverId) async* {
-    yield _mockRides.where((r) =>
-        r.driverId == driverId &&
-        (r.status == RideStatus.accepted ||
-         r.status == RideStatus.driverArriving ||
-         r.status == RideStatus.inProgress)
-    ).firstOrNull;
+    yield _mockRides
+        .where(
+          (r) =>
+              r.driverId == driverId &&
+              (r.status == RideStatus.accepted ||
+                  r.status == RideStatus.driverArriving ||
+                  r.status == RideStatus.inProgress),
+        )
+        .firstOrNull;
     await for (final rides in _ridesController.stream) {
-      yield rides.where((r) =>
-          r.driverId == driverId &&
-          (r.status == RideStatus.accepted ||
-           r.status == RideStatus.driverArriving ||
-           r.status == RideStatus.inProgress)
-      ).firstOrNull;
+      yield rides
+          .where(
+            (r) =>
+                r.driverId == driverId &&
+                (r.status == RideStatus.accepted ||
+                    r.status == RideStatus.driverArriving ||
+                    r.status == RideStatus.inProgress),
+          )
+          .firstOrNull;
     }
   }
 
@@ -120,7 +130,12 @@ class MockRideRepository implements RideRepository {
   }
 
   @override
-  Future<void> updateDriverLocation(String driverId, double lat, double lng, {double? heading}) async {
+  Future<void> updateDriverLocation(
+    String driverId,
+    double lat,
+    double lng, {
+    double? heading,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 100));
   }
 

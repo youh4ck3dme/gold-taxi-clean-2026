@@ -61,8 +61,8 @@ extension RideStatusExtension on RideStatus {
     }
   }
 
-  bool get canCancel => 
-    this == RideStatus.requested || 
-    this == RideStatus.accepted || 
-    this == RideStatus.driverArriving;
+  bool get canCancel =>
+      this == RideStatus.requested ||
+      this == RideStatus.accepted ||
+      this == RideStatus.driverArriving;
 }

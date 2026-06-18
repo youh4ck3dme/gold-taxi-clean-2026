@@ -29,10 +29,18 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
   @override
   void initState() {
     super.initState();
-    _stripeAccountController = TextEditingController(text: widget.initialAccount?.stripeAccountId ?? '');
-    _bankNameController = TextEditingController(text: widget.initialAccount?.bankName ?? '');
-    _holderNameController = TextEditingController(text: widget.initialAccount?.accountHolderName ?? '');
-    _last4Controller = TextEditingController(text: widget.initialAccount?.bankAccountLast4 ?? '');
+    _stripeAccountController = TextEditingController(
+      text: widget.initialAccount?.stripeAccountId ?? '',
+    );
+    _bankNameController = TextEditingController(
+      text: widget.initialAccount?.bankName ?? '',
+    );
+    _holderNameController = TextEditingController(
+      text: widget.initialAccount?.accountHolderName ?? '',
+    );
+    _last4Controller = TextEditingController(
+      text: widget.initialAccount?.bankAccountLast4 ?? '',
+    );
     _holderType = widget.initialAccount?.accountHolderType ?? 'individual';
     _currency = widget.initialAccount?.currency ?? 'eur';
   }
@@ -50,7 +58,9 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        widget.initialAccount == null ? 'Pridať Bankový Účet' : 'Upraviť Bankový Účet',
+        widget.initialAccount == null
+            ? 'Pridať Bankový Účet'
+            : 'Upraviť Bankový Účet',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
       content: SingleChildScrollView(
@@ -65,7 +75,7 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
               const SizedBox(height: 16),
-              
+
               // Stripe Account ID
               TextFormField(
                 controller: _stripeAccountController,
@@ -73,7 +83,9 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
                   labelText: 'Stripe Account ID',
                   hintText: 'Napr. acct_1234567890',
                   prefixIcon: const Icon(Icons.credit_card),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -94,10 +106,13 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
                   labelText: 'Názov banky',
                   hintText: 'Napr. Tatra Banka, a.s.',
                   prefixIcon: const Icon(Icons.business),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                validator: (value) =>
-                    value == null || value.trim().isEmpty ? 'Zadajte názov banky' : null,
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Zadajte názov banky'
+                    : null,
               ),
               const SizedBox(height: 12),
 
@@ -108,10 +123,13 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
                   labelText: 'Meno majiteľa účtu',
                   hintText: 'Meno a priezvisko',
                   prefixIcon: const Icon(Icons.person),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                validator: (value) =>
-                    value == null || value.trim().isEmpty ? 'Zadajte meno majiteľa' : null,
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Zadajte meno majiteľa'
+                    : null,
               ),
               const SizedBox(height: 12),
 
@@ -122,7 +140,9 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
                   labelText: 'Posledné 4 číslice účtu / IBANu',
                   hintText: 'Napr. 8899',
                   prefixIcon: const Icon(Icons.lock_outline),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 keyboardType: TextInputType.number,
                 maxLength: 4,
@@ -144,11 +164,19 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
                 decoration: InputDecoration(
                   labelText: 'Typ účtu',
                   prefixIcon: const Icon(Icons.badge_outlined),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'individual', child: Text('Fyzická osoba (Individual)')),
-                  DropdownMenuItem(value: 'company', child: Text('Právnická osoba (Company)')),
+                  DropdownMenuItem(
+                    value: 'individual',
+                    child: Text('Fyzická osoba (Individual)'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'company',
+                    child: Text('Právnická osoba (Company)'),
+                  ),
                 ],
                 onChanged: (value) {
                   if (value != null) {
@@ -166,7 +194,9 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
                 decoration: InputDecoration(
                   labelText: 'Mena',
                   prefixIcon: const Icon(Icons.euro),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 items: const [
                   DropdownMenuItem(value: 'eur', child: Text('Euro (EUR)')),
@@ -201,7 +231,9 @@ class _BankAccountDialogState extends State<BankAccountDialog> {
                 bankAccountLast4: _last4Controller.text.trim(),
                 accountHolderType: _holderType,
                 currency: _currency,
-                status: widget.initialAccount?.status ?? 'verified', // Mock as verified on save
+                status:
+                    widget.initialAccount?.status ??
+                    'verified', // Mock as verified on save
                 payoutEnabled: widget.initialAccount?.payoutEnabled ?? true,
               );
               widget.onSave(newAccount);

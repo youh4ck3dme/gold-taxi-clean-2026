@@ -435,14 +435,19 @@ void main() {
       // Zavoláme mainCommon, ktorý inicializuje Supabase, ServiceLocator a Hive,
       // a následne urobí runApp(MyApp()).
       await mainCommon(config);
-      await pumpStableFrame(tester); // Počkáme, kým appka nabehne a vyrenderuje sa.
+      await pumpStableFrame(
+        tester,
+      ); // Počkáme, kým appka nabehne a vyrenderuje sa.
 
       // 2. Overenie, že sme na správnej úvodnej obrazovke
       final luxuryWelcomeText = find.text('Gold Taxi'); // WelcomePage title
 
       if (luxuryWelcomeText.evaluate().isNotEmpty) {
         // Sme na novej WelcomePage, klikneme na "Už mám účet" pre prechod na LoginPage
-        final alreadyHaveAccountBtn = find.widgetWithText(TextButton, 'Už mám účet');
+        final alreadyHaveAccountBtn = find.widgetWithText(
+          TextButton,
+          'Už mám účet',
+        );
         expect(alreadyHaveAccountBtn, findsOneWidget);
         await tester.tap(alreadyHaveAccountBtn);
         await pumpStableFrame(tester);
@@ -472,7 +477,7 @@ void main() {
         // 5. Nájdeme a stlačíme tlačidlo "Prihlásiť sa" (GoldButton)
         final loginBtn = find.widgetWithText(GoldButton, 'PRIHLÁSIŤ SA');
         expect(loginBtn, findsOneWidget);
-        
+
         await tester.tap(loginBtn);
 
         // 6. Čakáme na odpoveď zo živého Supabase servera (sieťový request môže trvať)

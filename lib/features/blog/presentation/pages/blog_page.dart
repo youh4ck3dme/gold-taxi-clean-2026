@@ -56,7 +56,7 @@ class _BlogPageState extends State<BlogPage> {
                     hintText: 'Zadajte kľúčové slovo...',
                     keyboardType: TextInputType.text,
                   );
-                }
+                },
               ),
             ),
             Expanded(
@@ -69,31 +69,40 @@ class _BlogPageState extends State<BlogPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Chyba: ${state.message}', style: const TextStyle(color: Colors.red)),
+                          Text(
+                            'Chyba: ${state.message}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
-                              context.read<BlogBloc>().add(FetchPosts(
-                                search: _searchController.text,
-                                isRefresh: true,
-                              ));
+                              context.read<BlogBloc>().add(
+                                FetchPosts(
+                                  search: _searchController.text,
+                                  isRefresh: true,
+                                ),
+                              );
                             },
                             child: const Text('Skúsiť znova'),
-                          )
+                          ),
                         ],
                       ),
                     );
                   } else if (state is BlogLoaded) {
                     final posts = state.posts;
                     if (posts.isEmpty) {
-                      return const Center(child: Text('Nenašli sa žiadne články.'));
+                      return const Center(
+                        child: Text('Nenašli sa žiadne články.'),
+                      );
                     }
                     return RefreshIndicator(
                       onRefresh: () async {
-                        context.read<BlogBloc>().add(FetchPosts(
-                          search: _searchController.text,
-                          isRefresh: true,
-                        ));
+                        context.read<BlogBloc>().add(
+                          FetchPosts(
+                            search: _searchController.text,
+                            isRefresh: true,
+                          ),
+                        );
                       },
                       child: ListView.builder(
                         itemCount: posts.length,
@@ -152,7 +161,10 @@ class _PostCard extends StatelessWidget {
                 children: [
                   Text(
                     post.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -173,13 +185,16 @@ class _PostCard extends StatelessWidget {
                       ),
                       const Text(
                         'Čítať viac →',
-                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-                      )
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

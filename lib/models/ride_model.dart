@@ -155,10 +155,12 @@ class RideModel extends Equatable {
     json.remove('pickup_lng');
     json.remove('dropoff_lat');
     json.remove('dropoff_lng');
-    
+
     // PostGIS POINT format: POINT(longitude latitude)
-    json['pickup_location'] = 'POINT(${pickupLatLng.longitude} ${pickupLatLng.latitude})';
-    json['dropoff_location'] = 'POINT(${dropoffLatLng.longitude} ${dropoffLatLng.latitude})';
+    json['pickup_location'] =
+        'POINT(${pickupLatLng.longitude} ${pickupLatLng.latitude})';
+    json['dropoff_location'] =
+        'POINT(${dropoffLatLng.longitude} ${dropoffLatLng.latitude})';
 
     final driverIdVal = json['driver_id'] as String?;
     if (driverIdVal != null) {
@@ -173,11 +175,17 @@ class RideModel extends Equatable {
   }
 
   factory RideModel.fromJson(Map<String, dynamic> json) {
-    LatLng parsePoint(dynamic pointData, double fallbackLat, double fallbackLng) {
+    LatLng parsePoint(
+      dynamic pointData,
+      double fallbackLat,
+      double fallbackLng,
+    ) {
       if (pointData == null) return LatLng(fallbackLat, fallbackLng);
       // Supabase might return as string "POINT(lng lat)" or as GeoJSON map
       if (pointData is String) {
-        final match = RegExp(r'POINT\(([-0-9.]+) ([-0-9.]+)\)').firstMatch(pointData);
+        final match = RegExp(
+          r'POINT\(([-0-9.]+) ([-0-9.]+)\)',
+        ).firstMatch(pointData);
         if (match != null) {
           final lng = double.parse(match.group(1)!);
           final lat = double.parse(match.group(2)!);
@@ -195,35 +203,80 @@ class RideModel extends Equatable {
       customerId: (json['customer_id'] ?? json['customerId']) as String,
       driverId: (json['driver_id'] ?? json['driverId']) as String?,
       vehicleId: (json['vehicle_id'] ?? json['vehicleId']) as String?,
-      pickupAddress: (json['pickup_address'] ?? json['pickupAddress']) as String,
+      pickupAddress:
+          (json['pickup_address'] ?? json['pickupAddress']) as String,
       pickupLatLng: parsePoint(
         json['pickup_location'],
         (json['pickup_lat'] ?? 0.0).toDouble(),
         (json['pickup_lng'] ?? 0.0).toDouble(),
       ),
-      dropoffAddress: (json['dropoff_address'] ?? json['dropoffAddress']) as String,
+      dropoffAddress:
+          (json['dropoff_address'] ?? json['dropoffAddress']) as String,
       dropoffLatLng: parsePoint(
         json['dropoff_location'],
         (json['dropoff_lat'] ?? 0.0).toDouble(),
         (json['dropoff_lng'] ?? 0.0).toDouble(),
       ),
-      serviceType: ServiceType.values.byName((json['service_type'] ?? json['serviceType'] ?? 'standard') as String),
-      estimatedDistance: (json['estimated_distance_km'] ?? json['estimatedDistance'] as num? ?? 0.0).toDouble(),
-      estimatedDuration: (json['estimated_duration_min'] ?? json['estimatedDuration'] as num? ?? 0.0).toDouble(),
-      estimatedPrice: (json['estimated_price'] ?? json['estimatedPrice'] as num? ?? 0.0).toDouble(),
-      finalPrice: (json['final_price'] ?? json['finalPrice'] as num?)?.toDouble(),
-      status: RideStatusExtension.fromDbValue(json['status'] as String? ?? 'requested'),
+      serviceType: ServiceType.values.byName(
+        (json['service_type'] ?? json['serviceType'] ?? 'standard') as String,
+      ),
+      estimatedDistance:
+          (json['estimated_distance_km'] ??
+                  json['estimatedDistance'] as num? ??
+                  0.0)
+              .toDouble(),
+      estimatedDuration:
+          (json['estimated_duration_min'] ??
+                  json['estimatedDuration'] as num? ??
+                  0.0)
+              .toDouble(),
+      estimatedPrice:
+          (json['estimated_price'] ?? json['estimatedPrice'] as num? ?? 0.0)
+              .toDouble(),
+      finalPrice: (json['final_price'] ?? json['finalPrice'] as num?)
+          ?.toDouble(),
+      status: RideStatusExtension.fromDbValue(
+        json['status'] as String? ?? 'requested',
+      ),
       rating: json['rating'] as int?,
       reviewText: json['review_text'] as String?,
-      createdAt: DateTime.parse((json['created_at'] ?? json['createdAt'] ?? DateTime.now().toIso8601String()) as String),
-      updatedAt: DateTime.parse((json['updated_at'] ?? json['updatedAt'] ?? DateTime.now().toIso8601String()) as String),
-      acceptedAt: (json['accepted_at'] ?? json['acceptedAt']) != null ? DateTime.parse((json['accepted_at'] ?? json['acceptedAt']) as String) : null,
-      startedAt: (json['started_at'] ?? json['startedAt']) != null ? DateTime.parse((json['started_at'] ?? json['startedAt']) as String) : null,
-      completedAt: (json['completed_at'] ?? json['completedAt']) != null ? DateTime.parse((json['completed_at'] ?? json['completedAt']) as String) : null,
-      cancelledAt: (json['cancelled_at'] ?? json['cancelledAt']) != null ? DateTime.parse((json['cancelled_at'] ?? json['cancelledAt']) as String) : null,
-      cancellationReason: (json['cancellation_reason'] ?? json['cancellationReason']) as String?,
-      passengerNote: (json['passenger_note'] ?? json['passengerNote']) as String?,
-      stops: (json['stops'] as List<dynamic>?)
+      createdAt: DateTime.parse(
+        (json['created_at'] ??
+                json['createdAt'] ??
+                DateTime.now().toIso8601String())
+            as String,
+      ),
+      updatedAt: DateTime.parse(
+        (json['updated_at'] ??
+                json['updatedAt'] ??
+                DateTime.now().toIso8601String())
+            as String,
+      ),
+      acceptedAt: (json['accepted_at'] ?? json['acceptedAt']) != null
+          ? DateTime.parse(
+              (json['accepted_at'] ?? json['acceptedAt']) as String,
+            )
+          : null,
+      startedAt: (json['started_at'] ?? json['startedAt']) != null
+          ? DateTime.parse((json['started_at'] ?? json['startedAt']) as String)
+          : null,
+      completedAt: (json['completed_at'] ?? json['completedAt']) != null
+          ? DateTime.parse(
+              (json['completed_at'] ?? json['completedAt']) as String,
+            )
+          : null,
+      cancelledAt: (json['cancelled_at'] ?? json['cancelledAt']) != null
+          ? DateTime.parse(
+              (json['cancelled_at'] ?? json['cancelledAt']) as String,
+            )
+          : null,
+      cancellationReason:
+          (json['cancellation_reason'] ?? json['cancellationReason'])
+              as String?,
+      passengerNote:
+          (json['passenger_note'] ?? json['passengerNote']) as String?,
+      stops:
+          (json['stops'] as List<dynamic>?)
               ?.map((s) => RideStop.fromJson(s as Map<String, dynamic>))
               .toList() ??
           const [],
@@ -232,11 +285,30 @@ class RideModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, customerId, driverId, vehicleId, pickupAddress, pickupLatLng, dropoffAddress,
-        dropoffLatLng, serviceType, estimatedDistance, estimatedDuration,
-        estimatedPrice, finalPrice, status, createdAt, updatedAt, acceptedAt,
-        startedAt, completedAt, cancelledAt, cancellationReason, passengerNote,
-        rating, reviewText, stops
-      ];
-
+    id,
+    customerId,
+    driverId,
+    vehicleId,
+    pickupAddress,
+    pickupLatLng,
+    dropoffAddress,
+    dropoffLatLng,
+    serviceType,
+    estimatedDistance,
+    estimatedDuration,
+    estimatedPrice,
+    finalPrice,
+    status,
+    createdAt,
+    updatedAt,
+    acceptedAt,
+    startedAt,
+    completedAt,
+    cancelledAt,
+    cancellationReason,
+    passengerNote,
+    rating,
+    reviewText,
+    stops,
+  ];
 }

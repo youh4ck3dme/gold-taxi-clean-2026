@@ -26,33 +26,39 @@ void main() {
       expect(kDebugMode, isTrue); // Ensures we are in a debug environment
     });
 
-    test('2. BackendMode.supabase sets up production repositories (No Mock Fallbacks)', () async {
-      // Mocking Supabase just enough to allow lazy singletons to register
-      // We don't resolve them to avoid actual Supabase initialization errors,
-      // but we can check if they are registered correctly.
-      await setupServiceLocator(mode: BackendMode.supabase);
+    test(
+      '2. BackendMode.supabase sets up production repositories (No Mock Fallbacks)',
+      () async {
+        // Mocking Supabase just enough to allow lazy singletons to register
+        // We don't resolve them to avoid actual Supabase initialization errors,
+        // but we can check if they are registered correctly.
+        await setupServiceLocator(mode: BackendMode.supabase);
 
-      final getIt = GetIt.instance;
+        final getIt = GetIt.instance;
 
-      expect(getIt.isRegistered<AuthRepository>(), isTrue);
-      expect(getIt.isRegistered<RideRepository>(), isTrue);
-      expect(getIt.isRegistered<ProfileRepository>(), isTrue);
-      expect(getIt.isRegistered<ApiService>(), isTrue);
+        expect(getIt.isRegistered<AuthRepository>(), isTrue);
+        expect(getIt.isRegistered<RideRepository>(), isTrue);
+        expect(getIt.isRegistered<ProfileRepository>(), isTrue);
+        expect(getIt.isRegistered<ApiService>(), isTrue);
 
-      // Verify ApiService is the real one, not mock
-      final apiService = getIt<ApiService>();
-      expect(apiService, isA<ApiService>());
-      expect(apiService is MockApiService, isFalse);
-    });
+        // Verify ApiService is the real one, not mock
+        final apiService = getIt<ApiService>();
+        expect(apiService, isA<ApiService>());
+        expect(apiService is MockApiService, isFalse);
+      },
+    );
 
-    test('3. BackendMode.mock sets up mock repositories (Only allowed in debug)', () async {
-      await setupServiceLocator(mode: BackendMode.mock);
+    test(
+      '3. BackendMode.mock sets up mock repositories (Only allowed in debug)',
+      () async {
+        await setupServiceLocator(mode: BackendMode.mock);
 
-      final getIt = GetIt.instance;
-      
-      expect(getIt.isRegistered<ApiService>(), isTrue);
-      final apiService = getIt<ApiService>();
-      expect(apiService, isA<MockApiService>());
-    });
+        final getIt = GetIt.instance;
+
+        expect(getIt.isRegistered<ApiService>(), isTrue);
+        final apiService = getIt<ApiService>();
+        expect(apiService, isA<MockApiService>());
+      },
+    );
   });
 }

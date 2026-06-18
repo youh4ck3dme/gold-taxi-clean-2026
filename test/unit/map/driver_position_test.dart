@@ -140,9 +140,11 @@ void main() {
         limit: 10,
         maxDistanceKm: 1.0,
       );
-      
-      final janNovakIndex = drivers.indexWhere((d) => d.driverId == 'demo_driver_jan_novak');
-      
+
+      final janNovakIndex = drivers.indexWhere(
+        (d) => d.driverId == 'demo_driver_jan_novak',
+      );
+
       expect(janNovakIndex, isNot(-1));
       final janNovak = drivers[janNovakIndex];
       expect(janNovak.name, 'Ján Novák');
@@ -154,16 +156,23 @@ void main() {
       expect(janNovak.lng, 17.1077);
     });
 
-    test('Repository streams both Ján Novák (online) and Peter Horváth (offline)', () async {
-      final allDrivers = await repository.getDriverPositionsStream().first;
-      
-      final jan = allDrivers.firstWhere((d) => d.driverId == 'demo_driver_jan_novak');
-      expect(jan.isAvailable, isTrue);
-      expect(jan.name, 'Ján Novák');
+    test(
+      'Repository streams both Ján Novák (online) and Peter Horváth (offline)',
+      () async {
+        final allDrivers = await repository.getDriverPositionsStream().first;
 
-      final peter = allDrivers.firstWhere((d) => d.driverId == 'demo_driver_peter_horvath');
-      expect(peter.isAvailable, isFalse);
-      expect(peter.name, 'Peter Horváth');
-    });
+        final jan = allDrivers.firstWhere(
+          (d) => d.driverId == 'demo_driver_jan_novak',
+        );
+        expect(jan.isAvailable, isTrue);
+        expect(jan.name, 'Ján Novák');
+
+        final peter = allDrivers.firstWhere(
+          (d) => d.driverId == 'demo_driver_peter_horvath',
+        );
+        expect(peter.isAvailable, isFalse);
+        expect(peter.name, 'Peter Horváth');
+      },
+    );
   });
 }

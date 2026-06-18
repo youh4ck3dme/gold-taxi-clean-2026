@@ -89,8 +89,12 @@ class _MapPageState extends State<MapPage> {
         timeLimit: const Duration(seconds: 5),
       );
       if (mounted) {
-        _mapCubit.updateCurrentPosition(LatLng(position.latitude, position.longitude));
-        await _mapCubit.moveToCurrentPosition(LatLng(position.latitude, position.longitude));
+        _mapCubit.updateCurrentPosition(
+          LatLng(position.latitude, position.longitude),
+        );
+        await _mapCubit.moveToCurrentPosition(
+          LatLng(position.latitude, position.longitude),
+        );
       }
     } catch (e) {
       debugPrint('Geolocation error: $e');
@@ -99,19 +103,19 @@ class _MapPageState extends State<MapPage> {
         _mapCubit.updateCurrentPosition(_defaultPosition);
 
         // Show a more friendly message for common web/macOS location issues
-        String message = 'Nepodarilo sa získať presnú polohu. Používam predvolenú (Košice).';
-        if (e.toString().contains('kCLErrorLocationUnknown') || e.toString().contains('User denied')) {
-          message = 'Prístup k polohe je obmedzený. Používam predvolenú polohu v Košiciach.';
+        String message =
+            'Nepodarilo sa získať presnú polohu. Používam predvolenú (Košice).';
+        if (e.toString().contains('kCLErrorLocationUnknown') ||
+            e.toString().contains('User denied')) {
+          message =
+              'Prístup k polohe je obmedzený. Používam predvolenú polohu v Košiciach.';
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
             duration: const Duration(seconds: 3),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () {},
-            ),
+            action: SnackBarAction(label: 'OK', onPressed: () {}),
           ),
         );
       }
@@ -131,12 +135,18 @@ class _MapPageState extends State<MapPage> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.luxuryGold),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: AppColors.luxuryGold,
+            ),
             onPressed: () => _getCurrentPosition(),
             tooltip: 'Obnoviť polohu',
           ),
           IconButton(
-            icon: const Icon(Icons.people_alt_rounded, color: AppColors.luxuryGold),
+            icon: const Icon(
+              Icons.people_alt_rounded,
+              color: AppColors.luxuryGold,
+            ),
             onPressed: () => _mapCubit.centerOnAllDrivers(),
             tooltip: 'Zobraziť všetkých vodičov',
           ),
@@ -157,7 +167,11 @@ class _MapPageState extends State<MapPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
                       const SizedBox(height: 16),
                       Text(state.message),
                       const SizedBox(height: 16),
@@ -170,8 +184,12 @@ class _MapPageState extends State<MapPage> {
                 );
               }
 
-              final currentPosition = state is MapLoaded ? state.currentPosition : null;
-              final drivers = state is MapLoaded ? state.drivers : <DriverPositionModel>[];
+              final currentPosition = state is MapLoaded
+                  ? state.currentPosition
+                  : null;
+              final drivers = state is MapLoaded
+                  ? state.drivers
+                  : <DriverPositionModel>[];
 
               // Convert drivers to platform-agnostic marker data
               final platformMarkers = drivers.map((driver) {
@@ -200,7 +218,9 @@ class _MapPageState extends State<MapPage> {
 
               final pos = currentPosition ?? _defaultPosition;
               final isTracking = state is MapLoaded ? state.isTracking : false;
-              final selectedDriverId = state is MapLoaded ? state.selectedDriverId : null;
+              final selectedDriverId = state is MapLoaded
+                  ? state.selectedDriverId
+                  : null;
 
               return PlatformMapWidget(
                 latitude: pos.latitude,
@@ -215,7 +235,8 @@ class _MapPageState extends State<MapPage> {
                 zoomControlsEnabled: false,
                 padding: const EdgeInsets.only(bottom: 150),
                 onMapCreated: (controller) {
-                  if (state is! MapLoaded && controller is GoogleMapController) {
+                  if (state is! MapLoaded &&
+                      controller is GoogleMapController) {
                     _mapCubit.initMap(controller);
                   }
                 },
@@ -236,7 +257,8 @@ class _MapPageState extends State<MapPage> {
             child: GestureDetector(
               onTap: () async {
                 final currentPos = context.read<MapCubit>().state is MapLoaded
-                    ? (context.read<MapCubit>().state as MapLoaded).currentPosition
+                    ? (context.read<MapCubit>().state as MapLoaded)
+                          .currentPosition
                     : null;
 
                 final selectedPlace = await SearchBottomSheet.show(
@@ -246,20 +268,32 @@ class _MapPageState extends State<MapPage> {
 
                 if (!mounted) return;
 
-                if (selectedPlace != null && selectedPlace.lat != null && selectedPlace.lng != null) {
+                if (selectedPlace != null &&
+                    selectedPlace.lat != null &&
+                    selectedPlace.lng != null) {
                   // Move map to selected place
-                  _mapCubit.moveToCurrentPosition(LatLng(selectedPlace.lat!, selectedPlace.lng!));
+                  _mapCubit.moveToCurrentPosition(
+                    LatLng(selectedPlace.lat!, selectedPlace.lng!),
+                  );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Vybraté: ${selectedPlace.primaryText}')),
+                    SnackBar(
+                      content: Text('Vybraté: ${selectedPlace.primaryText}'),
+                    ),
                   );
                 }
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF111111),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.luxuryGold.withValues(alpha: 0.3), width: 1.5),
+                  border: Border.all(
+                    color: AppColors.luxuryGold.withValues(alpha: 0.3),
+                    width: 1.5,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.5),
@@ -270,13 +304,17 @@ class _MapPageState extends State<MapPage> {
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.search_rounded, color: AppColors.luxuryGold, size: 24),
+                    Icon(
+                      Icons.search_rounded,
+                      color: AppColors.luxuryGold,
+                      size: 24,
+                    ),
                     SizedBox(width: 16),
                     Text(
                       'Kam to bude?',
                       style: TextStyle(
-                        color: Color(0xFFB8BEC9), 
-                        fontSize: 18, 
+                        color: Color(0xFFB8BEC9),
+                        fontSize: 18,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.5,
                       ),
@@ -298,11 +336,15 @@ class _MapPageState extends State<MapPage> {
                 foregroundColor: AppColors.luxuryGold,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: AppColors.luxuryGold.withValues(alpha: 0.3)),
+                  side: BorderSide(
+                    color: AppColors.luxuryGold.withValues(alpha: 0.3),
+                  ),
                 ),
                 onPressed: _getCurrentPosition,
                 child: _isLoadingLocation
-                    ? const CircularProgressIndicator(color: AppColors.luxuryGold)
+                    ? const CircularProgressIndicator(
+                        color: AppColors.luxuryGold,
+                      )
                     : const Icon(Icons.my_location_rounded, size: 24),
               ),
             ),
@@ -323,7 +365,9 @@ class _MapPageState extends State<MapPage> {
                     return _DriverInfoCard(driver: driver);
                   }
                 }
-                return _DriverListCard(drivers: state is MapLoaded ? state.drivers : []);
+                return _DriverListCard(
+                  drivers: state is MapLoaded ? state.drivers : [],
+                );
               },
             ),
           ),
@@ -352,7 +396,10 @@ class _DriverInfoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.luxuryGold.withValues(alpha: 0.3), width: 1.5),
+        border: Border.all(
+          color: AppColors.luxuryGold.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.4),
@@ -368,7 +415,9 @@ class _DriverInfoCard extends StatelessWidget {
             padding: const EdgeInsets.all(3),
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(colors: [AppColors.luxuryGold, Color(0xFFFFD700)]),
+              gradient: LinearGradient(
+                colors: [AppColors.luxuryGold, Color(0xFFFFD700)],
+              ),
             ),
             child: CircleAvatar(
               radius: 35,
@@ -378,10 +427,16 @@ class _DriverInfoCard extends StatelessWidget {
                   : null,
               onForegroundImageError: (driver.avatar.isNotEmpty)
                   ? (exception, stackTrace) {
-                      debugPrint('Error loading map driver card avatar: $exception');
+                      debugPrint(
+                        'Error loading map driver card avatar: $exception',
+                      );
                     }
                   : null,
-              child: const Icon(Icons.person, size: 35, color: AppColors.luxuryGold),
+              child: const Icon(
+                Icons.person,
+                size: 35,
+                color: AppColors.luxuryGold,
+              ),
             ),
           ),
           const SizedBox(width: 20),
@@ -403,28 +458,42 @@ class _DriverInfoCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: AppColors.luxuryGold, size: 18),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: AppColors.luxuryGold,
+                      size: 18,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${driver.rating}',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: driver.isAvailable
                             ? Colors.greenAccent.withValues(alpha: 0.1)
                             : Colors.redAccent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: driver.isAvailable ? Colors.greenAccent.withValues(alpha: 0.3) : Colors.redAccent.withValues(alpha: 0.3),
+                          color: driver.isAvailable
+                              ? Colors.greenAccent.withValues(alpha: 0.3)
+                              : Colors.redAccent.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Text(
                         driver.isAvailable ? 'AVAILABLE' : 'BUSY',
                         style: TextStyle(
-                          color: driver.isAvailable ? Colors.greenAccent : Colors.redAccent,
+                          color: driver.isAvailable
+                              ? Colors.greenAccent
+                              : Colors.redAccent,
                           fontSize: 9,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1.0,
@@ -455,8 +524,12 @@ class _DriverInfoCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           backgroundColor: Colors.white.withValues(alpha: 0.05),
                           foregroundColor: Colors.white,
-                          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          side: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.1),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                       ),
                     ),
@@ -472,7 +545,9 @@ class _DriverInfoCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           backgroundColor: AppColors.luxuryGold,
                           foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                       ),
                     ),
@@ -565,7 +640,10 @@ class _DriverListCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.luxuryGold.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -586,7 +664,14 @@ class _DriverListCard extends StatelessWidget {
             const Center(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
-                child: Text('VYHĽADÁVAME VODIČOV...', style: TextStyle(color: Colors.white24, fontWeight: FontWeight.bold, fontSize: 12)),
+                child: Text(
+                  'VYHĽADÁVAME VODIČOV...',
+                  style: TextStyle(
+                    color: Colors.white24,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ),
           ] else ...[
@@ -616,7 +701,11 @@ class _DriverListCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: isOnline ? AppColors.luxuryGold.withValues(alpha: 0.5) : Colors.white10,
+                                    color: isOnline
+                                        ? AppColors.luxuryGold.withValues(
+                                            alpha: 0.5,
+                                          )
+                                        : Colors.white10,
                                   ),
                                 ),
                                 child: CircleAvatar(
@@ -625,7 +714,11 @@ class _DriverListCard extends StatelessWidget {
                                   foregroundImage: (driver.avatar.isNotEmpty)
                                       ? NetworkImage(driver.avatar)
                                       : null,
-                                  child: const Icon(Icons.person, size: 28, color: Colors.white12),
+                                  child: const Icon(
+                                    Icons.person,
+                                    size: 28,
+                                    color: Colors.white12,
+                                  ),
                                 ),
                               ),
                               if (isOnline)
@@ -638,7 +731,10 @@ class _DriverListCard extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: Colors.greenAccent,
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: const Color(0xFF111111), width: 2),
+                                      border: Border.all(
+                                        color: const Color(0xFF111111),
+                                        width: 2,
+                                      ),
                                     ),
                                   ),
                                 ),

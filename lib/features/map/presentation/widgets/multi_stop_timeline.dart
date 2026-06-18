@@ -65,21 +65,33 @@ class MultiStopTimeline extends StatelessWidget {
                       margin: const EdgeInsets.only(left: 14),
                       decoration: BoxDecoration(
                         border: Border(
-                          left: BorderSide(color: Colors.amber.shade200, width: 2),
+                          left: BorderSide(
+                            color: Colors.amber.shade200,
+                            width: 2,
+                          ),
                         ),
                       ),
-                      padding: const EdgeInsets.only(left: 16, bottom: 12, top: 4),
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        bottom: 12,
+                        top: 4,
+                      ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.place, color: Colors.amber.shade700, size: 20),
+                          Icon(
+                            Icons.place,
+                            color: Colors.amber.shade700,
+                            size: 20,
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Text(
@@ -94,11 +106,19 @@ class MultiStopTimeline extends StatelessWidget {
                                       children: [
                                         ReorderableDragStartListener(
                                           index: index,
-                                          child: const Icon(Icons.drag_indicator, color: Colors.grey),
+                                          child: const Icon(
+                                            Icons.drag_indicator,
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.close, color: Colors.red, size: 18),
-                                          onPressed: () => cubit.removeIntermediateStop(stop.id),
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.red,
+                                            size: 18,
+                                          ),
+                                          onPressed: () => cubit
+                                              .removeIntermediateStop(stop.id),
                                           constraints: const BoxConstraints(),
                                           padding: EdgeInsets.zero,
                                         ),
@@ -108,19 +128,32 @@ class MultiStopTimeline extends StatelessWidget {
                                 ),
                                 Text(
                                   stop.location.address,
-                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 12,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
 
                                 // Wait for me option
                                 Row(
                                   children: [
-                                    const Text('Počkaj ma:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                    const Text(
+                                      'Počkaj ma:',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
                                     const SizedBox(width: 8),
                                     Switch(
                                       value: stop.isWaitingEnabled,
                                       onChanged: (val) {
-                                        cubit.toggleWaitTime(stop.id, val, val ? 10 : 0);
+                                        cubit.toggleWaitTime(
+                                          stop.id,
+                                          val,
+                                          val ? 10 : 0,
+                                        );
                                       },
                                       activeThumbColor: AppColors.secondary,
                                     ),
@@ -128,7 +161,11 @@ class MultiStopTimeline extends StatelessWidget {
                                       const SizedBox(width: 8),
                                       Text(
                                         '${stop.waitingMinutes} min (+${(stop.waitingMinutes * 0.30).toStringAsFixed(2)} €)',
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amber),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.amber,
+                                        ),
                                       ),
                                     ],
                                   ],
@@ -143,7 +180,11 @@ class MultiStopTimeline extends StatelessWidget {
                                     activeColor: Colors.amber.shade700,
                                     inactiveColor: Colors.amber.shade100,
                                     onChanged: (val) {
-                                      cubit.toggleWaitTime(stop.id, true, val.toInt());
+                                      cubit.toggleWaitTime(
+                                        stop.id,
+                                        true,
+                                        val.toInt(),
+                                      );
                                     },
                                   ),
                               ],
@@ -163,16 +204,23 @@ class MultiStopTimeline extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border(
-                      left: BorderSide(
-                        color: Colors.grey.shade300,
-                        width: 2,
-                      ),
+                      left: BorderSide(color: Colors.grey.shade300, width: 2),
                     ),
                   ),
                   padding: const EdgeInsets.only(left: 32, top: 4, bottom: 12),
                   child: TextButton.icon(
-                    icon: const Icon(Icons.add_circle_outline, size: 20, color: AppColors.secondary),
-                    label: const Text('Pridať medzipristátie', style: TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold)),
+                    icon: const Icon(
+                      Icons.add_circle_outline,
+                      size: 20,
+                      color: AppColors.secondary,
+                    ),
+                    label: const Text(
+                      'Pridať medzipristátie',
+                      style: TextStyle(
+                        color: AppColors.secondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     onPressed: () => _showAddStopDialog(context),
                   ),
                 ),
@@ -235,7 +283,10 @@ class MultiStopTimeline extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
@@ -254,7 +305,9 @@ class MultiStopTimeline extends StatelessWidget {
           title: const Text('Pridať zastávku'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: MockGeocodingService.kosiceLocations.take(4).map((location) {
+            children: MockGeocodingService.kosiceLocations.take(4).map((
+              location,
+            ) {
               return ListTile(
                 title: Text(location.name),
                 subtitle: Text(location.address),

@@ -17,7 +17,10 @@ class EventsLocalDataSource {
     final eventsJson = box.get('cached_events') as List?;
     if (eventsJson != null) {
       return eventsJson
-          .map((json) => EventModel.fromJson(Map<String, dynamic>.from(json as Map)))
+          .map(
+            (json) =>
+                EventModel.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     }
     return [];

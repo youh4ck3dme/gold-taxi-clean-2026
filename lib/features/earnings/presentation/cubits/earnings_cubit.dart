@@ -8,10 +8,8 @@ class EarningsCubit extends Cubit<EarningsState> {
   final EarningsRepository _earningsRepository;
   final String driverId;
 
-  EarningsCubit({
-    required this._earningsRepository,
-    required this.driverId,
-  }) : super(EarningsInitial());
+  EarningsCubit({required this._earningsRepository, required this.driverId})
+    : super(EarningsInitial());
 
   /// Load earnings summary and recent earnings
   Future<void> loadEarningsSummary() async {
@@ -21,17 +19,16 @@ class EarningsCubit extends Cubit<EarningsState> {
     }
     try {
       emit(EarningsLoading());
-      
+
       final summary = await _earningsRepository.getEarningsSummary(driverId);
       final recentEarnings = await _earningsRepository.getDriverEarnings(
         driverId: driverId,
         limit: 10,
       );
-      
-      emit(EarningsSummaryLoaded(
-        summary: summary,
-        recentEarnings: recentEarnings,
-      ));
+
+      emit(
+        EarningsSummaryLoaded(summary: summary, recentEarnings: recentEarnings),
+      );
     } catch (e) {
       emit(EarningsError(e.toString()));
     }
@@ -41,9 +38,11 @@ class EarningsCubit extends Cubit<EarningsState> {
   Future<void> loadRideEarningsBreakdown(String rideId) async {
     try {
       emit(EarningsLoading());
-      
-      final breakdown = await _earningsRepository.getRideEarningsBreakdown(rideId);
-      
+
+      final breakdown = await _earningsRepository.getRideEarningsBreakdown(
+        rideId,
+      );
+
       emit(RideEarningsBreakdownLoaded(breakdown));
     } catch (e) {
       emit(EarningsError(e.toString()));
@@ -58,12 +57,12 @@ class EarningsCubit extends Cubit<EarningsState> {
     }
     try {
       emit(EarningsLoading());
-      
+
       final payouts = await _earningsRepository.getDriverPayouts(
         driverId: driverId,
         limit: 20,
       );
-      
+
       emit(PayoutsLoaded(payouts));
     } catch (e) {
       emit(EarningsError(e.toString()));
@@ -78,7 +77,7 @@ class EarningsCubit extends Cubit<EarningsState> {
     }
     try {
       emit(EarningsLoading());
-      
+
       final summary = await _earningsRepository.getEarningsSummary(driverId);
       final recentEarnings = await _earningsRepository.getDriverEarnings(
         driverId: driverId,
@@ -90,14 +89,18 @@ class EarningsCubit extends Cubit<EarningsState> {
         driverId: driverId,
         limit: 20,
       );
-      final bankAccount = await _earningsRepository.getDriverBankAccount(driverId);
-      
-      emit(EarningsDataLoaded(
-        summary: summary,
-        recentEarnings: recentEarnings,
-        payouts: payouts,
-        bankAccount: bankAccount,
-      ));
+      final bankAccount = await _earningsRepository.getDriverBankAccount(
+        driverId,
+      );
+
+      emit(
+        EarningsDataLoaded(
+          summary: summary,
+          recentEarnings: recentEarnings,
+          payouts: payouts,
+          bankAccount: bankAccount,
+        ),
+      );
     } catch (e) {
       emit(EarningsError(e.toString()));
     }
@@ -115,16 +118,16 @@ class EarningsCubit extends Cubit<EarningsState> {
     }
     try {
       emit(EarningsLoading());
-      
+
       final response = await _earningsRepository.requestPayout(
         driverId: driverId,
         amount: amount,
         stripeAccountId: stripeAccountId,
         bankAccountLast4: bankAccountLast4,
       );
-      
+
       emit(PayoutRequested(response));
-      
+
       // Reload data after payout request
       await loadAllData();
     } catch (e) {

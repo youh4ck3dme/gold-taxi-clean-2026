@@ -17,7 +17,10 @@ class BlogLocalDataSource {
     final postsJson = box.get('cached_posts') as List?;
     if (postsJson != null) {
       return postsJson
-          .map((json) => PostModel.fromJson(Map<String, dynamic>.from(json as Map)))
+          .map(
+            (json) =>
+                PostModel.fromJson(Map<String, dynamic>.from(json as Map)),
+          )
           .toList();
     }
     return [];

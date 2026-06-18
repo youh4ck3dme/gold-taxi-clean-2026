@@ -5,10 +5,7 @@ import '../../constants/app_colors.dart';
 class ShimmerListLoader extends StatelessWidget {
   final int itemCount;
 
-  const ShimmerListLoader({
-    super.key,
-    this.itemCount = 5,
-  });
+  const ShimmerListLoader({super.key, this.itemCount = 5});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +68,7 @@ class ShimmerListLoader extends StatelessWidget {
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),

@@ -19,17 +19,26 @@ void main() {
       expect(summary.total, 4520.80);
     });
 
-    test('getRideEarningsBreakdown returns breakdown with correct calculations', () async {
-      final breakdown = await repository.getRideEarningsBreakdown('ride_1');
-      expect(breakdown.rideId, 'ride_1');
-      expect(breakdown.totalAmount, greaterThanOrEqualTo(25.0));
-      expect(breakdown.appFee, closeTo(breakdown.totalAmount * 0.15, 0.01));
-      expect(breakdown.netAmount, closeTo(breakdown.totalAmount * 0.85, 0.01));
-      expect(breakdown.paymentStatus, PaymentStatus.completed);
-    });
+    test(
+      'getRideEarningsBreakdown returns breakdown with correct calculations',
+      () async {
+        final breakdown = await repository.getRideEarningsBreakdown('ride_1');
+        expect(breakdown.rideId, 'ride_1');
+        expect(breakdown.totalAmount, greaterThanOrEqualTo(25.0));
+        expect(breakdown.appFee, closeTo(breakdown.totalAmount * 0.15, 0.01));
+        expect(
+          breakdown.netAmount,
+          closeTo(breakdown.totalAmount * 0.85, 0.01),
+        );
+        expect(breakdown.paymentStatus, PaymentStatus.completed);
+      },
+    );
 
     test('getDriverEarnings returns correct count and data', () async {
-      final earningsList = await repository.getDriverEarnings(driverId: 'driver_test', limit: 5);
+      final earningsList = await repository.getDriverEarnings(
+        driverId: 'driver_test',
+        limit: 5,
+      );
       expect(earningsList.length, 5);
       for (final earn in earningsList) {
         expect(earn.driverId, 'driver_test');
@@ -40,7 +49,10 @@ void main() {
     });
 
     test('getDriverPayouts returns list of payouts', () async {
-      final payoutsList = await repository.getDriverPayouts(driverId: 'driver_test', limit: 3);
+      final payoutsList = await repository.getDriverPayouts(
+        driverId: 'driver_test',
+        limit: 3,
+      );
       expect(payoutsList.length, 3);
       for (final payout in payoutsList) {
         expect(payout.driverId, 'driver_test');

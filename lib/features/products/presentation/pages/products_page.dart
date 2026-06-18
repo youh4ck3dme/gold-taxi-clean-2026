@@ -50,13 +50,15 @@ class _ProductsPageState extends State<ProductsPage> {
                     ),
                     textInputAction: TextInputAction.search,
                     onFieldSubmitted: (value) {
-                      context.read<ProductsBloc>().add(FetchProducts(search: value));
+                      context.read<ProductsBloc>().add(
+                        FetchProducts(search: value),
+                      );
                     },
                     validator: null,
                     hintText: 'Názov produktu, SKU...',
                     keyboardType: TextInputType.text,
                   );
-                }
+                },
               ),
             ),
             Expanded(
@@ -69,40 +71,50 @@ class _ProductsPageState extends State<ProductsPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Chyba: ${state.message}', style: const TextStyle(color: Colors.red)),
+                          Text(
+                            'Chyba: ${state.message}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
-                              context.read<ProductsBloc>().add(FetchProducts(
-                                search: _searchController.text,
-                                isRefresh: true,
-                              ));
+                              context.read<ProductsBloc>().add(
+                                FetchProducts(
+                                  search: _searchController.text,
+                                  isRefresh: true,
+                                ),
+                              );
                             },
                             child: const Text('Skúsiť znova'),
-                          )
+                          ),
                         ],
                       ),
                     );
                   } else if (state is ProductsLoaded) {
                     final products = state.products;
                     if (products.isEmpty) {
-                      return const Center(child: Text('Nenašli sa žiadne produkty.'));
+                      return const Center(
+                        child: Text('Nenašli sa žiadne produkty.'),
+                      );
                     }
                     return RefreshIndicator(
                       onRefresh: () async {
-                        context.read<ProductsBloc>().add(FetchProducts(
-                          search: _searchController.text,
-                          isRefresh: true,
-                        ));
+                        context.read<ProductsBloc>().add(
+                          FetchProducts(
+                            search: _searchController.text,
+                            isRefresh: true,
+                          ),
+                        );
                       },
                       child: GridView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.75,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.75,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                            ),
                         itemCount: products.length,
                         itemBuilder: (context, index) {
                           final product = products[index];
@@ -145,11 +157,14 @@ class _ProductCard extends StatelessWidget {
                   ? Image.network(
                       product.images.first,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Center(
-                        child: Icon(Icons.image_not_supported, size: 40),
-                      ),
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Center(
+                            child: Icon(Icons.image_not_supported, size: 40),
+                          ),
                     )
-                  : const Center(child: Icon(Icons.image_not_supported, size: 40)),
+                  : const Center(
+                      child: Icon(Icons.image_not_supported, size: 40),
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -158,7 +173,10 @@ class _ProductCard extends StatelessWidget {
                 children: [
                   Text(
                     product.name,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -175,14 +193,22 @@ class _ProductCard extends StatelessWidget {
                         ),
                       ),
                       if ((product.stock ?? 0) > 0)
-                        const Icon(Icons.check_circle_outline, color: Colors.green, size: 16)
+                        const Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.green,
+                          size: 16,
+                        )
                       else
-                        const Icon(Icons.highlight_off, color: Colors.red, size: 16)
+                        const Icon(
+                          Icons.highlight_off,
+                          color: Colors.red,
+                          size: 16,
+                        ),
                     ],
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

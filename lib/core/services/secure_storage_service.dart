@@ -8,7 +8,8 @@ class SecureStorageService implements LocalStorageService {
 
   static const String _tokenKey = 'auth_token';
 
-  SecureStorageService({FlutterSecureStorage? storage}) : _storage = storage ?? const FlutterSecureStorage();
+  SecureStorageService({FlutterSecureStorage? storage})
+    : _storage = storage ?? const FlutterSecureStorage();
 
   /// Get authentication token
   @override

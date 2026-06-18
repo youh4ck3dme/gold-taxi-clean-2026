@@ -17,7 +17,9 @@ class InvoiceModel extends Equatable {
 
   /// Vypočíta status faktúry dynamicky na základe splatnosti a dátumu úhrady voči zadanému dátumu vyhodnotenia
   String getStatus(DateTime evaluationDate) {
-    if (paidDate != null && (paidDate!.isBefore(evaluationDate) || paidDate!.isAtSameMomentAs(evaluationDate))) {
+    if (paidDate != null &&
+        (paidDate!.isBefore(evaluationDate) ||
+            paidDate!.isAtSameMomentAs(evaluationDate))) {
       return 'paid';
     }
     if (evaluationDate.isAfter(dueDate)) {
@@ -28,7 +30,10 @@ class InvoiceModel extends Equatable {
 
   /// Počet dní oneskorenia úhrady voči zadanému dátumu vyhodnotenia
   int getDelayDays(DateTime evaluationDate) {
-    final isPaidAtEval = paidDate != null && (paidDate!.isBefore(evaluationDate) || paidDate!.isAtSameMomentAs(evaluationDate));
+    final isPaidAtEval =
+        paidDate != null &&
+        (paidDate!.isBefore(evaluationDate) ||
+            paidDate!.isAtSameMomentAs(evaluationDate));
     if (isPaidAtEval) {
       if (paidDate!.isAfter(dueDate)) {
         return paidDate!.difference(dueDate).inDays;
@@ -64,10 +69,13 @@ class InvoiceModel extends Equatable {
     final amount = double.tryParse(rawAmount?.toString() ?? '') ?? 0.0;
 
     final rawIssueDate = getField('issue_date') ?? json['date'] ?? '';
-    final issueDate = DateTime.tryParse(rawIssueDate.toString()) ?? DateTime.now();
+    final issueDate =
+        DateTime.tryParse(rawIssueDate.toString()) ?? DateTime.now();
 
     final rawDueDate = getField('due_date') ?? '';
-    final dueDate = DateTime.tryParse(rawDueDate.toString()) ?? issueDate.add(const Duration(days: 14));
+    final dueDate =
+        DateTime.tryParse(rawDueDate.toString()) ??
+        issueDate.add(const Duration(days: 14));
 
     final rawPaidDate = getField('paid_date');
     final paidDate = (rawPaidDate != null && rawPaidDate.toString().isNotEmpty)

@@ -14,6 +14,7 @@ import 'package:gold_taxi/models/ride_status.dart';
 import 'package:gold_taxi/models/ride_stop.dart';
 
 class MockRideCubit extends Mock implements RideCubit {}
+
 class MockAuthCubit extends Mock implements AuthCubit {}
 
 void main() {
@@ -28,32 +29,40 @@ void main() {
     mockRideCubit = MockRideCubit();
     mockAuthCubit = MockAuthCubit();
 
-    when(() => mockRideCubit.state).thenReturn(RideState(
-      status: RideStatus.requested,
-      intermediateStops: [
-        const RideStop(
-          id: 'stop_1',
-          location: LocationModel(
-            name: 'Aupark Košice',
-            address: 'Námestie osloboditeľov 1, Košice',
-            position: LatLng(48.7188, 21.2614),
+    when(() => mockRideCubit.state).thenReturn(
+      RideState(
+        status: RideStatus.requested,
+        intermediateStops: [
+          const RideStop(
+            id: 'stop_1',
+            location: LocationModel(
+              name: 'Aupark Košice',
+              address: 'Námestie osloboditeľov 1, Košice',
+              position: LatLng(48.7188, 21.2614),
+            ),
+            isWaitingEnabled: true,
+            waitingMinutes: 10,
           ),
-          isWaitingEnabled: true,
-          waitingMinutes: 10,
-        ),
-      ],
-    ));
-    when(() => mockRideCubit.stream).thenAnswer((_) => Stream.value(mockRideCubit.state));
-
-    when(() => mockAuthCubit.state).thenReturn(const Authenticated(
-      UserModel(
-        id: 'dev_user_123',
-        name: 'Developer',
-        email: 'dev@localhost',
-        role: UserRole.customer,
+        ],
       ),
-    ));
-    when(() => mockAuthCubit.stream).thenAnswer((_) => Stream.value(mockAuthCubit.state));
+    );
+    when(
+      () => mockRideCubit.stream,
+    ).thenAnswer((_) => Stream.value(mockRideCubit.state));
+
+    when(() => mockAuthCubit.state).thenReturn(
+      const Authenticated(
+        UserModel(
+          id: 'dev_user_123',
+          name: 'Developer',
+          email: 'dev@localhost',
+          role: UserRole.customer,
+        ),
+      ),
+    );
+    when(
+      () => mockAuthCubit.stream,
+    ).thenAnswer((_) => Stream.value(mockAuthCubit.state));
     when(() => mockRideCubit.checkZoneAndSurge(any())).thenAnswer((_) async {});
 
     getIt.registerSingleton<AuthCubit>(mockAuthCubit);
@@ -64,55 +73,62 @@ void main() {
   });
 
   group('Multi-Stop & Wait for me Widget Tests', () {
-    testWidgets('1. Timeline renders intermediate stops and "Wait for me" details', (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(800, 1200);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      '1. Timeline renders intermediate stops and "Wait for me" details',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MultiBlocProvider(
-              providers: [
-                BlocProvider<RideCubit>.value(value: mockRideCubit),
-                BlocProvider<AuthCubit>.value(value: mockAuthCubit),
-              ],
-              child: const RideRequestPage(
-                destination: LocationModel(
-                  name: 'Steel Aréna',
-                  address: 'Nerudova 12, Košice',
-                  position: LatLng(48.7154, 21.2492),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: MultiBlocProvider(
+                providers: [
+                  BlocProvider<RideCubit>.value(value: mockRideCubit),
+                  BlocProvider<AuthCubit>.value(value: mockAuthCubit),
+                ],
+                child: const RideRequestPage(
+                  destination: LocationModel(
+                    name: 'Steel Aréna',
+                    address: 'Nerudova 12, Košice',
+                    position: LatLng(48.7154, 21.2492),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Check Timeline elements
-      expect(find.text('Plánovanie trasy a zastávky'), findsOneWidget);
-      expect(find.text('Štart'), findsOneWidget);
-      expect(find.text('Cieľ'), findsOneWidget);
+        // Check Timeline elements
+        expect(find.text('Plánovanie trasy a zastávky'), findsOneWidget);
+        expect(find.text('Štart'), findsOneWidget);
+        expect(find.text('Cieľ'), findsOneWidget);
 
-      // Check intermediate stop
-      expect(find.text('Aupark Košice'), findsOneWidget);
-      expect(find.text('Počkaj ma:'), findsOneWidget);
-      
-      // Verify Slider and wait time text is displayed
-      expect(find.byType(Slider), findsOneWidget);
-      expect(find.text('10 min (+3.00 €)'), findsOneWidget);
-    });
+        // Check intermediate stop
+        expect(find.text('Aupark Košice'), findsOneWidget);
+        expect(find.text('Počkaj ma:'), findsOneWidget);
 
-    testWidgets('2. Toggle wait time triggers toggling cubit state', (WidgetTester tester) async {
+        // Verify Slider and wait time text is displayed
+        expect(find.byType(Slider), findsOneWidget);
+        expect(find.text('10 min (+3.00 €)'), findsOneWidget);
+      },
+    );
+
+    testWidgets('2. Toggle wait time triggers toggling cubit state', (
+      WidgetTester tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      when(() => mockRideCubit.toggleWaitTime('stop_1', false, 0)).thenAnswer((_) async {});
+      when(
+        () => mockRideCubit.toggleWaitTime('stop_1', false, 0),
+      ).thenAnswer((_) async {});
 
       await tester.pumpWidget(
         MaterialApp(

@@ -22,7 +22,9 @@ class RatingStars extends StatelessWidget {
         final starIndex = index + 1;
         IconData iconData;
         if (onRatingChanged != null) {
-          iconData = starIndex <= rating.round() ? Icons.star : Icons.star_border;
+          iconData = starIndex <= rating.round()
+              ? Icons.star
+              : Icons.star_border;
           return IconButton(
             icon: Icon(iconData, color: color, size: size),
             padding: EdgeInsets.zero,

@@ -8,7 +8,11 @@ class ServicesRemoteDataSource {
   ServicesRemoteDataSource(this._apiService);
 
   /// Fetch services from JetEngine API
-  Future<List<ServiceModel>> fetchServices({int page = 1, int perPage = 10, String? search}) async {
+  Future<List<ServiceModel>> fetchServices({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
     final Map<String, dynamic> queryParams = {
       'page': page,
       'per_page': perPage,
@@ -23,7 +27,9 @@ class ServicesRemoteDataSource {
     );
 
     if (response is List) {
-      return response.map((json) => ServiceModel.fromJson(json as Map<String, dynamic>)).toList();
+      return response
+          .map((json) => ServiceModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     }
     return [];
   }

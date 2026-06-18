@@ -40,7 +40,9 @@ class DriverPositionModel extends Equatable {
     final locationData = data['current_location'];
     if (locationData != null) {
       if (locationData is String) {
-        final match = RegExp(r'POINT\(([-0-9.]+) ([-0-9.]+)\)').firstMatch(locationData);
+        final match = RegExp(
+          r'POINT\(([-0-9.]+) ([-0-9.]+)\)',
+        ).firstMatch(locationData);
         if (match != null) {
           parsedLng = double.parse(match.group(1)!);
           parsedLat = double.parse(match.group(2)!);
@@ -54,12 +56,22 @@ class DriverPositionModel extends Equatable {
 
     // Handle nested vehicle data if present
     final vehicle = data['active_vehicle'] ?? {};
-    final carModel = (vehicle['make'] != null ? "${vehicle['make']} ${vehicle['model']}" : (data['vehicle_type'] ?? data['carModel'] ?? 'Unknown')) as String;
-    final carPlate = (vehicle['plate_number'] ?? data['vehicle_plate'] ?? data['carPlate'] ?? 'XXX-XXX') as String;
+    final carModel =
+        (vehicle['make'] != null
+                ? "${vehicle['make']} ${vehicle['model']}"
+                : (data['vehicle_type'] ?? data['carModel'] ?? 'Unknown'))
+            as String;
+    final carPlate =
+        (vehicle['plate_number'] ??
+                data['vehicle_plate'] ??
+                data['carPlate'] ??
+                'XXX-XXX')
+            as String;
 
     return DriverPositionModel(
       driverId: id,
-      name: (data['display_name'] ?? data['name'] ?? 'Unknown Driver') as String,
+      name:
+          (data['display_name'] ?? data['name'] ?? 'Unknown Driver') as String,
       avatar: (data['avatar'] ?? 'https://i.pravatar.cc/150?u=$id') as String,
       lat: parsedLat,
       lng: parsedLng,
@@ -70,7 +82,11 @@ class DriverPositionModel extends Equatable {
       serviceType: (data['serviceType'] ?? 'Standard') as String,
       rating: (data['rating'] ?? 0.0).toDouble(),
       phone: (data['phone'] ?? '') as String,
-      lastUpdated: DateTime.tryParse((data['updated_at'] ?? data['lastUpdated'] ?? '').toString()) ?? DateTime.now(),
+      lastUpdated:
+          DateTime.tryParse(
+            (data['updated_at'] ?? data['lastUpdated'] ?? '').toString(),
+          ) ??
+          DateTime.now(),
     );
   }
 

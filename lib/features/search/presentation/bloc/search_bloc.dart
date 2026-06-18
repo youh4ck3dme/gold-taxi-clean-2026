@@ -20,14 +20,20 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     return super.close();
   }
 
-  Future<void> _onLoadSearchHistory(LoadSearchHistory event, Emitter<SearchState> emit) async {
+  Future<void> _onLoadSearchHistory(
+    LoadSearchHistory event,
+    Emitter<SearchState> emit,
+  ) async {
     final history = await _searchRepository.getSearchHistory();
     emit(SearchInitial(history: history));
   }
 
-  Future<void> _onSearchQueryChanged(SearchQueryChanged event, Emitter<SearchState> emit) async {
+  Future<void> _onSearchQueryChanged(
+    SearchQueryChanged event,
+    Emitter<SearchState> emit,
+  ) async {
     _debounceTimer?.cancel();
-    
+
     if (event.query.trim().isEmpty) {
       final history = await _searchRepository.getSearchHistory();
       emit(SearchInitial(history: history));
@@ -51,7 +57,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
   }
 
-  Future<void> _onClearHistory(ClearHistory event, Emitter<SearchState> emit) async {
+  Future<void> _onClearHistory(
+    ClearHistory event,
+    Emitter<SearchState> emit,
+  ) async {
     await _searchRepository.clearSearchHistory();
     emit(const SearchInitial(history: []));
   }

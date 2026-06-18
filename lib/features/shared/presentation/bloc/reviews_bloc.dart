@@ -11,7 +11,10 @@ class ReviewsBloc extends Bloc<ReviewsEvent, ReviewsState> {
     on<SubmitReview>(_onSubmitReview);
   }
 
-  Future<void> _onFetchReviews(FetchReviews event, Emitter<ReviewsState> emit) async {
+  Future<void> _onFetchReviews(
+    FetchReviews event,
+    Emitter<ReviewsState> emit,
+  ) async {
     emit(ReviewsLoading());
     try {
       final reviews = await _reviewsRepository.getReviews(event.postId);
@@ -21,7 +24,10 @@ class ReviewsBloc extends Bloc<ReviewsEvent, ReviewsState> {
     }
   }
 
-  Future<void> _onSubmitReview(SubmitReview event, Emitter<ReviewsState> emit) async {
+  Future<void> _onSubmitReview(
+    SubmitReview event,
+    Emitter<ReviewsState> emit,
+  ) async {
     emit(ReviewSubmissionInProgress());
     try {
       final newReview = await _reviewsRepository.submitReview(

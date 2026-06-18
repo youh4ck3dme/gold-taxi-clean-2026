@@ -18,9 +18,7 @@ class ProfilePage extends StatelessWidget {
         builder: (context, state) {
           if (state is ProfileLoading || state is ProfileInitial) {
             return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
+              body: Center(child: CircularProgressIndicator()),
             );
           } else if (state is ProfileError) {
             return Scaffold(
@@ -31,16 +29,24 @@ class ProfilePage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Colors.redAccent,
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         'Nastala chyba: ${state.message}',
-                        style: const TextStyle(color: Colors.redAccent, fontSize: 16),
+                        style: const TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 16,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () => context.read<ProfileCubit>().fetchProfile(),
+                        onPressed: () =>
+                            context.read<ProfileCubit>().fetchProfile(),
                         child: const Text('Skúsiť znova'),
                       ),
                     ],
@@ -50,7 +56,7 @@ class ProfilePage extends StatelessWidget {
             );
           } else if (state is ProfileLoaded) {
             final user = state.user;
-            
+
             // Determine which view to show based on activeRole
             Widget currentView;
             String title = 'Profil';

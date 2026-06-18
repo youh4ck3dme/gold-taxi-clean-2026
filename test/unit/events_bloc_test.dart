@@ -41,38 +41,42 @@ void main() {
       expect(eventsBloc.state, isA<EventsInitial>());
     });
 
-    test('FetchEvents emits [EventsLoading, EventsLoaded] when repository succeeds', () async {
-      when(() => mockEventsRepository.getEvents(
+    test(
+      'FetchEvents emits [EventsLoading, EventsLoaded] when repository succeeds',
+      () async {
+        when(
+          () => mockEventsRepository.getEvents(
             page: any(named: 'page'),
             search: any(named: 'search'),
-          )).thenAnswer((_) async => [testEvent]);
+          ),
+        ).thenAnswer((_) async => [testEvent]);
 
-      expectLater(
-        eventsBloc.stream,
-        emitsInOrder([
-          isA<EventsLoading>(),
-          isA<EventsLoaded>(),
-        ]),
-      );
+        expectLater(
+          eventsBloc.stream,
+          emitsInOrder([isA<EventsLoading>(), isA<EventsLoaded>()]),
+        );
 
-      eventsBloc.add(const FetchEvents());
-    });
+        eventsBloc.add(const FetchEvents());
+      },
+    );
 
-    test('FetchEvents emits [EventsLoading, EventsError] when repository throws error', () async {
-      when(() => mockEventsRepository.getEvents(
+    test(
+      'FetchEvents emits [EventsLoading, EventsError] when repository throws error',
+      () async {
+        when(
+          () => mockEventsRepository.getEvents(
             page: any(named: 'page'),
             search: any(named: 'search'),
-          )).thenThrow(Exception('API error'));
+          ),
+        ).thenThrow(Exception('API error'));
 
-      expectLater(
-        eventsBloc.stream,
-        emitsInOrder([
-          isA<EventsLoading>(),
-          isA<EventsError>(),
-        ]),
-      );
+        expectLater(
+          eventsBloc.stream,
+          emitsInOrder([isA<EventsLoading>(), isA<EventsError>()]),
+        );
 
-      eventsBloc.add(const FetchEvents());
-    });
+        eventsBloc.add(const FetchEvents());
+      },
+    );
   });
 }

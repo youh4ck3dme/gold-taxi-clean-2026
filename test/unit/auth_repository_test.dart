@@ -30,7 +30,7 @@ void main() {
     mockStorageService = MockLocalStorageService();
     mockSupabaseClient = MockSupabaseClient();
     mockAuth = MockGoTrueClient();
-    
+
     when(() => mockSupabaseClient.auth).thenReturn(mockAuth);
 
     authRepository = SupabaseAuthRepository(
@@ -43,10 +43,10 @@ void main() {
     test('login returns true and saves token on successful API call', () async {
       final mockResponse = MockAuthResponse();
       final mockSession = MockSession();
-      
+
       when(() => mockResponse.session).thenReturn(mockSession);
       when(() => mockSession.accessToken).thenReturn('mock_supabase_token');
-      
+
       when(
         () => mockAuth.signInWithPassword(
           email: 'testuser@test.com',
@@ -58,10 +58,15 @@ void main() {
         () => mockStorageService.saveToken('mock_supabase_token'),
       ).thenAnswer((_) async {});
 
-      final result = await authRepository.login('testuser@test.com', 'password123');
+      final result = await authRepository.login(
+        'testuser@test.com',
+        'password123',
+      );
 
       expect(result, isTrue);
-      verify(() => mockStorageService.saveToken('mock_supabase_token')).called(1);
+      verify(
+        () => mockStorageService.saveToken('mock_supabase_token'),
+      ).called(1);
     });
 
     test('login returns false when API throws error', () async {
@@ -72,7 +77,10 @@ void main() {
         ),
       ).thenThrow(const AuthException('Invalid credentials'));
 
-      final result = await authRepository.login('wronguser@test.com', 'wrongpassword');
+      final result = await authRepository.login(
+        'wronguser@test.com',
+        'wrongpassword',
+      );
 
       expect(result, isFalse);
       verifyNever(() => mockStorageService.saveToken(any()));
@@ -104,7 +112,5 @@ void main() {
 
       expect(result, isFalse);
     });
-
-
   });
 }

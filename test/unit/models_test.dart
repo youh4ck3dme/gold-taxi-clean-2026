@@ -19,10 +19,10 @@ void main() {
         'sku': 'TAXI-001',
         'stock_quantity': 5,
         'images': [
-          {'src': 'https://example.com/image.png'}
+          {'src': 'https://example.com/image.png'},
         ],
         'categories': [
-          {'name': 'Merch'}
+          {'name': 'Merch'},
         ],
       };
 
@@ -78,7 +78,7 @@ void main() {
         'category': 'Celebration',
         'price': '25.0',
         'images': [
-          {'url': 'https://example.com/gala.png'}
+          {'url': 'https://example.com/gala.png'},
         ],
       };
 
@@ -162,18 +162,18 @@ void main() {
         'tags': [5],
         '_embedded': {
           'author': [
-            {'name': 'Jozef Admin'}
+            {'name': 'Jozef Admin'},
           ],
           'wp:featuredmedia': [
-            {'source_url': 'https://example.com/taxi-pobocka.png'}
+            {'source_url': 'https://example.com/taxi-pobocka.png'},
           ],
           'wp:term': [
             [
               {'name': 'Správy', 'taxonomy': 'category'},
-              {'name': 'Novinky', 'taxonomy': 'category'}
-            ]
-          ]
-        }
+              {'name': 'Novinky', 'taxonomy': 'category'},
+            ],
+          ],
+        },
       };
 
       final post = PostModel.fromJson(json);

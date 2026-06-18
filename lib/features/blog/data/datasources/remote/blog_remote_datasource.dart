@@ -7,7 +7,11 @@ class BlogRemoteDataSource {
   BlogRemoteDataSource(SupabaseClient supabase) : _supabase = supabase;
 
   /// Fetch posts from Supabase
-  Future<List<PostModel>> fetchPosts({int page = 1, int perPage = 10, String? search}) async {
+  Future<List<PostModel>> fetchPosts({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
     final from = (page - 1) * perPage;
     final to = from + perPage - 1;
 
@@ -24,4 +28,3 @@ class BlogRemoteDataSource {
     return response.map((json) => PostModel.fromSupabaseJson(json)).toList();
   }
 }
-

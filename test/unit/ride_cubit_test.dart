@@ -13,12 +13,24 @@ import 'package:gold_taxi/core/di/service_locator.dart';
 import 'package:gold_taxi/features/map/data/repositories/promo_repository.dart';
 
 class MockRideRepository extends Mock implements RideRepository {}
+
 class MockPromoRepository extends Mock implements PromoRepository {}
+
 class MockAnalyticsService extends Mock implements AnalyticsService {
   @override
-  Future<void> logRideRequested({required String rideId, required double estimatedPrice, required int stopCount, required String vehicleType}) async {}
+  Future<void> logRideRequested({
+    required String rideId,
+    required double estimatedPrice,
+    required int stopCount,
+    required String vehicleType,
+  }) async {}
   @override
-  Future<void> recordError(dynamic exception, StackTrace? stack, {dynamic reason, bool fatal = false}) async {}
+  Future<void> recordError(
+    dynamic exception,
+    StackTrace? stack, {
+    dynamic reason,
+    bool fatal = false,
+  }) async {}
 }
 
 class FakeRideModel extends Fake implements RideModel {}
@@ -52,133 +64,197 @@ void main() {
       expect(rideCubit.state.isCheckingZone, false);
     });
 
-    test('checkZoneAndSurge emits states with isCheckingZone, isInZone, and surgeMultiplier on success (inside zone)', () async {
-      when(() => mockRideRepository.checkLocationInZone(any(), any())).thenAnswer((_) async => true);
-      when(() => mockRideRepository.getSurgeMultiplier(any(), any())).thenAnswer((_) async => 1.5);
+    test(
+      'checkZoneAndSurge emits states with isCheckingZone, isInZone, and surgeMultiplier on success (inside zone)',
+      () async {
+        when(
+          () => mockRideRepository.checkLocationInZone(any(), any()),
+        ).thenAnswer((_) async => true);
+        when(
+          () => mockRideRepository.getSurgeMultiplier(any(), any()),
+        ).thenAnswer((_) async => 1.5);
 
-      expectLater(
-        rideCubit.stream,
-        emitsInOrder([
-          predicate<RideState>((state) => state.isCheckingZone == true && state.errorMessage == null),
-          predicate<RideState>((state) => state.isCheckingZone == false && state.isInZone == true && state.surgeMultiplier == 1.5),
-        ]),
-      );
+        expectLater(
+          rideCubit.stream,
+          emitsInOrder([
+            predicate<RideState>(
+              (state) =>
+                  state.isCheckingZone == true && state.errorMessage == null,
+            ),
+            predicate<RideState>(
+              (state) =>
+                  state.isCheckingZone == false &&
+                  state.isInZone == true &&
+                  state.surgeMultiplier == 1.5,
+            ),
+          ]),
+        );
 
-      await rideCubit.checkZoneAndSurge(const LatLng(48.7219, 21.2575));
-    });
+        await rideCubit.checkZoneAndSurge(const LatLng(48.7219, 21.2575));
+      },
+    );
 
-    test('checkZoneAndSurge emits error and isInZone=false when location is outside zone', () async {
-      when(() => mockRideRepository.checkLocationInZone(any(), any())).thenAnswer((_) async => false);
+    test(
+      'checkZoneAndSurge emits error and isInZone=false when location is outside zone',
+      () async {
+        when(
+          () => mockRideRepository.checkLocationInZone(any(), any()),
+        ).thenAnswer((_) async => false);
 
-      expectLater(
-        rideCubit.stream,
-        emitsInOrder([
-          predicate<RideState>((state) => state.isCheckingZone == true),
-          predicate<RideState>((state) => state.isCheckingZone == false && state.isInZone == false && state.errorMessage == 'V tejto oblasti zatiaľ nejazdíme'),
-        ]),
-      );
+        expectLater(
+          rideCubit.stream,
+          emitsInOrder([
+            predicate<RideState>((state) => state.isCheckingZone == true),
+            predicate<RideState>(
+              (state) =>
+                  state.isCheckingZone == false &&
+                  state.isInZone == false &&
+                  state.errorMessage == 'V tejto oblasti zatiaľ nejazdíme',
+            ),
+          ]),
+        );
 
-      await rideCubit.checkZoneAndSurge(const LatLng(48.1486, 17.1077));
-    });
+        await rideCubit.checkZoneAndSurge(const LatLng(48.1486, 17.1077));
+      },
+    );
 
-    test('checkZoneAndSurge emits error state when repository throws exception', () async {
-      when(() => mockRideRepository.checkLocationInZone(any(), any())).thenThrow(Exception('DB error'));
+    test(
+      'checkZoneAndSurge emits error state when repository throws exception',
+      () async {
+        when(
+          () => mockRideRepository.checkLocationInZone(any(), any()),
+        ).thenThrow(Exception('DB error'));
 
-      expectLater(
-        rideCubit.stream,
-        emitsInOrder([
-          predicate<RideState>((state) => state.isCheckingZone == true),
-          predicate<RideState>((state) => state.isCheckingZone == false && state.errorMessage!.contains('Nepodarilo sa overiť polohu')),
-        ]),
-      );
+        expectLater(
+          rideCubit.stream,
+          emitsInOrder([
+            predicate<RideState>((state) => state.isCheckingZone == true),
+            predicate<RideState>(
+              (state) =>
+                  state.isCheckingZone == false &&
+                  state.errorMessage!.contains('Nepodarilo sa overiť polohu'),
+            ),
+          ]),
+        );
 
-      await rideCubit.checkZoneAndSurge(const LatLng(48.7219, 21.2575));
-    });
+        await rideCubit.checkZoneAndSurge(const LatLng(48.7219, 21.2575));
+      },
+    );
 
-    test('requestRide successfully calls createRide and updates status', () async {
-      final mockRide = RideModel(
-        id: 'ride_123',
-        customerId: 'customer_1',
-        pickupAddress: 'Kosice',
-        pickupLatLng: const LatLng(48.7219, 21.2575),
-        dropoffAddress: 'Presov',
-        dropoffLatLng: const LatLng(48.9981, 21.2393),
-        serviceType: ServiceType.standard,
-        estimatedDistance: 35.0,
-        estimatedDuration: 70.0,
-        estimatedPrice: 35.0,
-        status: RideStatus.requested,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+    test(
+      'requestRide successfully calls createRide and updates status',
+      () async {
+        final mockRide = RideModel(
+          id: 'ride_123',
+          customerId: 'customer_1',
+          pickupAddress: 'Kosice',
+          pickupLatLng: const LatLng(48.7219, 21.2575),
+          dropoffAddress: 'Presov',
+          dropoffLatLng: const LatLng(48.9981, 21.2393),
+          serviceType: ServiceType.standard,
+          estimatedDistance: 35.0,
+          estimatedDuration: 70.0,
+          estimatedPrice: 35.0,
+          status: RideStatus.requested,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
 
-      when(() => mockRideRepository.createRide(any())).thenAnswer((_) async => mockRide);
-      // Use a never-ending stream for the subscription
-      when(() => mockRideRepository.getRide(any())).thenAnswer((_) => const Stream.empty());
+        when(
+          () => mockRideRepository.createRide(any()),
+        ).thenAnswer((_) async => mockRide);
+        // Use a never-ending stream for the subscription
+        when(
+          () => mockRideRepository.getRide(any()),
+        ).thenAnswer((_) => const Stream.empty());
 
-      // Just verify the repository is called correctly
-      await rideCubit.requestRide(
-        customerId: 'customer_1',
-        pickupAddress: 'Kosice',
-        pickupLatLng: const LatLng(48.7219, 21.2575),
-        dropoffAddress: 'Presov',
-        dropoffLatLng: const LatLng(48.9981, 21.2393),
-        serviceType: ServiceType.standard,
-        distance: 35.0,
-        estimate: 35.0,
-      );
+        // Just verify the repository is called correctly
+        await rideCubit.requestRide(
+          customerId: 'customer_1',
+          pickupAddress: 'Kosice',
+          pickupLatLng: const LatLng(48.7219, 21.2575),
+          dropoffAddress: 'Presov',
+          dropoffLatLng: const LatLng(48.9981, 21.2393),
+          serviceType: ServiceType.standard,
+          distance: 35.0,
+          estimate: 35.0,
+        );
 
-      await untilCalled(() => mockRideRepository.createRide(any()));
-      verify(() => mockRideRepository.createRide(any())).called(1);
-    });
+        await untilCalled(() => mockRideRepository.createRide(any()));
+        verify(() => mockRideRepository.createRide(any())).called(1);
+      },
+    );
 
-    test('RideCubit subscribes to getRide and emits updated states on status change (realtime)', () async {
-      final rideStreamController = StreamController<RideModel?>.broadcast();
-      when(() => mockRideRepository.getRide(any())).thenAnswer((_) => rideStreamController.stream);
+    test(
+      'RideCubit subscribes to getRide and emits updated states on status change (realtime)',
+      () async {
+        final rideStreamController = StreamController<RideModel?>.broadcast();
+        when(
+          () => mockRideRepository.getRide(any()),
+        ).thenAnswer((_) => rideStreamController.stream);
 
-      final mockRide = RideModel(
-        id: 'ride_123',
-        customerId: 'customer_1',
-        pickupAddress: 'Kosice',
-        pickupLatLng: const LatLng(48.7219, 21.2575),
-        dropoffAddress: 'Presov',
-        dropoffLatLng: const LatLng(48.9981, 21.2393),
-        serviceType: ServiceType.standard,
-        estimatedDistance: 35.0,
-        estimatedDuration: 70.0,
-        estimatedPrice: 35.0,
-        status: RideStatus.requested,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+        final mockRide = RideModel(
+          id: 'ride_123',
+          customerId: 'customer_1',
+          pickupAddress: 'Kosice',
+          pickupLatLng: const LatLng(48.7219, 21.2575),
+          dropoffAddress: 'Presov',
+          dropoffLatLng: const LatLng(48.9981, 21.2393),
+          serviceType: ServiceType.standard,
+          estimatedDistance: 35.0,
+          estimatedDuration: 70.0,
+          estimatedPrice: 35.0,
+          status: RideStatus.requested,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
 
-      when(() => mockRideRepository.createRide(any())).thenAnswer((_) async => mockRide);
+        when(
+          () => mockRideRepository.createRide(any()),
+        ).thenAnswer((_) async => mockRide);
 
-      expectLater(
-        rideCubit.stream,
-        emitsInOrder([
-          predicate<RideState>((state) => state.status == RideStatus.requested && state.currentRide?.id == 'ride_123'),
-          predicate<RideState>((state) => state.status == RideStatus.accepted && state.currentRide?.status == RideStatus.accepted),
-          predicate<RideState>((state) => state.status == RideStatus.inProgress && state.currentRide?.status == RideStatus.inProgress),
-        ]),
-      );
+        expectLater(
+          rideCubit.stream,
+          emitsInOrder([
+            predicate<RideState>(
+              (state) =>
+                  state.status == RideStatus.requested &&
+                  state.currentRide?.id == 'ride_123',
+            ),
+            predicate<RideState>(
+              (state) =>
+                  state.status == RideStatus.accepted &&
+                  state.currentRide?.status == RideStatus.accepted,
+            ),
+            predicate<RideState>(
+              (state) =>
+                  state.status == RideStatus.inProgress &&
+                  state.currentRide?.status == RideStatus.inProgress,
+            ),
+          ]),
+        );
 
-      await rideCubit.requestRide(
-        customerId: 'customer_1',
-        pickupAddress: 'Kosice',
-        pickupLatLng: const LatLng(48.7219, 21.2575),
-        dropoffAddress: 'Presov',
-        dropoffLatLng: const LatLng(48.9981, 21.2393),
-        serviceType: ServiceType.standard,
-        distance: 35.0,
-        estimate: 35.0,
-      );
+        await rideCubit.requestRide(
+          customerId: 'customer_1',
+          pickupAddress: 'Kosice',
+          pickupLatLng: const LatLng(48.7219, 21.2575),
+          dropoffAddress: 'Presov',
+          dropoffLatLng: const LatLng(48.9981, 21.2393),
+          serviceType: ServiceType.standard,
+          distance: 35.0,
+          estimate: 35.0,
+        );
 
-      rideStreamController.add(mockRide.copyWith(status: RideStatus.accepted));
-      rideStreamController.add(mockRide.copyWith(status: RideStatus.inProgress));
+        rideStreamController.add(
+          mockRide.copyWith(status: RideStatus.accepted),
+        );
+        rideStreamController.add(
+          mockRide.copyWith(status: RideStatus.inProgress),
+        );
 
-      await Future.delayed(const Duration(milliseconds: 100));
-      await rideStreamController.close();
-    });
+        await Future.delayed(const Duration(milliseconds: 100));
+        await rideStreamController.close();
+      },
+    );
   });
 }

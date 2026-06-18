@@ -15,7 +15,8 @@ bool isGoogleMapsInitialized() {
   try {
     if (window.hasProperty('google'.toJS).toDart) {
       final google = window.getProperty('google'.toJS);
-      if (google != null && (google as JSObject).hasProperty('maps'.toJS).toDart) {
+      if (google != null &&
+          (google as JSObject).hasProperty('maps'.toJS).toDart) {
         return true;
       }
     }
@@ -43,15 +44,13 @@ Future<bool> ensureGoogleMapsInitialized() async {
     ..id = 'google-maps-js'
     ..async = true
     ..defer = true
-    ..src = Uri.https(
-      'maps.googleapis.com',
-      '/maps/api/js',
-      {
-        'key': _googleMapsApiKey,
-      },
-    ).toString();
+    ..src = Uri.https('maps.googleapis.com', '/maps/api/js', {
+      'key': _googleMapsApiKey,
+    }).toString();
 
-  script.onLoad.first.then((_) => completer.complete(isGoogleMapsInitialized()));
+  script.onLoad.first.then(
+    (_) => completer.complete(isGoogleMapsInitialized()),
+  );
   script.onError.first.then((_) => completer.complete(false));
   html.document.head?.append(script);
 

@@ -50,13 +50,15 @@ class _ServicesPageState extends State<ServicesPage> {
                     ),
                     textInputAction: TextInputAction.search,
                     onFieldSubmitted: (value) {
-                      context.read<ServicesBloc>().add(FetchServices(search: value));
+                      context.read<ServicesBloc>().add(
+                        FetchServices(search: value),
+                      );
                     },
                     validator: null,
                     hintText: 'Názov služby, kategória...',
                     keyboardType: TextInputType.text,
                   );
-                }
+                },
               ),
             ),
             Expanded(
@@ -69,31 +71,40 @@ class _ServicesPageState extends State<ServicesPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Chyba: ${state.message}', style: const TextStyle(color: Colors.red)),
+                          Text(
+                            'Chyba: ${state.message}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
-                              context.read<ServicesBloc>().add(FetchServices(
-                                search: _searchController.text,
-                                isRefresh: true,
-                              ));
+                              context.read<ServicesBloc>().add(
+                                FetchServices(
+                                  search: _searchController.text,
+                                  isRefresh: true,
+                                ),
+                              );
                             },
                             child: const Text('Skúsiť znova'),
-                          )
+                          ),
                         ],
                       ),
                     );
                   } else if (state is ServicesLoaded) {
                     final services = state.services;
                     if (services.isEmpty) {
-                      return const Center(child: Text('Nenašli sa žiadne služby.'));
+                      return const Center(
+                        child: Text('Nenašli sa žiadne služby.'),
+                      );
                     }
                     return RefreshIndicator(
                       onRefresh: () async {
-                        context.read<ServicesBloc>().add(FetchServices(
-                          search: _searchController.text,
-                          isRefresh: true,
-                        ));
+                        context.read<ServicesBloc>().add(
+                          FetchServices(
+                            search: _searchController.text,
+                            isRefresh: true,
+                          ),
+                        );
                       },
                       child: ListView.builder(
                         itemCount: services.length,
@@ -164,7 +175,10 @@ class _ServiceCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             service.rating.toStringAsFixed(1),
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -173,13 +187,19 @@ class _ServiceCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     service.name,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    service.description.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ''),
+                    service.description.replaceAll(
+                      RegExp(r'<[^>]*>|&[^;]+;'),
+                      '',
+                    ),
                     style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -200,17 +220,20 @@ class _ServiceCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Poskytuje: ${service.provider}',
-                          style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 12,
+                          ),
                           textAlign: TextAlign.end,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

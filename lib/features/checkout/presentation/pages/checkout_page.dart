@@ -54,7 +54,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       // WooCommerce API order format
       final orderData = {
         'payment_method': _paymentMethod,
-        'payment_method_title': _paymentMethod == 'cod' ? 'Na dobierku' : 'Kartou online',
+        'payment_method_title': _paymentMethod == 'cod'
+            ? 'Na dobierku'
+            : 'Kartou online',
         'set_paid': false,
         'billing': {
           'first_name': _firstNameController.text,
@@ -75,10 +77,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           'country': 'SK',
         },
         'line_items': cartState.items.map((item) {
-          return {
-            'product_id': item.product.id,
-            'quantity': item.quantity,
-          };
+          return {'product_id': item.product.id, 'quantity': item.quantity};
         }).toList(),
       };
 
@@ -105,7 +104,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
         method: _paymentMethod,
         errorReason: e.toString(),
       );
-      await getIt<AnalyticsService>().recordError(e, stack, reason: 'Checkout order submission failed');
+      await getIt<AnalyticsService>().recordError(
+        e,
+        stack,
+        reason: 'Checkout order submission failed',
+      );
       if (mounted) {
         setState(() {
           _isSubmitting = false;
@@ -145,7 +148,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         child: AppTextField(
                           controller: _firstNameController,
                           labelText: 'Meno',
-                          validator: (v) => v == null || v.isEmpty ? 'Meno je povinné' : null,
+                          validator: (v) =>
+                              v == null || v.isEmpty ? 'Meno je povinné' : null,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -153,7 +157,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         child: AppTextField(
                           controller: _lastNameController,
                           labelText: 'Priezvisko',
-                          validator: (v) => v == null || v.isEmpty ? 'Priezvisko je povinné' : null,
+                          validator: (v) => v == null || v.isEmpty
+                              ? 'Priezvisko je povinné'
+                              : null,
                         ),
                       ),
                     ],
@@ -163,14 +169,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     controller: _emailController,
                     labelText: 'E-mail',
                     keyboardType: TextInputType.emailAddress,
-                    validator: (v) => v == null || v.isEmpty ? 'E-mail je povinný' : null,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'E-mail je povinný' : null,
                   ),
                   const SizedBox(height: 12),
                   AppTextField(
                     controller: _phoneController,
                     labelText: 'Telefón',
                     keyboardType: TextInputType.phone,
-                    validator: (v) => v == null || v.isEmpty ? 'Telefón je povinný' : null,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Telefón je povinný' : null,
                   ),
                   const SizedBox(height: 24),
                   const Text(
@@ -181,7 +189,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   AppTextField(
                     controller: _addressController,
                     labelText: 'Ulica a číslo domu',
-                    validator: (v) => v == null || v.isEmpty ? 'Ulica je povinná' : null,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ulica je povinná' : null,
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -191,7 +200,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         child: AppTextField(
                           controller: _cityController,
                           labelText: 'Mesto',
-                          validator: (v) => v == null || v.isEmpty ? 'Mesto je povinné' : null,
+                          validator: (v) => v == null || v.isEmpty
+                              ? 'Mesto je povinné'
+                              : null,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -201,7 +212,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           controller: _zipController,
                           labelText: 'PSČ',
                           keyboardType: TextInputType.number,
-                          validator: (v) => v == null || v.isEmpty ? 'PSČ je povinné' : null,
+                          validator: (v) =>
+                              v == null || v.isEmpty ? 'PSČ je povinné' : null,
                         ),
                       ),
                     ],
@@ -238,7 +250,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     children: [
                       const Text(
                         'Celková suma:',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         '${state.total.toStringAsFixed(2)} €',

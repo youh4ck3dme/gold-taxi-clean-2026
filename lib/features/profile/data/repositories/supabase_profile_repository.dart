@@ -65,12 +65,20 @@ class SupabaseProfileRepository implements ProfileRepository {
     }
 
     // 1. Upsert vehicle record
-    final vehicleResponse = await _client.from('vehicles').upsert({
-      'plate_number': vehiclePlate,
-      'make': vehicleType.split(' ').first,
-      'model': vehicleType.split(' ').length > 1 ? vehicleType.split(' ').sublist(1).join(' ') : 'Unknown',
-      'vehicle_class': serviceClasses.contains('premium') ? 'premium' : (serviceClasses.contains('comfort') ? 'comfort' : 'standard'),
-    }).select().single();
+    final vehicleResponse = await _client
+        .from('vehicles')
+        .upsert({
+          'plate_number': vehiclePlate,
+          'make': vehicleType.split(' ').first,
+          'model': vehicleType.split(' ').length > 1
+              ? vehicleType.split(' ').sublist(1).join(' ')
+              : 'Unknown',
+          'vehicle_class': serviceClasses.contains('premium')
+              ? 'premium'
+              : (serviceClasses.contains('comfort') ? 'comfort' : 'standard'),
+        })
+        .select()
+        .single();
 
     final vehicleId = vehicleResponse['id'] as String;
 
@@ -81,10 +89,7 @@ class SupabaseProfileRepository implements ProfileRepository {
       'is_online': isOnline,
     };
 
-    await _client
-        .from('drivers')
-        .update(updatePayload)
-        .eq('user_id', user.id);
+    await _client.from('drivers').update(updatePayload).eq('user_id', user.id);
   }
 
   @override
@@ -118,11 +123,15 @@ class SupabaseProfileRepository implements ProfileRepository {
     for (final ride in completedRides) {
       final price = (ride['final_price'] ?? ride['estimated_price']);
       if (price != null) {
-        totalEarnings += (price is num) ? price.toDouble() : double.tryParse(price.toString()) ?? 0;
+        totalEarnings += (price is num)
+            ? price.toDouble()
+            : double.tryParse(price.toString()) ?? 0;
       }
       final rating = ride['rating'];
       if (rating != null) {
-        ratingSum += (rating is num) ? rating.toDouble() : double.tryParse(rating.toString()) ?? 0;
+        ratingSum += (rating is num)
+            ? rating.toDouble()
+            : double.tryParse(rating.toString()) ?? 0;
         ratingCount++;
       }
     }
@@ -157,12 +166,20 @@ class SupabaseProfileRepository implements ProfileRepository {
     }
 
     // 1. Upsert vehicle record
-    final vehicleResponse = await _client.from('vehicles').upsert({
-      'plate_number': vehiclePlate,
-      'make': vehicleType.split(' ').first,
-      'model': vehicleType.split(' ').length > 1 ? vehicleType.split(' ').sublist(1).join(' ') : 'Unknown',
-      'vehicle_class': serviceClasses.contains('premium') ? 'premium' : (serviceClasses.contains('comfort') ? 'comfort' : 'standard'),
-    }).select().single();
+    final vehicleResponse = await _client
+        .from('vehicles')
+        .upsert({
+          'plate_number': vehiclePlate,
+          'make': vehicleType.split(' ').first,
+          'model': vehicleType.split(' ').length > 1
+              ? vehicleType.split(' ').sublist(1).join(' ')
+              : 'Unknown',
+          'vehicle_class': serviceClasses.contains('premium')
+              ? 'premium'
+              : (serviceClasses.contains('comfort') ? 'comfort' : 'standard'),
+        })
+        .select()
+        .single();
 
     final vehicleId = vehicleResponse['id'] as String;
 
@@ -194,7 +211,9 @@ class SupabaseProfileRepository implements ProfileRepository {
     // Format check
     final ext = fileName.split('.').last.toLowerCase();
     if (ext != 'jpg' && ext != 'jpeg' && ext != 'png') {
-      throw Exception('Nepodporovaný formát súboru. Nahrajte iba JPG, JPEG alebo PNG.');
+      throw Exception(
+        'Nepodporovaný formát súboru. Nahrajte iba JPG, JPEG alebo PNG.',
+      );
     }
 
     // Size check (max 5 MB)
@@ -202,11 +221,16 @@ class SupabaseProfileRepository implements ProfileRepository {
       throw Exception('Súbor je príliš veľký. Maximálna veľkosť je 5 MB.');
     }
 
-    final path = '${user.id}/${documentType}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final path =
+        '${user.id}/${documentType}_${DateTime.now().millisecondsSinceEpoch}.$ext';
 
-    await _client.storage.from('driver-documents').uploadBinary(path, Uint8List.fromList(bytes));
+    await _client.storage
+        .from('driver-documents')
+        .uploadBinary(path, Uint8List.fromList(bytes));
 
-    final publicUrl = _client.storage.from('driver-documents').getPublicUrl(path);
+    final publicUrl = _client.storage
+        .from('driver-documents')
+        .getPublicUrl(path);
     return publicUrl;
   }
 
@@ -248,9 +272,7 @@ class SupabaseProfileRepository implements ProfileRepository {
 
   @override
   Future<void> sendPhoneOtp(String phone) async {
-    await _client.auth.signInWithOtp(
-      phone: phone,
-    );
+    await _client.auth.signInWithOtp(phone: phone);
   }
 
   @override
@@ -283,7 +305,8 @@ class SupabaseProfileRepository implements ProfileRepository {
         .eq('id', currentUser.id)
         .single();
 
-    if (currentProfile['referral_code']?.toString().toUpperCase() == cleanCode) {
+    if (currentProfile['referral_code']?.toString().toUpperCase() ==
+        cleanCode) {
       throw Exception('Nemôžete použiť vlastný referenčný kód.');
     }
 

@@ -42,17 +42,24 @@ class DriverVerificationStatusPage extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        isPending ? Icons.verified_user_outlined : Icons.gpp_bad_outlined,
+                        isPending
+                            ? Icons.verified_user_outlined
+                            : Icons.gpp_bad_outlined,
                         size: 80,
                         color: isPending ? Colors.blue[800] : Colors.red[800],
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Title
                     Text(
-                      isPending ? 'Dokumenty sa kontrolujú' : 'Váš účet vodiča bol zablokovaný',
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      isPending
+                          ? 'Dokumenty sa kontrolujú'
+                          : 'Váš účet vodiča bol zablokovaný',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -62,7 +69,11 @@ class DriverVerificationStatusPage extends StatelessWidget {
                       isPending
                           ? 'Naši administrátori momentálne overujú vaše nahrané dokumenty. Tento proces zvyčajne trvá menej ako 24 hodín. O schválení vás budeme informovať.'
                           : 'Váš účet vodiča bol zablokovaný z dôvodu porušenia našich obchodných podmienok alebo nízkeho priemerného hodnotenia. Ak si myslíte, že ide o chybu, kontaktujte našu podporu.',
-                      style: TextStyle(fontSize: 15, color: Colors.grey[700], height: 1.4),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey[700],
+                        height: 1.4,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 40),
@@ -76,7 +87,9 @@ class DriverVerificationStatusPage extends StatelessWidget {
                           backgroundColor: Colors.blue[800],
                           foregroundColor: Colors.white,
                           minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         onPressed: () {
                           context.read<ProfileCubit>().fetchProfile();
@@ -87,11 +100,16 @@ class DriverVerificationStatusPage extends StatelessWidget {
 
                     OutlinedButton.icon(
                       icon: const Icon(Icons.logout, color: Colors.redAccent),
-                      label: const Text('Odhlásiť sa', style: TextStyle(color: Colors.redAccent)),
+                      label: const Text(
+                        'Odhlásiť sa',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.redAccent),
                         minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       onPressed: () {
                         getIt<AuthCubit>().logout();

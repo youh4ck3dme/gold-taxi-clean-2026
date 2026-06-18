@@ -23,7 +23,6 @@ class EarningsPage extends StatelessWidget {
   }
 }
 
-
 class _EarningsPageContent extends StatefulWidget {
   const _EarningsPageContent();
 
@@ -78,9 +77,9 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                   return const _LoadingCard();
                 },
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Period Selector
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -94,9 +93,9 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                   _buildPeriodChip('Všetko', 'all'),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Earnings Chart
               BlocBuilder<EarningsCubit, EarningsState>(
                 builder: (context, state) {
@@ -116,9 +115,9 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                   return const _LoadingChart();
                 },
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Recent Earnings Title & Date Range / CSV Actions
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -135,10 +134,12 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                     children: [
                       IconButton(
                         icon: Icon(
-                          _selectedDateRange != null 
-                              ? Icons.date_range 
+                          _selectedDateRange != null
+                              ? Icons.date_range
                               : Icons.date_range_outlined,
-                          color: _selectedDateRange != null ? Colors.blue : Colors.black87,
+                          color: _selectedDateRange != null
+                              ? Colors.blue
+                              : Colors.black87,
                         ),
                         onPressed: _selectDateRange,
                         tooltip: 'Filtrovať podľa dátumu',
@@ -158,8 +159,10 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                         builder: (context, state) {
                           final earnings = state is EarningsDataLoaded
                               ? state.recentEarnings
-                              : (state is EarningsSummaryLoaded ? state.recentEarnings : <EarningsModel>[]);
-                          
+                              : (state is EarningsSummaryLoaded
+                                    ? state.recentEarnings
+                                    : <EarningsModel>[]);
+
                           return IconButton(
                             icon: const Icon(Icons.download),
                             onPressed: earnings.isEmpty
@@ -185,7 +188,7 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                 ),
               ],
               const SizedBox(height: 12),
-              
+
               BlocBuilder<EarningsCubit, EarningsState>(
                 builder: (context, state) {
                   if (state is EarningsLoading) {
@@ -198,7 +201,7 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                   return const _LoadingList();
                 },
               ),
-              
+
               const SizedBox(height: 24),
 
               // Bank Account Section
@@ -224,9 +227,9 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                   return const SizedBox();
                 },
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Payouts Section
               const Text(
                 'Výplaty',
@@ -237,7 +240,7 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               BlocBuilder<EarningsCubit, EarningsState>(
                 builder: (context, state) {
                   if (state is EarningsLoading) {
@@ -256,7 +259,7 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
                   return const _PayoutsList(payouts: [], onRequestPayout: null);
                 },
               ),
-              
+
               const SizedBox(height: 24),
             ],
           ),
@@ -310,18 +313,20 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
 
   void _exportToCsv(List<EarningsModel> earnings) {
     final csvContent = StringBuffer();
-    csvContent.writeln('ID jazdy;Dátum;Celková suma (€);Poplatok aplikácie (€);Čistý zárobok (€);Spôsob platby;Stav platby');
-    
+    csvContent.writeln(
+      'ID jazdy;Dátum;Celková suma (€);Poplatok aplikácie (€);Čistý zárobok (€);Spôsob platby;Stav platby',
+    );
+
     final dateFormatter = DateFormat('dd.MM.yyyy HH:mm');
-    
+
     for (final earning in earnings) {
-      final methodText = earning.paymentMethod == PaymentMethod.cash 
-          ? 'Hotovosť' 
+      final methodText = earning.paymentMethod == PaymentMethod.cash
+          ? 'Hotovosť'
           : (earning.paymentMethod == PaymentMethod.card ? 'Karta' : 'Stripe');
-      final statusText = earning.paymentStatus == PaymentStatus.completed 
-          ? 'Dokončené' 
+      final statusText = earning.paymentStatus == PaymentStatus.completed
+          ? 'Dokončené'
           : 'Prebieha';
-          
+
       csvContent.writeln(
         '${earning.rideId};'
         '${dateFormatter.format(earning.createdAt)};'
@@ -329,21 +334,14 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
         '${earning.appFee.toStringAsFixed(2)};'
         '${earning.netAmount.toStringAsFixed(2)};'
         '$methodText;'
-        '$statusText'
+        '$statusText',
       );
     }
-    
+
     final bytes = Uint8List.fromList(utf8.encode(csvContent.toString()));
-    Share.shareXFiles(
-      [
-        XFile.fromData(
-          bytes,
-          name: 'export_zarobkov.csv',
-          mimeType: 'text/csv',
-        ),
-      ],
-      subject: 'Export zárobkov',
-    );
+    Share.shareXFiles([
+      XFile.fromData(bytes, name: 'export_zarobkov.csv', mimeType: 'text/csv'),
+    ], subject: 'Export zárobkov');
   }
 
   void _showPayoutDialog(BuildContext context) {
@@ -358,7 +356,8 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
       context: context,
       builder: (dialogContext) {
         final TextEditingController amountController = TextEditingController();
-        final TextEditingController bankLast4Controller = TextEditingController();
+        final TextEditingController bankLast4Controller =
+            TextEditingController();
 
         return AlertDialog(
           title: const Text('Vyžiadať Výplatu'),
@@ -422,7 +421,9 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final amount = double.tryParse(amountController.text.replaceAll(',', '.'));
+                final amount = double.tryParse(
+                  amountController.text.replaceAll(',', '.'),
+                );
                 if (amount == null || amount <= 0) {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
@@ -435,8 +436,8 @@ class _EarningsPageContentState extends State<_EarningsPageContent> {
 
                 await cubit.requestPayout(
                   amount: amount,
-                  bankAccountLast4: bankLast4Controller.text.isNotEmpty 
-                      ? bankLast4Controller.text 
+                  bankAccountLast4: bankLast4Controller.text.isNotEmpty
+                      ? bankLast4Controller.text
                       : null,
                 );
 
@@ -461,19 +462,14 @@ class _BankAccountCard extends StatelessWidget {
   final BankAccountModel? bankAccount;
   final String driverId;
 
-  const _BankAccountCard({
-    required this.bankAccount,
-    required this.driverId,
-  });
+  const _BankAccountCard({required this.bankAccount, required this.driverId});
 
   @override
   Widget build(BuildContext context) {
     if (bankAccount == null) {
       return Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -507,9 +503,7 @@ class _BankAccountCard extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -522,7 +516,10 @@ class _BankAccountCard extends StatelessWidget {
                 children: [
                   Text(
                     bankAccount!.bankName ?? 'Neznáma banka',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -547,7 +544,9 @@ class _BankAccountCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        bankAccount!.status == 'verified' ? 'Overený' : 'Čaká na overenie',
+                        bankAccount!.status == 'verified'
+                            ? 'Overený'
+                            : 'Čaká na overenie',
                         style: TextStyle(
                           fontSize: 11,
                           color: bankAccount!.status == 'verified'
@@ -662,9 +661,7 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -704,10 +701,7 @@ class _EarningsChart extends StatelessWidget {
   final List<EarningsModel> earnings;
   final String selectedPeriod;
 
-  const _EarningsChart({
-    required this.earnings,
-    required this.selectedPeriod,
-  });
+  const _EarningsChart({required this.earnings, required this.selectedPeriod});
 
   @override
   Widget build(BuildContext context) {
@@ -857,9 +851,7 @@ class _EarningsList extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: ListView.separated(
@@ -901,8 +893,8 @@ class _EarningsListItem extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              earning.paymentMethod == PaymentMethod.cash 
-                  ? Icons.money 
+              earning.paymentMethod == PaymentMethod.cash
+                  ? Icons.money
                   : Icons.credit_card,
               color: Colors.green,
             ),
@@ -920,10 +912,7 @@ class _EarningsListItem extends StatelessWidget {
                   ),
                   Text(
                     '${dateFormatter.format(earning.createdAt)} ${timeFormatter.format(earning.createdAt)}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -943,8 +932,8 @@ class _EarningsListItem extends StatelessWidget {
                   earning.paymentStatus.name,
                   style: TextStyle(
                     fontSize: 10,
-                    color: earning.paymentStatus == PaymentStatus.completed 
-                        ? Colors.green 
+                    color: earning.paymentStatus == PaymentStatus.completed
+                        ? Colors.green
                         : Colors.orange,
                   ),
                 ),
@@ -1050,7 +1039,9 @@ class _BreakdownRow extends StatelessWidget {
           Text(
             currencyFormat.format(value),
             style: TextStyle(
-              color: isFee ? Colors.red : (isHighlighted ? Colors.green : Colors.black87),
+              color: isFee
+                  ? Colors.red
+                  : (isHighlighted ? Colors.green : Colors.black87),
               fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -1110,9 +1101,7 @@ class _PayoutsList extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: ListView.separated(
@@ -1308,10 +1297,7 @@ class _ErrorCard extends StatelessWidget {
           const Icon(Icons.error_outline, color: Colors.red),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(color: Colors.red),
-            ),
+            child: Text(message, style: const TextStyle(color: Colors.red)),
           ),
           IconButton(
             icon: const Icon(Icons.refresh, size: 18),

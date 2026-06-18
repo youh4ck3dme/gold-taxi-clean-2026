@@ -13,7 +13,10 @@ class ChatRepository {
         .stream(primaryKey: ['id'])
         .eq('ride_id', rideId)
         .order('created_at', ascending: true)
-        .map((data) => data.map((json) => ChatMessageModel.fromJson(json)).toList());
+        .map(
+          (data) =>
+              data.map((json) => ChatMessageModel.fromJson(json)).toList(),
+        );
   }
 
   /// Send a new message
@@ -46,7 +49,7 @@ class ChatRepository {
           'receiverId': receiverId,
         },
       );
-      
+
       if (response.status == 200 && response.data != null) {
         final data = response.data as Map<String, dynamic>;
         return data['proxyNumber'] as String?;

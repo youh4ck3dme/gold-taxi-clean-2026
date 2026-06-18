@@ -21,11 +21,14 @@ class BookingModel extends Equatable {
     final acf = json['acf'] as Map<String, dynamic>? ?? {};
 
     T getField<T>(String key, T defaultValue) {
-      return (json[key] ?? meta[key] ?? jetMeta[key] ?? acf[key]) as T? ?? defaultValue;
+      return (json[key] ?? meta[key] ?? jetMeta[key] ?? acf[key]) as T? ??
+          defaultValue;
     }
 
     dynamic rawServiceId = getField<dynamic>('service_id', 0);
-    int serviceId = rawServiceId is int ? rawServiceId : (int.tryParse(rawServiceId.toString()) ?? 0);
+    int serviceId = rawServiceId is int
+        ? rawServiceId
+        : (int.tryParse(rawServiceId.toString()) ?? 0);
 
     String rawDate = getField<String>('booking_date', '');
     if (rawDate.isEmpty) {

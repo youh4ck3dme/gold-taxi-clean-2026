@@ -7,7 +7,11 @@ class ProductsRemoteDataSource {
   ProductsRemoteDataSource(SupabaseClient supabase) : _supabase = supabase;
 
   /// Fetch products from Supabase
-  Future<List<ProductModel>> fetchProducts({int page = 1, int perPage = 10, String? search}) async {
+  Future<List<ProductModel>> fetchProducts({
+    int page = 1,
+    int perPage = 10,
+    String? search,
+  }) async {
     final from = (page - 1) * perPage;
     final to = from + perPage - 1;
 

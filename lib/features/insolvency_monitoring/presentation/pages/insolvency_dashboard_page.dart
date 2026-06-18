@@ -14,11 +14,17 @@ class InsolvencyDashboardPage extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return BlocProvider(
-      create: (context) => getIt<InsolvencyCubit>()..loadScenario('Reálne dáta (WordPress)'),
+      create: (context) =>
+          getIt<InsolvencyCubit>()..loadScenario('Reálne dáta (WordPress)'),
       child: Scaffold(
-        backgroundColor: isDarkMode ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+        backgroundColor: isDarkMode
+            ? const Color(0xFF0F172A)
+            : const Color(0xFFF8FAFC),
         appBar: AppBar(
-          title: const Text('Monitoring úpadku', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text(
+            'Monitoring úpadku',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           backgroundColor: isDarkMode ? const Color(0xFF1E293B) : Colors.white,
           elevation: 0,
           foregroundColor: isDarkMode ? Colors.white : Colors.black,
@@ -26,11 +32,18 @@ class InsolvencyDashboardPage extends StatelessWidget {
         body: BlocBuilder<InsolvencyCubit, InsolvencyState>(
           builder: (context, state) {
             if (state is InsolvencyLoading) {
-              return const Center(child: CircularProgressIndicator(color: Color(0xFF4285F4)));
+              return const Center(
+                child: CircularProgressIndicator(color: Color(0xFF4285F4)),
+              );
             }
 
             if (state is InsolvencyError) {
-              return Center(child: Text(state.message, style: const TextStyle(color: Colors.red)));
+              return Center(
+                child: Text(
+                  state.message,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              );
             }
 
             if (state is InsolvencyLoaded) {
@@ -80,9 +93,15 @@ class InsolvencyDashboardPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF1E293B)
+            : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF334155)
+              : const Color(0xFFE2E8F0),
+        ),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -94,7 +113,10 @@ class InsolvencyDashboardPage extends StatelessWidget {
               value: s,
               child: Text(
                 s,
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                ),
               ),
             );
           }).toList(),
@@ -187,7 +209,9 @@ class InsolvencyDashboardPage extends StatelessWidget {
                     child: CircularProgressIndicator(
                       value: pred.riskScore / 100,
                       strokeWidth: 8,
-                      backgroundColor: isDarkMode ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                      backgroundColor: isDarkMode
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFE2E8F0),
                       color: riskColor,
                     ),
                   ),
@@ -208,7 +232,11 @@ class InsolvencyDashboardPage extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.warning_rounded, color: Color(0xFFEF4444), size: 28),
+                const Icon(
+                  Icons.warning_rounded,
+                  color: Color(0xFFEF4444),
+                  size: 28,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -216,7 +244,9 @@ class InsolvencyDashboardPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13.5,
                       fontWeight: FontWeight.bold,
-                      color: isDarkMode ? const Color(0xFFFCA5A5) : const Color(0xFFB91C1C),
+                      color: isDarkMode
+                          ? const Color(0xFFFCA5A5)
+                          : const Color(0xFFB91C1C),
                       height: 1.35,
                     ),
                   ),
@@ -249,11 +279,16 @@ class InsolvencyDashboardPage extends StatelessWidget {
               context: context,
               width: width,
               title: 'Trend splátok (90d)',
-              value: '${pred.delayTrend > 0 ? '+' : ''}${pred.delayTrend.toStringAsFixed(1)} dní',
-              icon: pred.delayTrend > 0 ? Icons.trending_up : Icons.trending_down,
+              value:
+                  '${pred.delayTrend > 0 ? '+' : ''}${pred.delayTrend.toStringAsFixed(1)} dní',
+              icon: pred.delayTrend > 0
+                  ? Icons.trending_up
+                  : Icons.trending_down,
               color: pred.delayTrend > 5
                   ? const Color(0xFFEF4444)
-                  : (pred.delayTrend < -5 ? const Color(0xFF10B981) : Colors.amber),
+                  : (pred.delayTrend < -5
+                        ? const Color(0xFF10B981)
+                        : Colors.amber),
             ),
             _buildStatCard(
               context: context,
@@ -293,7 +328,9 @@ class InsolvencyDashboardPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,17 +352,17 @@ class InsolvencyDashboardPage extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRiskFactorsCard(BuildContext context, InsolvencyPrediction pred) {
+  Widget _buildRiskFactorsCard(
+    BuildContext context,
+    InsolvencyPrediction pred,
+  ) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -334,7 +371,9 @@ class InsolvencyDashboardPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,8 +390,12 @@ class InsolvencyDashboardPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
-                    pred.riskLevel == 'Vysoké' ? Icons.warning_amber_rounded : Icons.info_outline,
-                    color: pred.riskLevel == 'Vysoké' ? Colors.redAccent : Colors.blueAccent,
+                    pred.riskLevel == 'Vysoké'
+                        ? Icons.warning_amber_rounded
+                        : Icons.info_outline,
+                    color: pred.riskLevel == 'Vysoké'
+                        ? Colors.redAccent
+                        : Colors.blueAccent,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
@@ -411,7 +454,11 @@ class InsolvencyDashboardPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isDarkMode ? const Color(0xFF1E293B) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: isDarkMode ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                border: Border.all(
+                  color: isDarkMode
+                      ? const Color(0xFF334155)
+                      : const Color(0xFFE2E8F0),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -421,18 +468,27 @@ class InsolvencyDashboardPage extends StatelessWidget {
                     children: [
                       Text(
                         inv.id,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Splatnosť: ${DateFormat('dd.MM.yyyy').format(inv.dueDate)}',
-                        style: TextStyle(color: Colors.grey[500], fontSize: 12.5),
+                        style: TextStyle(
+                          color: Colors.grey[500],
+                          fontSize: 12.5,
+                        ),
                       ),
                       if (inv.paidDate != null) ...[
                         const SizedBox(height: 2),
                         Text(
                           'Uhradené: ${DateFormat('dd.MM.yyyy').format(inv.paidDate!)}',
-                          style: TextStyle(color: Colors.grey[500], fontSize: 12.5),
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 12.5,
+                          ),
                         ),
                       ],
                     ],
@@ -442,11 +498,17 @@ class InsolvencyDashboardPage extends StatelessWidget {
                     children: [
                       Text(
                         '${inv.amount.toStringAsFixed(2)} €',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: statusColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
@@ -464,7 +526,11 @@ class InsolvencyDashboardPage extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           'Oneskorenie: ${inv.delayDays} dní',
-                          style: const TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ],

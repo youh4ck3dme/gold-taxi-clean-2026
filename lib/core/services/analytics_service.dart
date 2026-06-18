@@ -3,10 +3,7 @@ import 'package:flutter/foundation.dart';
 class AnalyticsService {
   final bool isEnabled;
 
-  AnalyticsService({
-    dynamic analytics,
-    this.isEnabled = true,
-  }) {
+  AnalyticsService({dynamic analytics, this.isEnabled = true}) {
     _init();
   }
 
