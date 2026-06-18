@@ -26,7 +26,7 @@ class DriverProfileService {
       _logger.i('📝 Saving driver profile: ${driver.driverId}');
 
       // Convert driver model to map for Supabase
-      final driverData = driver.toMap();
+      final driverData = driver.toMap()..remove('bearing');
 
       // Upsert (insert or update) the driver profile
       final data = await _supabase
@@ -54,7 +54,7 @@ class DriverProfileService {
     try {
       _logger.i('🆕 Creating new driver profile: ${driver.driverId}');
 
-      final driverData = driver.toMap();
+      final driverData = driver.toMap()..remove('bearing');
 
       final data = await _supabase
           .from(tableName)

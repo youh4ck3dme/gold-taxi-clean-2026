@@ -105,10 +105,13 @@ class SupabaseRideRepository implements RideRepository {
 
   @override
   Stream<List<RideModel>> getAllRides() {
+    // Admin dashboard: shows all rides with valid statuses.
+    // Uses .neq('status', '') as semantic filter since RLS ensures users only see their own rides.
+    // RLS policy: "Users can see involved rides" checks customer_id, driver_id, or admin role.
     return _client
         .from('rides')
         .stream(primaryKey: ['id'])
-        .neq('id', '')
+        .neq('status', '')
         .order('created_at', ascending: false)
         .map((data) => data.map((json) => RideModel.fromJson(json)).toList());
   }

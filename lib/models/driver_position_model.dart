@@ -82,6 +82,11 @@ class DriverPositionModel extends Equatable {
       'is_online': isAvailable,
       'phone': phone,
       'updated_at': lastUpdated.toIso8601String(),
+      'current_lat': lat,
+      'current_lng': lng,
+      'bearing': bearing,
+      'vehicle_type': carModel,
+      'vehicle_plate': carPlate,
     };
   }
 

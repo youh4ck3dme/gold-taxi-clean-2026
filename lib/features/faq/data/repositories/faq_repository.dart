@@ -17,6 +17,10 @@ class FaqRepository {
 
     if (isOnline) {
       try {
+        // Note: .neq('id', '') is a temporary compatibility guard.
+        // The faqs table does not have an is_active field in the current schema.
+        // RLS policy "Anyone can read faqs" allows public read access.
+        // TODO: Consider adding is_active boolean field for soft-deletion.
         final response = await _supabase
             .from('faqs')
             .select()

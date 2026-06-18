@@ -227,7 +227,7 @@ void main() {
 
       final faq = FaqModel.fromJson(faqJson);
 
-      expect(faq.id, 1);
+      expect(faq.id, '1');
       expect(faq.question, 'Čo je to Gold Taxi?');
       expect(faq.answer, 'Gold Taxi je prémiová taxislužba.');
       expect(faq.category, 'Služby');
