@@ -1,7 +1,6 @@
 {
   "buildCommand": "true",
   "outputDirectory": "public",
-  "cleanUrls": true,
   "trailingSlash": false,
   
   "rewrites": [
@@ -18,7 +17,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ],
