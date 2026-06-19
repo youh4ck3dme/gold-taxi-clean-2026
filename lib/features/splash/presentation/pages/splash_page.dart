@@ -30,13 +30,15 @@ class _SplashPageState extends State<SplashPage>
 
   void _initializeVideo() {
     _videoController = VideoPlayerController.asset('assets/videos/splash.mp4')
-      ..initialize().then((_) {
-        setState(() {});
-        _videoController.play();
-        _videoController.setLooping(true); // Loop forever until skip
-      }).catchError((error) {
-        debugPrint('❌ Video Error: $error');
-      });
+      ..initialize()
+          .then((_) {
+            setState(() {});
+            _videoController.play();
+            _videoController.setLooping(true); // Loop forever until skip
+          })
+          .catchError((error) {
+            debugPrint('❌ Video Error: $error');
+          });
   }
 
   Future<void> _onSkipPressed() async {
@@ -90,9 +92,7 @@ class _SplashPageState extends State<SplashPage>
             // Fade-to-dark overlay (triggered on skip)
             FadeTransition(
               opacity: _fadeController,
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.7),
-              ),
+              child: Container(color: Colors.black.withValues(alpha: 0.7)),
             ),
 
             // Skip button - App icon (bottom-right corner)

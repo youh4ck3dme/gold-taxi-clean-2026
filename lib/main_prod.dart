@@ -8,7 +8,8 @@ void main() {
   // Production builds must never run in mock mode.
   // These guards are evaluated at *compile time* (const) so tree-shaking
   // removes any unreachable mock-mode branches from release binaries.
-  const mockMode = bool.fromEnvironment('MOCK_MODE', defaultValue: false) ||
+  const mockMode =
+      bool.fromEnvironment('MOCK_MODE', defaultValue: false) ||
       String.fromEnvironment('BACKEND_MODE') == 'mock';
   assert(!mockMode, 'MOCK_MODE must be false in production builds.');
   if (mockMode) {

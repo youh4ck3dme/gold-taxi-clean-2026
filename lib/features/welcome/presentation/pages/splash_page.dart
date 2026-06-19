@@ -23,8 +23,7 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage>
-    with TickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   late VideoPlayerController _videoController;
   bool _isVideoInitialized = false;
   bool _isAppInitialized = false;
@@ -59,10 +58,7 @@ class _SplashPageState extends State<SplashPage>
       duration: const Duration(milliseconds: 800),
     );
     _skipButtonFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _skipButtonController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _skipButtonController, curve: Curves.easeOut),
     );
 
     // Pulse animation for the skip button glow
@@ -227,8 +223,9 @@ class _SplashPageState extends State<SplashPage>
                   return Opacity(
                     opacity: _fadeAnimation.value,
                     child: const CircularProgressIndicator(
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(Color(0xFFC59B47)),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFFC59B47),
+                      ),
                     ),
                   );
                 },
@@ -285,10 +282,7 @@ class _SkipIconButton extends StatefulWidget {
   final double pulseValue;
   final VoidCallback onPressed;
 
-  const _SkipIconButton({
-    required this.pulseValue,
-    required this.onPressed,
-  });
+  const _SkipIconButton({required this.pulseValue, required this.onPressed});
 
   @override
   State<_SkipIconButton> createState() => _SkipIconButtonState();
@@ -321,8 +315,9 @@ class _SkipIconButtonState extends State<_SkipIconButton> {
               boxShadow: [
                 // Outer gold glow (pulsing)
                 BoxShadow(
-                  color: const Color(0xFFC59B47)
-                      .withValues(alpha: 0.35 * widget.pulseValue),
+                  color: const Color(
+                    0xFFC59B47,
+                  ).withValues(alpha: 0.35 * widget.pulseValue),
                   blurRadius: 20 * widget.pulseValue,
                   spreadRadius: 2 * widget.pulseValue,
                 ),

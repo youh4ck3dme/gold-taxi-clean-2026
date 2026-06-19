@@ -17,22 +17,87 @@ class FakeAssetBundle extends AssetBundle {
   final ByteData manifest;
 
   FakeAssetBundle()
-      : manifest = const StandardMessageCodec().encodeMessage(<Object?, Object?>{
-          'assets/icon/icon.png': <Map<String, Object>>[
-            <String, String>{'asset': 'assets/icon/icon.png'},
-          ],
-        })!;
+    : manifest = const StandardMessageCodec().encodeMessage(<Object?, Object?>{
+        'assets/icon/icon.png': <Map<String, Object>>[
+          <String, String>{'asset': 'assets/icon/icon.png'},
+        ],
+      })!;
 
   @override
   Future<ByteData> load(String key) async {
     if (key == 'assets/icon/icon.png') {
       // 1x1 transparent PNG bytes to allow successful image decoding in tests
-      return ByteData.sublistView(Uint8List.fromList([
-        137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82,
-        0, 0, 0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 21, 196, 137,
-        0, 0, 0, 11, 73, 68, 65, 84, 8, 215, 99, 96, 0, 0, 0, 2,
-        0, 1, 226, 33, 188, 51, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130
-      ]));
+      return ByteData.sublistView(
+        Uint8List.fromList([
+          137,
+          80,
+          78,
+          71,
+          13,
+          10,
+          26,
+          10,
+          0,
+          0,
+          0,
+          13,
+          73,
+          72,
+          68,
+          82,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1,
+          8,
+          6,
+          0,
+          0,
+          0,
+          31,
+          21,
+          196,
+          137,
+          0,
+          0,
+          0,
+          11,
+          73,
+          68,
+          65,
+          84,
+          8,
+          215,
+          99,
+          96,
+          0,
+          0,
+          0,
+          2,
+          0,
+          1,
+          226,
+          33,
+          188,
+          51,
+          0,
+          0,
+          0,
+          0,
+          73,
+          69,
+          78,
+          68,
+          174,
+          66,
+          96,
+          130,
+        ]),
+      );
     }
     if (key == 'AssetManifest.bin' || key == 'AssetManifest.bin.json') {
       return manifest;
@@ -103,11 +168,13 @@ class FakeVideoPlayerPlatform extends VideoPlayerPlatform
       // Simulate initialization event after a microtask
       scheduleMicrotask(() {
         if (!controller.isClosed) {
-          controller.add(VideoEvent(
-            eventType: VideoEventType.initialized,
-            duration: const Duration(seconds: 10),
-            size: const Size(1920, 1080),
-          ));
+          controller.add(
+            VideoEvent(
+              eventType: VideoEventType.initialized,
+              duration: const Duration(seconds: 10),
+              size: const Size(1920, 1080),
+            ),
+          );
         }
       });
       return controller.stream;
@@ -125,42 +192,39 @@ void main() {
   });
 
   group('SplashPage Widget Tests', () {
-    testWidgets('renders loader initially, then shows VideoPlayer once initialized', (
-      WidgetTester tester,
-    ) async {
-      final router = GoRouter(
-        initialLocation: '/splash',
-        routes: [
-          GoRoute(
-            path: '/splash',
-            builder: (context, state) => BlocProvider(
-              create: (_) => SplashCubit(),
-              child: DefaultAssetBundle(
-                bundle: FakeAssetBundle(),
-                child: const SplashPage(),
+    testWidgets(
+      'renders loader initially, then shows VideoPlayer once initialized',
+      (WidgetTester tester) async {
+        final router = GoRouter(
+          initialLocation: '/splash',
+          routes: [
+            GoRoute(
+              path: '/splash',
+              builder: (context, state) => BlocProvider(
+                create: (_) => SplashCubit(),
+                child: DefaultAssetBundle(
+                  bundle: FakeAssetBundle(),
+                  child: const SplashPage(),
+                ),
               ),
             ),
-          ),
-        ],
-      );
+          ],
+        );
 
-      await tester.pumpWidget(
-        MaterialApp.router(
-          routerConfig: router,
-        ),
-      );
+        await tester.pumpWidget(MaterialApp.router(routerConfig: router));
 
-      // Initially should show the loader
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        // Initially should show the loader
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      // Advance frames so that the microtask fires and the mock video initializes
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
+        // Advance frames so that the microtask fires and the mock video initializes
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
 
-      // After initialization, loader should be gone and VideoPlayer should be visible
-      expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.byType(AspectRatio), findsOneWidget);
-    });
+        // After initialization, loader should be gone and VideoPlayer should be visible
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+        expect(find.byType(AspectRatio), findsOneWidget);
+      },
+    );
 
     testWidgets('skip button layout and positioning details', (
       WidgetTester tester,
@@ -181,11 +245,7 @@ void main() {
         ],
       );
 
-      await tester.pumpWidget(
-        MaterialApp.router(
-          routerConfig: router,
-        ),
-      );
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -193,10 +253,9 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
 
       // Find the skip button's Container using Image as the anchor
-      final containerFinder = find.ancestor(
-        of: find.byType(Image),
-        matching: find.byType(Container),
-      ).first;
+      final containerFinder = find
+          .ancestor(of: find.byType(Image), matching: find.byType(Container))
+          .first;
       expect(containerFinder, findsOneWidget);
 
       // Verify the skip button has the correct container styling and dimensions (70x70)
@@ -211,65 +270,59 @@ void main() {
 
       // Verify skip button positioning at bottom-right corner
       final positioned = tester.widget<Positioned>(
-        find.ancestor(
-          of: containerFinder,
-          matching: find.byType(Positioned),
-        ),
+        find.ancestor(of: containerFinder, matching: find.byType(Positioned)),
       );
       expect(positioned.bottom, equals(20));
       expect(positioned.right, equals(20));
     });
 
-    testWidgets('tapping skip button pauses video, fades, and navigates to login', (
-      WidgetTester tester,
-    ) async {
-      bool loginReached = false;
+    testWidgets(
+      'tapping skip button pauses video, fades, and navigates to login',
+      (WidgetTester tester) async {
+        bool loginReached = false;
 
-      final router = GoRouter(
-        initialLocation: '/splash',
-        routes: [
-          GoRoute(
-            path: '/splash',
-            builder: (context, state) => BlocProvider(
-              create: (_) => SplashCubit(),
-              child: DefaultAssetBundle(
-                bundle: FakeAssetBundle(),
-                child: const SplashPage(),
+        final router = GoRouter(
+          initialLocation: '/splash',
+          routes: [
+            GoRoute(
+              path: '/splash',
+              builder: (context, state) => BlocProvider(
+                create: (_) => SplashCubit(),
+                child: DefaultAssetBundle(
+                  bundle: FakeAssetBundle(),
+                  child: const SplashPage(),
+                ),
               ),
             ),
-          ),
-          GoRoute(
-            path: '/login',
-            builder: (context, state) {
-              loginReached = true;
-              return const Scaffold(body: Text('LOGIN_PAGE'));
-            },
-          ),
-        ],
-      );
+            GoRoute(
+              path: '/login',
+              builder: (context, state) {
+                loginReached = true;
+                return const Scaffold(body: Text('LOGIN_PAGE'));
+              },
+            ),
+          ],
+        );
 
-      await tester.pumpWidget(
-        MaterialApp.router(
-          routerConfig: router,
-        ),
-      );
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
 
-      // Verify we are not at login page yet
-      expect(loginReached, isFalse);
+        // Verify we are not at login page yet
+        expect(loginReached, isFalse);
 
-      // Tap skip button (the Image widget itself)
-      await tester.tap(find.byType(Image));
+        // Tap skip button (the Image widget itself)
+        await tester.tap(find.byType(Image));
 
-      // Pump to trigger the 600ms fade animation
-      await tester.pump(const Duration(milliseconds: 600));
-      // Pump one more frame to allow navigation transition to finalize
-      await tester.pumpAndSettle();
+        // Pump to trigger the 600ms fade animation
+        await tester.pump(const Duration(milliseconds: 600));
+        // Pump one more frame to allow navigation transition to finalize
+        await tester.pumpAndSettle();
 
-      // Verify that navigation succeeded and we reached the login route
-      expect(loginReached, isTrue);
-      expect(find.text('LOGIN_PAGE'), findsOneWidget);
-    });
+        // Verify that navigation succeeded and we reached the login route
+        expect(loginReached, isTrue);
+        expect(find.text('LOGIN_PAGE'), findsOneWidget);
+      },
+    );
   });
 }
