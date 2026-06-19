@@ -122,10 +122,8 @@ final appRouter = GoRouter(
     // Splash screen (entry point)
     GoRoute(
       path: '/splash',
-      builder: (context, state) => BlocProvider(
-        create: (_) => SplashCubit(),
-        child: const SplashPage(),
-      ),
+      builder: (context, state) =>
+          BlocProvider(create: (_) => SplashCubit(), child: const SplashPage()),
     ),
     ShellRoute(
       builder: (context, state, child) {
